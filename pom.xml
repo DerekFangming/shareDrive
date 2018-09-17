@@ -11,7 +11,7 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>com.greglturnquist</groupId>
+	<groupId>com.fmning</groupId>
 	<artifactId>shareDrive</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
