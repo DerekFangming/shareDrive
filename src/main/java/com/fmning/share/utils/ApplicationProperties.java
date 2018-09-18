@@ -9,6 +9,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @ConfigurationProperties
 @Configuration("applicationProperties")
+@Deprecated
 public class ApplicationProperties {
 	
     private String somekey;
