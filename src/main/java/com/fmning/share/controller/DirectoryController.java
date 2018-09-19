@@ -32,19 +32,18 @@ public class DirectoryController {
 		
 		if (dir.isFile()) {
 			return new ResponseList("Requested path is not a directory.");
+		} else if (!dir.isDirectory()) {
+			return new ResponseList("Requested path does not exist.");
+		} else if (dir.listFiles() == null) {
+			return new ResponseList("Internal server error.");
+		} else {
+			List<Shareable> fileList = new ArrayList<>();
+			for(File f : dir.listFiles()) {
+				fileList.add(new Shareable(f));
+			}
+
+			return new ResponseList(fileList);
 		}
-		boolean a = dir.isFile();
-		boolean b = dir.isDirectory();
-		File[] ff = dir.listFiles();
-		
-		System.out.println(payload);
-		
-		List<Shareable> fileList = new ArrayList<>();
-		for(File f : dir.listFiles()) {
-			fileList.add(new Shareable(f));
-		}
-		
-		return new ResponseList(fileList);
 	}
 	
 	@GetMapping("/hello1")

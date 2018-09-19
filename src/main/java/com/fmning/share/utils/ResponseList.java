@@ -5,9 +5,9 @@ import java.util.List;
 public class ResponseList {
 	
 	private String error;
-	private List<Object> objList;
+	private List<?> objList;
 	
-	public ResponseList(List<Object> objList) {
+	public ResponseList(List<?> objList) {
 		this.error = "";
 		this.objList = objList;
 	}
@@ -22,7 +22,7 @@ public class ResponseList {
 	public void setError(String error) {
 		this.error = error;
 	}
-	public List<Object> getObjList() {
+	public List<?> getObjList() {
 		return objList;
 	}
 	public void setObjList(List<Object> objList) {
