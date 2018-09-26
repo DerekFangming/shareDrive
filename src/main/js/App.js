@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import Header from './Header';
+import Header from './components/Header';
+import Container from './components/Container';
 
 class App extends Component {
 	render () {
 		return (
 			<div1>
 				<Header />
+				<Container />
 			</div1>
 		);
 	}
