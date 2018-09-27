@@ -20,7 +20,9 @@ class FileTable extends Component {
 		    	'Accept': 'application/json',
 		    	'Content-Type': 'application/json'
 		    },
-		    body: JSON.stringify({dir : '/Users/fangming.ning/Desktop'})
+		    // /Users/fangming.ning/Desktop
+		    // D:/Github/shareDrive
+		    body: JSON.stringify({dir : 'D:/Github/shareDrive'})
 		})
 		.then(function (response) {
 			if (response.status >= 400) {
@@ -35,20 +37,16 @@ class FileTable extends Component {
 		});
 	}
 	
-	
+	convertDate(secs)   {
+		return (new Date(secs)).toLocaleString();
+    }
 	
 	render () {
 		
-		const convertDate(secs)  = () => {
-			var t = new Date(1970, 0, 1);
-		    t.setSeconds(secs);
-		    return t;
-	    };
-		
 		var items = this.state.fileList.map(it =>
-			<tr>
+			<tr key={it.name}>
 				<td>{it.name}</td>
-				<td>{convertDate(it.lastModified)}</td>
+				<td>{this.convertDate(it.lastModified)}</td>
 				<td>1kb</td>
 			</tr>
 		);
@@ -59,7 +57,6 @@ class FileTable extends Component {
 					<small>Secondary Text</small>
 				</h1>
 				<table className="table table-hover">
-					<caption>List of users</caption>
 					<thead>
 						<tr>
 							<th style={{width:'70%'}}>Name</th>
@@ -69,21 +66,6 @@ class FileTable extends Component {
 					</thead>
 					<tbody>
 						{items}
-						<tr>
-							<td>Something.txt</td>
-							<td>2016/01/20</td>
-							<td>1kb</td>
-						</tr>
-						<tr>
-							<td>ahhahaha ha hjkasdhs sad askdh.doc</td>
-							<td>2016/01/20</td>
-							<td>3MB</td>
-						</tr>
-						<tr>
-							<td>dafjdks.mp3</td>
-							<td>2016/01/20</td>
-							<td>20TB</td>
-						</tr>
 					</tbody>
 				</table>
 			</div>
