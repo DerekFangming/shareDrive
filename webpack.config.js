@@ -21,5 +21,8 @@ module.exports = {
                 }
             }
         ]
+    },
+    externals: {
+    	'Config': JSON.stringify({serverUrl: "http://localhost:8088/api/"})
     }
 };
