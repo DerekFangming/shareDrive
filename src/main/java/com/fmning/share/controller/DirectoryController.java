@@ -39,7 +39,9 @@ public class DirectoryController {
 		} else {
 			List<Shareable> fileList = new ArrayList<>();
 			for(File f : dir.listFiles()) {
-				fileList.add(new Shareable(f));
+				if (!f.getName().startsWith(".")) {
+					fileList.add(new Shareable(f));
+				}
 			}
 
 			return new ResponseList(fileList);
