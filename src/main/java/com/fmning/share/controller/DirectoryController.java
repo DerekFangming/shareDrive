@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fmning.share.directory.Shareable;
+import com.fmning.share.response.DriveStatus;
+import com.fmning.share.response.Shareable;
 import com.fmning.share.utils.ResponseList;
 
 @RestController
@@ -48,12 +49,11 @@ public class DirectoryController {
 		}
 	}
 	
-	@GetMapping("/hello1")
-	public List<Employee> sayHello1() {
-		Employee e1 = new Employee("ddd", "fark", "a");
-		Employee e2 = new Employee("vvv", "fark", "a");
-		Employee e3 = new Employee("ccc", "fark", "a");
-		return Arrays.asList(e1, e2, e3);
+	@GetMapping("/get_drive_status")
+	public DriveStatus sayHello1() {
+		File root = new File(homeDir);
+		return new DriveStatus(root.getTotalSpace(), root.getUsableSpace());
 	}
+	
 
 }

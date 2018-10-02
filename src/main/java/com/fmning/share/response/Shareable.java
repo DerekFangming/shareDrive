@@ -1,4 +1,4 @@
-package com.fmning.share.directory;
+package com.fmning.share.response;
 
 import java.io.File;
 
@@ -34,11 +34,11 @@ public class Shareable {
 		this.path = path;
 	}
 
-	public boolean isFile() {
+	public boolean getIsFile() {
 		return isFile;
 	}
 
-	public void setFile(boolean isFile) {
+	public void setIsFile(boolean isFile) {
 		this.isFile = isFile;
 	}
 

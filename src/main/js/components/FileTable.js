@@ -6,7 +6,6 @@ class FileTable extends Component {
 	constructor() {
 	    super();
 	    this.state = {
-	    	//fileList: [{name: 'test.txt', path: 'haha', isFile: 'wtf', lastModified: 123}]
 	    	fileList: []
 	    };
 	}
@@ -20,9 +19,7 @@ class FileTable extends Component {
 		    	'Accept': 'application/json',
 		    	'Content-Type': 'application/json'
 		    },
-		    // /Users/fangming.ning/Desktop
-		    // D:/Github/shareDrive
-		    body: JSON.stringify({dir : 'D:/Github/shareDrive'})
+		    body: JSON.stringify({dir : Config.homeDir})
 		})
 		.then(function (response) {
 			if (response.status >= 400) {
@@ -31,6 +28,7 @@ class FileTable extends Component {
 			return response.json();
 		})
 		.then(function (data) {
+			data.objList.sort((a, b) => a.isFile == b.isFile ? 0 : a.isFile ? 1 : -1);
 			that.setState({
 				fileList: data.objList
 			});
@@ -58,7 +56,7 @@ class FileTable extends Component {
 			<tr key={it.name}>
 				<td>{it.name}</td>
 				<td>{this.convertDate(it.lastModified)}</td>
-				<td>{this.convertSize(it.size)}</td>
+				<td>{it.isFile ? this.convertSize(it.size) : '-'}</td>
 			</tr>
 		);
 		

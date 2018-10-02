@@ -16,14 +16,6 @@ public class LoginController {
 	@Value("${somekey}")
 	private String enableMocks;
 	
-	@GetMapping("/hello")
-	public List<Employee> sayHello() {
-		Employee e1 = new Employee("Addy", "fark", "a");
-		Employee e2 = new Employee("Bddy", "fark", "a");
-		Employee e3 = new Employee("Cddy", "fark", "a");
-		return Arrays.asList(e1, e2, e3);
-	}
-	
 	@GetMapping("/test")
 	public String sayHell1o() {
 		return enableMocks;

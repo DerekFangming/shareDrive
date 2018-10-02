@@ -5,7 +5,7 @@ import InfoTables from './InfoTables';
 
 const Container = () => {
 	return (
-		<div className="container">
+		<div className="container-fluid">
 			<div className="row mt-2">
 				<DirectoryPath />
 			</div>
