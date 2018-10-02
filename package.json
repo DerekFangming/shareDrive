@@ -19,7 +19,8 @@
   "dependencies": {
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "webpack": "^1.12.2"
+    "webpack": "^1.12.2",
+    "properties-reader": "0.0.16"
   },
   "scripts": {
     "watch": "webpack --watch -d"

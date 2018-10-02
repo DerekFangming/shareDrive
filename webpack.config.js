@@ -1,4 +1,7 @@
-var path = require('path');
+const path = require('path');
+const PropertiesReader = require('properties-reader');
+
+const appProperties = PropertiesReader('./src/main/resources/application.properties')._properties;
 
 module.exports = {
     entry: './src/main/js/app.js',
@@ -23,6 +26,6 @@ module.exports = {
         ]
     },
     externals: {
-    	'Config': JSON.stringify({serverUrl: "http://localhost:8088/api/"})
+    	'Config': JSON.stringify(appProperties)
     }
 };
