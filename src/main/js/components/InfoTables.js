@@ -1,15 +1,28 @@
 import React, {Component} from 'react';
+import {convertSize} from '../utils/Utils'
 
 class InfoTables extends Component {
+	
+	constructor() {
+	    super();
+	    this.state = {
+	    	totalSize: 0,
+	    	availableSize: 0,
+	    	ratio: '0%'
+	    };
+	}
+	
 	render () {
 		return (
 			<div className="col-md-4">
 				<div className="card my-4">
 					<h5 className="card-header">Storage</h5>
 					<div className="card-body">
-						<p className="card-text">400 GB of 600 GB used</p>
+						<p className="card-text">
+							{convertSize(this.state.totalSize - this.state.availableSize)} of {convertSize(this.state.totalSize)} used
+						</p>
 						<div className="progress">
-							<div className="progress-bar" role="progressbar" style={{width:'25%'}} aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+							<div className="progress-bar" role="progressbar" style={{width:`${this.state.ratio}%`}} aria-valuenow={this.state.ratio} aria-valuemin="0" aria-valuemax="100">{this.state.ratio}</div>
 						</div>
 					</div>
 				</div>

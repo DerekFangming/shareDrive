@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
+import {convertSize} from '../utils/Utils'
 
 class FileTable extends Component {
 	
@@ -42,21 +43,13 @@ class FileTable extends Component {
 		return (new Date(secs)).toLocaleString();
     }
 	
-	convertSize(bytes) {
-		const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-		let l = 0, n = parseInt(bytes, 10) || 0;
-		while(n >= 1024 && ++l)
-			n = n/1024;
-		return(n.toFixed(n >= 10 || l < 1 ? 0 : 1) + ' ' + units[l]);
-	}
-	
 	render () {
 		
 		var items = this.state.fileList.map(it =>
 			<tr key={it.name}>
 				<td>{it.name}</td>
 				<td>{this.convertDate(it.lastModified)}</td>
-				<td>{it.isFile ? this.convertSize(it.size) : '-'}</td>
+				<td>{it.isFile ? convertSize(it.size) : '-'}</td>
 			</tr>
 		);
 		
