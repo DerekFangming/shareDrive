@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import Config from 'Config';
 import {convertSize} from '../utils/Utils'
 
 class InfoTables extends Component {
@@ -8,21 +9,41 @@ class InfoTables extends Component {
 	    this.state = {
 	    	totalSize: 0,
 	    	availableSize: 0,
-	    	ratio: '0%'
+	    	ratio: '0'
 	    };
+	}
+	
+	componentDidMount() {
+		var that = this;
+		
+		fetch(Config.serverUrl + 'get_drive_status')
+		.then(function (response) {
+			if (response.status >= 400) {
+				throw new Error("Bad response from server");
+			}
+			return response.json();
+		})
+		.then(function (data) {
+			let ratioString = ((data.totalSize - data.availableSize) * 100 / data.totalSize).toFixed(2);;
+			that.setState({
+				totalSize: data.totalSize,
+				availableSize: data.availableSize,
+		    	ratio: ratioString
+			});
+		});
 	}
 	
 	render () {
 		return (
-			<div className="col-md-4">
+			<div className="col-md-3">
 				<div className="card my-4">
 					<h5 className="card-header">Storage</h5>
 					<div className="card-body">
 						<p className="card-text">
-							{convertSize(this.state.totalSize - this.state.availableSize)} of {convertSize(this.state.totalSize)} used
+							{convertSize(this.state.availableSize)} free of {convertSize(this.state.totalSize)}
 						</p>
 						<div className="progress">
-							<div className="progress-bar" role="progressbar" style={{width:`${this.state.ratio}%`}} aria-valuenow={this.state.ratio} aria-valuemin="0" aria-valuemax="100">{this.state.ratio}</div>
+							<div className="progress-bar" role="progressbar" style={{width:`${this.state.ratio + '%'}`}} aria-valuenow={this.state.ratio} aria-valuemin="0" aria-valuemax="100">{this.state.ratio} %</div>
 						</div>
 					</div>
 				</div>

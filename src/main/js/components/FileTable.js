@@ -54,7 +54,7 @@ class FileTable extends Component {
 		);
 		
 		return (
-			<div className="col-md-8">
+			<div className="col-md-9">
 				<h1 className="my-4">Page Heading
 					<small>Secondary Text</small>
 				</h1>
