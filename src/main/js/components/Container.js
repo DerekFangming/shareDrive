@@ -3,20 +3,25 @@ import DirectoryPath from './DirectoryPath';
 import FileTable from './FileTable';
 import InfoTables from './InfoTables';
 
-const Container = () => {
-	return (
-		<div className="container-fluid">
-			<div className="row mt-2">
-				<DirectoryPath />
-			</div>
-			
-			<div className="row">
-				<FileTable />
-				<InfoTables />
-			</div>
-			
-		</div>
-	)
+export default class Container extends Component {
+	
+	fileClickHandler = (value) => {
+		console.log(value.name);
+	}
+	
+	render () {
+		return (
+			<div className="container-fluid">
+				<div className="row mt-2">
+					<DirectoryPath />
+				</div>
+				
+				<div className="row">
+					<FileTable fileClickHandler={this.fileClickHandler}/>
+					<InfoTables />
+				</div>
+				
+			</div>)
+	}
+	
 }
-
-export default Container;

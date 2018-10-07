@@ -45,19 +45,9 @@ class FileTable extends Component {
 	
 	render () {
 		
-		var items = this.state.fileList.map(it =>
-			<tr key={it.name}>
-				<td>{it.name}</td>
-				<td>{this.convertDate(it.lastModified)}</td>
-				<td>{it.isFile ? convertSize(it.size) : '-'}</td>
-			</tr>
-		);
-		
 		return (
 			<div className="col-md-9">
-				<h1 className="my-4">Page Heading
-					<small>Secondary Text</small>
-				</h1>
+				<h2 className="my-4 ml-2"><small>Files</small></h2>
 				<table className="table table-hover">
 					<thead>
 						<tr>
@@ -67,7 +57,17 @@ class FileTable extends Component {
 						</tr>
 					</thead>
 					<tbody>
-						{items}
+						{this.state.fileList.map(file =>
+							<tr key={file.name} value={file.name}
+								onClick={ () =>
+									this.props.fileClickHandler(file)
+								}
+							>
+								<td>{file.name}</td>
+								<td>{this.convertDate(file.lastModified)}</td>
+								<td>{file.isFile ? convertSize(file.size) : '-'}</td>
+							</tr>
+						)}
 					</tbody>
 				</table>
 			</div>

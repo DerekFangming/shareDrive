@@ -47,7 +47,7 @@ class InfoTables extends Component {
 						</div>
 					</div>
 				</div>
-				<div className="card my-4">
+				<div className="card my-4 sticky-top">
 					<h5 className="card-header">Categories</h5>
 					<div className="card-body">
 						<div className="row">
