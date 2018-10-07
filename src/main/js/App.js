@@ -6,10 +6,10 @@ import Container from './components/Container';
 class App extends Component {
 	render () {
 		return (
-			<div1>
+			<div>
 				<Header />
 				<Container />
-			</div1>
+			</div>
 		);
 	}
 }

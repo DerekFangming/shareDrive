@@ -19,16 +19,18 @@
   "dependencies": {
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
-    "webpack": "^1.12.2",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
     "properties-reader": "0.0.16"
   },
   "scripts": {
     "watch": "webpack --watch -d"
   },
   "devDependencies": {
-    "babel-core": "^6.18.2",
-    "babel-loader": "^6.2.7",
-    "babel-preset-es2015": "^6.18.0",
-    "babel-preset-react": "^6.16.0"
+    "babel-loader": "^8.0.4",
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/plugin-proposal-class-properties": "^7.1.0"
   }
 }
