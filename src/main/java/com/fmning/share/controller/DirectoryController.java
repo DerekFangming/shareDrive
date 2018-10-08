@@ -2,7 +2,6 @@ package com.fmning.share.controller;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public class DirectoryController {
 		
 		String dirStr = (String)payload.get("dir");
 		
-		File dir = dirStr.equals("root") ? new File(homeDir) : new File(dirStr);
+		File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
 		
 		if (dir.isFile()) {
 			return new ResponseList("Requested path is not a directory.");
@@ -40,8 +39,8 @@ public class DirectoryController {
 		} else {
 			List<Shareable> fileList = new ArrayList<>();
 			for(File f : dir.listFiles()) {
-				if (!f.getName().startsWith(".")) {
-					fileList.add(new Shareable(f));
+				if (!f.isHidden()) {
+					fileList.add(new Shareable(f, homeDir));
 				}
 			}
 

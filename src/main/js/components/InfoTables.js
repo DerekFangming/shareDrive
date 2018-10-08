@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {convertSize} from '../utils/Utils'
+import {convertSize, convertDate, numberWithCommas} from '../utils/Utils'
 
 class InfoTables extends Component {
 	
@@ -33,9 +33,16 @@ class InfoTables extends Component {
 		});
 	}
 	
+	fileClickHandler = (clickedFile) => {
+		this.setState({
+			file: clickedFile
+		})
+	}
+	
 	render () {
 		return (
 			<div className="col-md-3">
+			
 				<div className="card my-4">
 					<h5 className="card-header">Storage</h5>
 					<div className="card-body">
@@ -47,39 +54,80 @@ class InfoTables extends Component {
 						</div>
 					</div>
 				</div>
+				
 				<div className="card my-4 sticky-top">
-					<h5 className="card-header">Categories</h5>
-					<div className="card-body">
-						<div className="row">
-							<div className="col-lg-6">
-								<ul className="list-unstyled mb-0">
-									<li>
-										<a href="#">Web Design</a>
-									</li>
-									<li>
-										<a href="#">HTML</a>
-									</li>
-									<li>
-										<a href="#">Freebies</a>
-									</li>
-								</ul>
-							</div>
-							<div className="col-lg-6">
-								<ul className="list-unstyled mb-0">
-									<li>
-										<a href="#">JavaScript</a>
-									</li>
-									<li>
-										<a href="#">CSS</a>
-									</li>
-									<li>
-										<a href="#">Tutorials</a>
-									</li>
-								</ul>
+					<h5 className="card-header">File Details</h5>
+					{this.state.file == undefined ? (
+						<div className="card-body">
+							<div className="row">
+								<div className="col">
+									<p className="card-text">Please select a file</p>
+								</div>
 							</div>
 						</div>
-					</div>
+					) : (
+						<div className="card-body">
+							<div className="row mb-1">
+								<div className="col-lg-3">
+									<p className="card-text">File name</p>
+								</div>
+								<div className="col-lg-9">
+									<p className="card-text">{this.state.file.name}</p>
+								</div>
+							</div>
+							
+							<div className="row my-1">
+								<div className="col-lg-3">
+									<p className="card-text">Type</p>
+								</div>
+								<div className="col-lg-9">
+									<p className="card-text">Something</p>
+								</div>
+							</div>
+
+							<div className="row my-1">
+								<div className="col-lg-3">
+									<p className="card-text">Size</p>
+								</div>
+								<div className="col-lg-9">
+									<p className="card-text">{convertSize(this.state.file.size) + '  (' + numberWithCommas(this.state.file.size) + ' Bytes)'}</p>
+								</div>
+							</div>
+
+							<div className="row my-1">
+								<div className="col-lg-3">
+									<p className="card-text">location</p>
+								</div>
+								<div className="col-lg-9">
+									<p className="card-text">{this.state.file.path}</p>
+								</div>
+							</div>
+
+							<div className="row my-1">
+								<div className="col-lg-3">
+									<p className="card-text">Modified</p>
+								</div>
+								<div className="col-lg-9">
+									<p className="card-text">{convertDate(this.state.file.lastModified)}</p>
+								</div>
+							</div>
+
+							<div className="row my-1">
+								<div className="col-lg-3">
+									<p className="card-text">Created</p>
+								</div>
+								<div className="col-lg-9">
+									<p className="card-text">{convertDate(this.state.file.created)}</p>
+								</div>
+							</div>
+							
+						</div>
+					)}
+						
+						
+					
 				</div>
+				
 			</div>
 		);
 	}

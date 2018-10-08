@@ -7,8 +7,15 @@ export const convertSize = (bytes) => {
 	while(n >= 1024 && ++l)
 		n = n/1024;
 	return(n.toFixed(n >= 10 || l < 1 ? 0 : 1) + ' ' + units[l]);
-};
+}
 
-export const testAlert = () => {
-	alert(1);
-};
+/**
+ * Convert seconds to formated date string
+ */
+export const convertDate = (secs) => {
+	return (new Date(secs)).toLocaleString();
+}
+
+export const numberWithCommas = (x) => {
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}

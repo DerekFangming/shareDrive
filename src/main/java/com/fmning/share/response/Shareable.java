@@ -1,21 +1,29 @@
 package com.fmning.share.response;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 
 public class Shareable {
 	
 	private String name;
 	private String path;
 	private boolean isFile;
+	private long created;
 	private long lastModified;
 	private long size;
 
-	public Shareable (File file) {
+	public Shareable (File file, String  homeDir) {
 		this.name = file.getName();
-		this.path = file.getPath();
+		this.path = file.getPath().replace("\\", "/").replaceFirst(homeDir, "");
 		this.isFile = file.isFile();
 		this.lastModified = file.lastModified();
 		this.size = file.length();
+		try {
+			BasicFileAttributes attr = Files.readAttributes(Paths.get(path), BasicFileAttributes.class);
+			this.created = attr.creationTime().toMillis();
+		} catch (Exception ignore) {}
 	}
 
 	public String getName() {
@@ -40,6 +48,14 @@ public class Shareable {
 
 	public void setIsFile(boolean isFile) {
 		this.isFile = isFile;
+	}
+	
+	public long getCreated() {
+		return created;
+	}
+
+	public void setCreated(long created) {
+		this.created = created;
 	}
 
 	public long getLastModified() {

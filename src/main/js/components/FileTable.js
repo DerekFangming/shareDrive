@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {convertSize} from '../utils/Utils'
+import {convertSize, convertDate} from '../utils/Utils'
 
 class FileTable extends Component {
 	
@@ -12,7 +12,20 @@ class FileTable extends Component {
 	}
 	
 	componentDidMount() {
-		var that = this;
+		this.loadFolder(null)
+	}
+	
+	loadFolder = (file) => {
+		var that = this
+		var requestedDir
+			
+		if (file == null) {
+			requestedDir = 'root'
+		} else if (file.isFile) {
+			return
+		} else {
+			requestedDir = file.path
+		}
 		
 		fetch(Config.serverUrl + 'get_files_in_directory', {
 			method: 'POST',
@@ -20,7 +33,7 @@ class FileTable extends Component {
 		    	'Accept': 'application/json',
 		    	'Content-Type': 'application/json'
 		    },
-		    body: JSON.stringify({dir : Config.homeDir})
+		    body: JSON.stringify({dir : requestedDir})
 		})
 		.then(function (response) {
 			if (response.status >= 400) {
@@ -35,13 +48,6 @@ class FileTable extends Component {
 			});
 		});
 	}
-	
-	/**
-	 * Convert seconds to formated date string
-	 */
-	convertDate(secs) {
-		return (new Date(secs)).toLocaleString();
-    }
 	
 	render () {
 		
@@ -60,11 +66,12 @@ class FileTable extends Component {
 						{this.state.fileList.map(file =>
 							<tr key={file.name} value={file.name}
 								onClick={ () =>
-									this.props.fileClickHandler(file)
+									{this.props.fileClickHandler(file.isFile ? file : null);
+									 this.loadFolder(file);}
 								}
 							>
 								<td>{file.name}</td>
-								<td>{this.convertDate(file.lastModified)}</td>
+								<td>{convertDate(file.lastModified)}</td>
 								<td>{file.isFile ? convertSize(file.size) : '-'}</td>
 							</tr>
 						)}

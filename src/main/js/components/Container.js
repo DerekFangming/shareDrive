@@ -5,8 +5,13 @@ import InfoTables from './InfoTables';
 
 export default class Container extends Component {
 	
-	fileClickHandler = (value) => {
-		console.log(value.name);
+	constructor() {
+		super();
+		this.infoTable = React.createRef();
+	}
+	
+	fileClickHandler = (file) => {
+		this.infoTable.current.fileClickHandler(file)
 	}
 	
 	render () {
@@ -18,10 +23,10 @@ export default class Container extends Component {
 				
 				<div className="row">
 					<FileTable fileClickHandler={this.fileClickHandler}/>
-					<InfoTables />
+					<InfoTables ref={this.infoTable}/>
 				</div>
-				
-			</div>)
+			</div>
+		)
 	}
 	
 }
