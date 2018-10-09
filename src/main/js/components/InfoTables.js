@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {convertSize, convertDate, numberWithCommas} from '../utils/Utils'
+import {convertSize, convertDate, numberWithCommas, getFileType} from '../utils/Utils';
+import Arrow from './Arrow';
 
-class InfoTables extends Component {
+export default class InfoTables extends Component {
 	
 	constructor() {
 	    super();
@@ -37,6 +38,18 @@ class InfoTables extends Component {
 		this.setState({
 			file: clickedFile
 		})
+	}
+	
+	createFilePath = (filePath) => {
+		let resultPath = ['Home'];
+		let filePathArray = filePath.split('/');
+		
+		for (let ind in filePathArray) {
+			resultPath.push(<Arrow />);
+			resultPath.push(filePathArray[ind]);
+		}
+		
+		return (<div>{resultPath}</div>)
 	}
 	
 	render () {
@@ -81,7 +94,7 @@ class InfoTables extends Component {
 									<p className="card-text">Type</p>
 								</div>
 								<div className="col-lg-9">
-									<p className="card-text">Something</p>
+									<p className="card-text">{getFileType(this.state.file.path)}</p>
 								</div>
 							</div>
 
@@ -96,10 +109,10 @@ class InfoTables extends Component {
 
 							<div className="row my-1">
 								<div className="col-lg-3">
-									<p className="card-text">location</p>
+									<p className="card-text">Location</p>
 								</div>
 								<div className="col-lg-9">
-									<p className="card-text">{this.state.file.path}</p>
+									{this.createFilePath(this.state.file.path)}
 								</div>
 							</div>
 
@@ -123,8 +136,6 @@ class InfoTables extends Component {
 							
 						</div>
 					)}
-						
-						
 					
 				</div>
 				
@@ -132,6 +143,4 @@ class InfoTables extends Component {
 		);
 	}
 }
-
-export default InfoTables;
 

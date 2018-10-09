@@ -14,14 +14,14 @@ public class Shareable {
 	private long lastModified;
 	private long size;
 
-	public Shareable (File file, String  homeDir) {
+	public Shareable (File file, String homeDir) {
 		this.name = file.getName();
 		this.path = file.getPath().replace("\\", "/").replaceFirst(homeDir, "");
 		this.isFile = file.isFile();
 		this.lastModified = file.lastModified();
 		this.size = file.length();
 		try {
-			BasicFileAttributes attr = Files.readAttributes(Paths.get(path), BasicFileAttributes.class);
+			BasicFileAttributes attr = Files.readAttributes(Paths.get(homeDir + path), BasicFileAttributes.class);
 			this.created = attr.creationTime().toMillis();
 		} catch (Exception ignore) {}
 	}

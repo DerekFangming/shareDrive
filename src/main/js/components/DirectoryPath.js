@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-class DirectoryPath extends Component {
+export default class DirectoryPath extends Component {
 	render () {
 		return (
 			<div className="col-md-12">
@@ -17,6 +17,3 @@ class DirectoryPath extends Component {
 		);
 	}
 }
-
-export default DirectoryPath;
-

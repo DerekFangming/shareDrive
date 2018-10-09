@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import {convertSize, convertDate} from '../utils/Utils'
 
-class FileTable extends Component {
+export default class FileTable extends Component {
 	
 	constructor() {
 	    super();
@@ -81,6 +81,4 @@ class FileTable extends Component {
 		);
 	}
 }
-
-export default FileTable;
 

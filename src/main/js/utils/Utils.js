@@ -13,9 +13,33 @@ export const convertSize = (bytes) => {
  * Convert seconds to formated date string
  */
 export const convertDate = (secs) => {
-	return (new Date(secs)).toLocaleString();
+	return secs == 0 ? ' - ' : (new Date(secs)).toLocaleString();
 }
 
 export const numberWithCommas = (x) => {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+export const getFileType = (fileName) => {
+	console.log(fileName);
+	let type = 'Unknown';
+	let names = fileName.split('.');
+	
+	if (names.length == 0) {
+		return type;
+	} else {
+		type = names[names.length - 1].toUpperCase();
+		if (['TIF', 'JPG', 'GIF', 'PNG'].includes(type)) {
+			return type + ' image';
+		} else if (['DOC', 'DOCX', 'HTML', 'HTM', 'ODT', 'ODS', 'PDF', 'XLS', 'XLSX', 'CSV', 'PPT', 'PPTX', 'TXT'].includes(type)) {
+			return type + ' document';
+		} else if (['AAC', 'AAX', 'ACT', 'AIFF', 'FLAC', 'M4A', 'M4B', 'M4P', 'MP3', 'WAV ', 'WMA'].includes(type)) {
+			return type + ' audio';
+		} else if (['WEBM', 'MKV', 'FLV', 'AVI', 'MOV', 'QT', 'WMV', 'RM', 'RMVB', 'ASF',
+			'AMV', 'MP4', 'M4P', 'MPG', 'MPEG', 'M4V', '3GP', 'F4V', 'F4P'].includes(type)) {
+			return type + ' video';
+		} else {
+			return type + ' file';
+		}
+	}
 }

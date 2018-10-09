@@ -23,6 +23,19 @@ module.exports = {
                     	     {'plugins': ['@babel/plugin-proposal-class-properties']}
                              ]
                 }
+            },
+            {
+            	test: /\.(png|jpg|gif)$/,
+                use: [
+                	{
+	                    loader: 'file-loader',
+	                    options: {
+	                    	name: '[name].[ext]',
+	                        outputPath: 'src/main/resources/static/built',
+	                        publicPath: 'built/'
+                    	}
+                	}
+                ]
             }
         ]
     },
