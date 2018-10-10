@@ -7,18 +7,20 @@ export default class Container extends Component {
 	
 	constructor() {
 		super();
+		this.dirPath = React.createRef();
 		this.infoTable = React.createRef();
 	}
 	
 	fileClickHandler = (file) => {
-		this.infoTable.current.fileClickHandler(file)
+		this.dirPath.current.createFilePath(file.path);
+		this.infoTable.current.fileClickHandler(file);
 	}
 	
 	render () {
 		return (
 			<div className="container-fluid">
 				<div className="row mt-2">
-					<DirectoryPath />
+					<DirectoryPath ref={this.dirPath}/>
 				</div>
 				
 				<div className="row">
