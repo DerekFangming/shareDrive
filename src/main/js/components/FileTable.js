@@ -53,7 +53,7 @@ export default class FileTable extends Component {
 		
 		return (
 			<div className="col-md-9">
-				<h2 className="my-4 ml-2"><small>Files</small></h2>
+				<h2 className="mb-4 ml-2"><small>Files</small></h2>
 				<table className="table table-hover">
 					<thead>
 						<tr>
@@ -66,7 +66,7 @@ export default class FileTable extends Component {
 						{this.state.fileList.map(file =>
 							<tr key={file.name} value={file.name}
 								onClick={ () =>
-									{this.props.fileClickHandler(file.isFile ? file : null);
+									{this.props.fileClickHandler(file);
 									 this.loadFolder(file);}
 								}
 							>

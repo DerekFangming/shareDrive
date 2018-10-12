@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import {convertSize, convertDate, numberWithCommas, getFileType} from '../utils/Utils';
 import Arrow from './Arrow';
+import download from 'downloadjs';
 
 export default class InfoTables extends Component {
 	
@@ -50,6 +51,34 @@ export default class InfoTables extends Component {
 		}
 		
 		return (<div>{resultPath}</div>)
+	}
+	
+	downloadSelectedFile = () => {
+		if (this.state.file == undefined) return;
+		
+		  return fetch(Config.serverUrl + 'download_file')
+		  .then(function(resp) {
+		    return resp.blob();
+		  }).then(function(blob) {
+		    download(blob);
+		  });
+		
+//		fetch(Config.serverUrl + 'get_drive_status')
+//		.then(function (response) {
+//			if (response.status >= 400) {
+//				throw new Error("Bad response from server");
+//			}
+//			return response.json();
+//		})
+//		.then(function (data) {
+//			let ratioString = ((data.totalSize - data.availableSize) * 100 / data.totalSize).toFixed(2);;
+//			that.setState({
+//				totalSize: data.totalSize,
+//				availableSize: data.availableSize,
+//		    	ratio: ratioString
+//			});
+//		});
+		
 	}
 	
 	render () {
@@ -133,6 +162,8 @@ export default class InfoTables extends Component {
 									<p className="card-text">{convertDate(this.state.file.created)}</p>
 								</div>
 							</div>
+							
+							<button type="button" className="btn btn-outline-primary" onClick={this.downloadSelectedFile}>Download</button>
 							
 						</div>
 					)}

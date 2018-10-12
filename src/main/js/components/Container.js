@@ -12,8 +12,8 @@ export default class Container extends Component {
 	}
 	
 	fileClickHandler = (file) => {
-		this.dirPath.current.createFilePath(file.path);
-		this.infoTable.current.fileClickHandler(file);
+		this.dirPath.current.createFilePath(file);
+		this.infoTable.current.fileClickHandler(file.isFile ? file : null);
 	}
 	
 	render () {

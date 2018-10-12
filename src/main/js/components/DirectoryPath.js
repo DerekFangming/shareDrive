@@ -6,11 +6,14 @@ export default class DirectoryPath extends Component {
 	constructor() {
 	    super();
 	    this.state = {
-	    	path: <a className="nav-link px-1" href="#">Home</a>
+	    	path: <nav className="nav nav-pills align-items-center"><a className="nav-link px-1" href="#">Home</a></nav>
 	    };
 	}
 	
-	createFilePath = (filePath) => {
+	createFilePath = (file) => {
+		if (file.isFile) return;
+		
+		let filePath = file.path;
 		let resultPath = [<a className="nav-link px-1" href="#">Home</a>];
 		let filePathArray = filePath.split('/');
 		
@@ -19,15 +22,15 @@ export default class DirectoryPath extends Component {
 			resultPath.push(<a className="nav-link px-1" href="#">{filePathArray[ind]}</a>);
 		}
 		
-		return (<div>{resultPath}</div>)
+		this.setState({
+			path: <nav className="nav nav-pills align-items-center">{resultPath}</nav>
+		})
 	}
 	
 	render () {
 		return (
 			<div className="col-md-12">
-				<nav className="nav nav-pills">
-					{this.state.path}
-				</nav>
+				{this.state.path}
 			</div>
 		);
 	}
