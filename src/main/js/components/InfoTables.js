@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import {convertSize, convertDate, numberWithCommas, getFileType} from '../utils/Utils';
 import Arrow from './Arrow';
+import {LoadingStatus} from '../utils/Enums';
 import download from 'downloadjs';
 
 export default class InfoTables extends Component {
@@ -58,9 +59,9 @@ export default class InfoTables extends Component {
 		
 		  return fetch(Config.serverUrl + 'download_file')
 		  .then(function(resp) {
-		    return resp.blob();
-		  }).then(function(blob) {
-		    download(blob);
+			  console.log(resp.status);
+			  console.log(LoadingStatus.Loaded);
+//		    return resp.blob();
 		  });
 		
 //		fetch(Config.serverUrl + 'get_drive_status')
