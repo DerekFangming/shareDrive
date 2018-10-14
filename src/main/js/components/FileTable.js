@@ -70,21 +70,7 @@ export default class FileTable extends Component {
 		});
 	}
 	
-	somefunc = () => {
-//		this.state.fileList.map(file =>
-//		<tr key={file.name} value={file.name}
-//			onClick={ () =>
-//				{this.props.fileClickHandler(file);
-//				 this.loadFolder(file);}
-//			}
-//		>
-//			<td>{file.name}</td>
-//			<td>{convertDate(file.lastModified)}</td>
-//			<td>{file.isFile ? convertSize(file.size) : '-'}</td>
-//		</tr>
-//	)
-//	}
-	}
+
 	
 	render () {
 		
@@ -99,22 +85,32 @@ export default class FileTable extends Component {
 							<th style={{width:'10%'}}>Size</th>
 						</tr>
 					</thead>
-					<tbody>
-						{(() => {
-							switch (this.state.loadingStatus) {
-								case LoadingStatus.Loading:
-									return (
-										<tr><td colspan="3"> <span className="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span> </td></tr>
-									)
-								case LoadingStatus.Error:
-									return (
-										<tr><td colspan="3"> Something is wrong! </td></tr>
-									)
-								case LoadingStatus.Loaded:
-									return (
+					
+					{(() => {
+						switch (this.state.loadingStatus) {
+							case LoadingStatus.Loading:
+								return (
+									<tbody>
 										<tr>
+											<td colspan="3">
+												<div className="row">
+													<div className="col">
+														<span className="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span>
+													</div>
+													<div className="col">
+														<h4 className="float-left">Loading ...</h4>
+													</div>
+												</div>
+											</td>
+										</tr>
+									</tbody>
+								)
+							case LoadingStatus.Error:
+								return (
+									<tbody>
+										<tr onClick={() => this.loadFolder(null)}>
 											<td className="text-center" colspan="3">
-												<div className="alert alert-warning" role="alert">
+												<div className="alert alert-warning cursor-pointer" role="alert">
 													<h4 className="alert-heading">Error</h4>
 													<p>Something went wrong while loading the directory. {this.state.loadingMsg}</p>
 													<hr></hr>
@@ -122,14 +118,31 @@ export default class FileTable extends Component {
 												</div>
 											</td>
 										</tr>
+									</tbody>
 									)
-							}
-						})()}
+							case LoadingStatus.Loaded:
+								return (
+									<tbody>
+										{this.state.fileList.map(file =>
+											<tr key={file.name} value={file.name}
+												onClick={ () =>
+													{this.props.fileClickHandler(file);
+													 this.loadFolder(file);}
+												}
+											>
+												<td>{file.name}</td>
+												<td>{convertDate(file.lastModified)}</td>
+												<td>{file.isFile ? convertSize(file.size) : '-'}</td>
+											</tr>
+										)}
+									</tbody>
+								)
+						}
+					})()}
 						
 						
 							
 
-					</tbody>
 				</table>
 				
 			</div>

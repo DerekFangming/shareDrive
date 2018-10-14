@@ -12,6 +12,10 @@ public class DriveStatus {
 		error = "";
 	}
 	
+	public DriveStatus(String error) {
+		this.error = error;
+	}
+
 	public long getTotalSize() {
 		return totalSize;
 	}

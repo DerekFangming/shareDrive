@@ -30,6 +30,8 @@ public class DirectoryController {
 		
 		File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
 		
+		System.out.println(dir.getPath());
+		
 		if (dir.isFile()) {
 			return new ResponseList("Requested path is not a directory.");
 		} else if (!dir.isDirectory()) {

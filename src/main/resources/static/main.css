@@ -1,3 +1,7 @@
 tr {
 	cursor: default;
 }
+
+.cursor-pointer {
+	cursor: pointer;
+}

@@ -12,27 +12,48 @@ export default class InfoTables extends Component {
 	    this.state = {
 	    	totalSize: 0,
 	    	availableSize: 0,
-	    	ratio: '0'
+	    	ratio: '0',
+	    	loadingStatus: LoadingStatus.Loading
 	    };
 	}
 	
 	componentDidMount() {
+		this.loadStorageInfo()
+	}
+	
+	loadStorageInfo = () => {
 		var that = this;
+		
+		this.setState({
+			loadingStatus: LoadingStatus.Loading
+		});
 		
 		fetch(Config.serverUrl + 'get_drive_status')
 		.then(function (response) {
-			if (response.status >= 400) {
-				throw new Error("Bad response from server");
+			if (response.status == 200) {
+				response.json().then(function(json) {
+					if (json.error == '') {
+						let ratioString = ((json.totalSize - json.availableSize) * 100 / json.totalSize).toFixed(2);;
+						that.setState({
+							totalSize: json.totalSize,
+							availableSize: json.availableSize,
+					    	ratio: ratioString,
+					    	loadingStatus: LoadingStatus.Loaded
+						});
+					} else {
+						that.setState({
+							loadingStatus: LoadingStatus.Error,
+							loadingMsg: json.error
+						});
+					}
+				})
+				
+			} else {
+				that.setState({
+					loadingStatus: LoadingStatus.Error,
+					loadingMsg: 'Internal server error. Please try again later'
+				});
 			}
-			return response.json();
-		})
-		.then(function (data) {
-			let ratioString = ((data.totalSize - data.availableSize) * 100 / data.totalSize).toFixed(2);;
-			that.setState({
-				totalSize: data.totalSize,
-				availableSize: data.availableSize,
-		    	ratio: ratioString
-			});
 		});
 	}
 	
@@ -88,14 +109,52 @@ export default class InfoTables extends Component {
 			
 				<div className="card my-4">
 					<h5 className="card-header">Storage</h5>
-					<div className="card-body">
-						<p className="card-text">
-							{convertSize(this.state.availableSize)} free of {convertSize(this.state.totalSize)}
-						</p>
-						<div className="progress">
-							<div className="progress-bar" role="progressbar" style={{width:`${this.state.ratio + '%'}`}} aria-valuenow={this.state.ratio} aria-valuemin="0" aria-valuemax="100">{this.state.ratio} %</div>
-						</div>
-					</div>
+					
+					{(() => {
+						switch (this.state.loadingStatus) {
+							case LoadingStatus.Loading:
+								return (
+									<div className="card-body">
+										<div className="row">
+											<div className="col-md-5">
+												<span className="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span>
+											</div>
+											<div className="col-md-7">
+												<h4 className="float-left">Loading ...</h4>
+											</div>
+										</div>
+									</div>
+								)
+								
+							case LoadingStatus.Error:
+								return (
+									<div className="card-body">
+										<div onClick={() => this.loadStorageInfo()} className="alert alert-warning text-center cursor-pointer" role="alert">
+											<h4 className="alert-heading">Error</h4>
+											<p>Something went wrong while loading the directory. {this.state.loadingMsg}</p>
+											<hr></hr>
+											<p><span className="fa fa-refresh fa-1x fa-fw pr-4"></span> Click here to refresh</p>
+										</div>
+									</div>
+								)
+								
+							case LoadingStatus.Loaded:
+								return (
+									<div className="card-body">
+										<p className="card-text">
+											{convertSize(this.state.availableSize)} free of {convertSize(this.state.totalSize)}
+										</p>
+										<div className="progress">
+											<div className="progress-bar" role="progressbar" style={{width:`${this.state.ratio + '%'}`}} aria-valuenow={this.state.ratio} aria-valuemin="0" aria-valuemax="100">{this.state.ratio} %</div>
+										</div>
+									</div>
+								)
+						}
+							
+					})()}
+					
+					
+					
 				</div>
 				
 				<div className="card my-4 sticky-top">
@@ -112,7 +171,7 @@ export default class InfoTables extends Component {
 						<div className="card-body">
 							<div className="row mb-1">
 								<div className="col-lg-3">
-									<p className="card-text">File name</p>
+									<p className="card-text font-weight-bold">Name</p>
 								</div>
 								<div className="col-lg-9">
 									<p className="card-text">{this.state.file.name}</p>
@@ -121,7 +180,7 @@ export default class InfoTables extends Component {
 							
 							<div className="row my-1">
 								<div className="col-lg-3">
-									<p className="card-text">Type</p>
+									<p className="card-text font-weight-bold">Type</p>
 								</div>
 								<div className="col-lg-9">
 									<p className="card-text">{getFileType(this.state.file.path)}</p>
@@ -130,7 +189,7 @@ export default class InfoTables extends Component {
 
 							<div className="row my-1">
 								<div className="col-lg-3">
-									<p className="card-text">Size</p>
+									<p className="card-text font-weight-bold">Size</p>
 								</div>
 								<div className="col-lg-9">
 									<p className="card-text">{convertSize(this.state.file.size) + '  (' + numberWithCommas(this.state.file.size) + ' Bytes)'}</p>
@@ -139,7 +198,7 @@ export default class InfoTables extends Component {
 
 							<div className="row my-1">
 								<div className="col-lg-3">
-									<p className="card-text">Location</p>
+									<p className="card-text font-weight-bold">Location</p>
 								</div>
 								<div className="col-lg-9">
 									{this.createFilePath(this.state.file.path)}
@@ -148,7 +207,7 @@ export default class InfoTables extends Component {
 
 							<div className="row my-1">
 								<div className="col-lg-3">
-									<p className="card-text">Modified</p>
+									<p className="card-text font-weight-bold">Modified</p>
 								</div>
 								<div className="col-lg-9">
 									<p className="card-text">{convertDate(this.state.file.lastModified)}</p>
@@ -157,7 +216,7 @@ export default class InfoTables extends Component {
 
 							<div className="row my-1">
 								<div className="col-lg-3">
-									<p className="card-text">Created</p>
+									<p className="card-text font-weight-bold">Created</p>
 								</div>
 								<div className="col-lg-9">
 									<p className="card-text">{convertDate(this.state.file.created)}</p>

@@ -30,7 +30,7 @@ public class FileController {
 //		FileCopyUtils.copy(is, response.getOutputStream());
 //		response.flushBuffer();
 		
-		File file = new File(homeDir + "7Sense 【福小靓】七朵   落花情 镜面放慢分段舞蹈教学超清版.mp4");
+		File file = new File(homeDir + "7Sense 【福小靓】七朵   落花情 镜面放慢分段舞蹈教学超清版.mp4jk");
 		
 		String mimeType= URLConnection.guessContentTypeFromName(file.getName());
         if (mimeType == null) mimeType = "application/octet-stream";
