@@ -32,7 +32,6 @@
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "file-loader": "^2.0.0",
-    "downloadjs": "^1.4.7"
+    "file-loader": "^2.0.0"
   }
 }

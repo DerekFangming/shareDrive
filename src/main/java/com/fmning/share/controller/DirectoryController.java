@@ -27,10 +27,9 @@ public class DirectoryController {
 	public ResponseList getFiles(@RequestBody Map<String, Object> payload) {
 		
 		String dirStr = (String)payload.get("dir");
+		if (dirStr == null) return new ResponseList("The request is not complete");
 		
 		File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
-		
-		System.out.println(dir.getPath());
 		
 		if (dir.isFile()) {
 			return new ResponseList("Requested path is not a directory.");

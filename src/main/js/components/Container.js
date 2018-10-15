@@ -20,6 +20,7 @@ export default class Container extends Component {
 	dirPathClickHandler = (path) => {
 		let file = path == null ? null : {isFile: false, path: path}
 		this.fileTable.current.loadFolder(file);
+		this.infoTable.current.fileClickHandler(null);
 	}
 	
 	render () {

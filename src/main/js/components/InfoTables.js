@@ -3,7 +3,6 @@ import Config from 'Config';
 import {convertSize, convertDate, numberWithCommas, getFileType} from '../utils/Utils';
 import Arrow from './Arrow';
 import {LoadingStatus} from '../utils/Enums';
-import download from 'downloadjs';
 
 export default class InfoTables extends Component {
 	
@@ -13,7 +12,11 @@ export default class InfoTables extends Component {
 	    	totalSize: 0,
 	    	availableSize: 0,
 	    	ratio: '0',
-	    	loadingStatus: LoadingStatus.Loading
+	    	loadingStatus: LoadingStatus.Loading,
+	    	renaming: false,
+	    	newName: '',
+	    	submittingName: false,
+	    	fileErrMsg: ''
 	    };
 	}
 	
@@ -77,30 +80,45 @@ export default class InfoTables extends Component {
 	
 	downloadSelectedFile = () => {
 		if (this.state.file == undefined) return;
+		window.open(Config.serverUrl + 'download_file?file=' + this.state.file.path)
+	}
+	
+	renameSelectedFile = () => {
+		if (this.state.file == undefined) return;
+		var that = this
+		that.setState({
+			submittingName: true, fileErrMsg: ''
+		});
 		
-		  return fetch(Config.serverUrl + 'download_file')
-		  .then(function(resp) {
-			  console.log(resp.status);
-			  console.log(LoadingStatus.Loaded);
-//		    return resp.blob();
-		  });
-		
-//		fetch(Config.serverUrl + 'get_drive_status')
-//		.then(function (response) {
-//			if (response.status >= 400) {
-//				throw new Error("Bad response from server");
-//			}
-//			return response.json();
-//		})
-//		.then(function (data) {
-//			let ratioString = ((data.totalSize - data.availableSize) * 100 / data.totalSize).toFixed(2);;
-//			that.setState({
-//				totalSize: data.totalSize,
-//				availableSize: data.availableSize,
-//		    	ratio: ratioString
-//			});
-//		});
-		
+		fetch(Config.serverUrl + 'rename_file', {
+			method: 'POST',
+		    headers: {
+		    	'Accept': 'application/json',
+		    	'Content-Type': 'application/json'
+		    },
+		    body: JSON.stringify({filePath : this.state.file.path, name : this.state.newName})
+		})
+		.then(function (response) {
+			if (response.status == 200) {
+				response.json().then(function(json) {
+					if (json.error == '') {
+						that.setState({
+							submittingName: false, fileErrMsg: '', renaming : false
+						});
+						//reload
+					} else {
+						that.setState({
+							submittingName: false, fileErrMsg: json.error
+						});
+					}
+				})
+				
+			} else {
+				that.setState({
+					submittingName: false, fileErrMsg: 'Internal server error. Please try again later'
+				});
+			}
+		});
 	}
 	
 	render () {
@@ -223,7 +241,53 @@ export default class InfoTables extends Component {
 								</div>
 							</div>
 							
-							<button type="button" className="btn btn-outline-primary" onClick={this.downloadSelectedFile}>Download</button>
+							<hr></hr>
+							
+							{this.state.fileErrMsg == '' ? (
+								<div></div>
+							) : (
+								<div className="row my-1 text-center">
+									<div className="col">
+										<div className="alert alert-danger" role="alert">{this.state.fileErrMsg}</div>
+									</div>
+								</div>
+							)}
+							
+							{this.state.renaming ? (
+								<div className="row my-1 text-center">
+									<div className="col">
+										<div className="input-group">
+											<input type="text" className="form-control" placeholder="Enter new file name" 
+												onChange={(e) => this.setState({newName: e.target.value}) } disabled={this.state.submittingName? "disabled" : ""}></input>
+											{ this.state.submittingName ? (
+												<div className="input-group-append">
+													<button className="btn btn-success disabled" type="button"><span className="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span></button>
+												</div>
+											) : (
+												<div className="input-group-append">
+													<button className="btn btn-success" type="button" onClick={this.renameSelectedFile} >Save</button>
+													<button className="btn btn-secondary" type="button" onClick={() => this.setState({renaming : false})}>Cancel</button>
+												</div>
+											)}
+										</div>
+									</div>
+								</div>
+							) : (
+								<div className="row my-1 text-center">
+									<div className="col-md-3 col-sm-6 px-1">
+										<button type="button" className="btn btn-outline-primary btn-block" onClick={this.downloadSelectedFile}>Download</button>
+									</div>
+									<div className="col-md-3 col-sm-6 px-1">
+										<button type="button" className="btn btn-outline-primary btn-block" onClick={() => this.setState({renaming : true}) }>Rename</button>
+									</div>
+									<div className="col-md-3 col-sm-6 px-1">
+										<button type="button" className="btn btn-outline-primary btn-block" onClick={this.downloadSelectedFile}>Move</button>
+									</div>
+									<div className="col-md-3 col-sm-6 px-1">
+										<button type="button" className="btn btn-outline-danger btn-block" onClick={this.downloadSelectedFile}>Delete</button>
+									</div>
+								</div>
+							)}
 							
 						</div>
 					)}

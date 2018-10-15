@@ -21,7 +21,6 @@ export const numberWithCommas = (x) => {
 }
 
 export const getFileType = (fileName) => {
-	console.log(fileName);
 	let type = 'Unknown';
 	let names = fileName.split('.');
 	
