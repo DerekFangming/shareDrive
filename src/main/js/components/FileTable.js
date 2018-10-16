@@ -70,7 +70,20 @@ export default class FileTable extends Component {
 		});
 	}
 	
-
+	fileRenameHandler = (oldFile, newFile) => {
+		let index = this.state.fileList.findIndex((f) => {
+			return f.path == oldFile.path
+		});
+		
+		if (index != -1) {
+			let newFileList = this.state.fileList.slice()
+			newFileList[index] = newFile
+			
+			this.setState({
+				fileList: newFileList
+			});
+		}
+	}
 	
 	render () {
 		

@@ -7,12 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fmning.share.response.FileDownloadResult;
 import com.fmning.share.response.FileRenameResult;
-import com.fmning.share.response.Shareable;
-import com.fmning.share.utils.ResponseList;
 
 @RestController
 @RequestMapping("/api")
@@ -64,19 +61,45 @@ public class FileController {
 	@PostMapping("/rename_file")
 	public FileRenameResult renameFile(@RequestBody Map<String, Object> payload) throws InterruptedException {
 		
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 		
 		String filePath = (String)payload.get("filePath");
 		String newName = (String)payload.get("name");
 		if (filePath == null || newName == null) return new FileRenameResult("The request is not complete");
 		
-		File oldFile = new File(homeDir + filePath);
-		//File newFile = new File()
-
-		System.out.println("old: " + filePath);
-		System.out.println("new: " + oldFile.getPath() + newName);
+		newName = newName.trim();
+		if (newName.length() == 0) return new FileRenameResult("File name cannot be empty");
 		
-		return new FileRenameResult("");
+		if (newName.matches(".*[/\n\r\t\0\f`?*\\<>|\":].*")) return new FileRenameResult("File name cannot contain characters like / ` ? * \\ < > | \" :");
+		
+		File previousFile = new File(homeDir + filePath);		
+		String previousExt = FilenameUtils.getExtension(previousFile.getPath());
+		String newExt = FilenameUtils.getExtension(newName);
+		
+		if (!newExt.equals("") && !previousExt.toLowerCase().equals(newExt.toLowerCase())) {
+			return new FileRenameResult("Cannot modify file extension. Please enter either the new name without file extension, or new name with the same extension");
+		}
+		
+		if (!newExt.equals("")) {
+			StringBuilder sb = new StringBuilder(newName);
+			sb.replace(newName.lastIndexOf(newExt), newName.lastIndexOf(newExt) + newExt.length(), previousExt );
+			newName = sb.toString();
+		} else {
+			newName += '.' + previousExt;
+		}
+		
+		String newPath = previousFile.getParent() + '/' + newName;
+		
+		if (newPath.equals(homeDir + filePath)) return new FileRenameResult("File name is the same as before");
+		
+		File newFile = new File(newPath);
+		if (newFile.exists()) return new FileRenameResult("There is already a file in the directory called " + newName);
+		
+		if (previousFile.renameTo(newFile)) {
+			return new FileRenameResult(newFile, homeDir);
+		} else {
+			return new FileRenameResult("Internal Server error. Please try again later");
+		}
 	}
 
 }

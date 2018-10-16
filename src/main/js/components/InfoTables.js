@@ -85,6 +85,7 @@ export default class InfoTables extends Component {
 	
 	renameSelectedFile = () => {
 		if (this.state.file == undefined) return;
+		
 		var that = this
 		that.setState({
 			submittingName: true, fileErrMsg: ''
@@ -102,8 +103,10 @@ export default class InfoTables extends Component {
 			if (response.status == 200) {
 				response.json().then(function(json) {
 					if (json.error == '') {
+						that.props.fileRenameHandler(that.state.file, json.file)
 						that.setState({
-							submittingName: false, fileErrMsg: '', renaming : false
+							submittingName: false, fileErrMsg: '', renaming : false,
+							file : json.file
 						});
 						//reload
 					} else {
@@ -258,7 +261,10 @@ export default class InfoTables extends Component {
 									<div className="col">
 										<div className="input-group">
 											<input type="text" className="form-control" placeholder="Enter new file name" 
-												onChange={(e) => this.setState({newName: e.target.value}) } disabled={this.state.submittingName? "disabled" : ""}></input>
+												onChange={(e) => this.setState({newName: e.target.value}) } disabled={this.state.submittingName? "disabled" : ""}
+												onKeyPress={(e) => {
+													if (e.key === 'Enter') this.renameSelectedFile()
+												}}></input>
 											{ this.state.submittingName ? (
 												<div className="input-group-append">
 													<button className="btn btn-success disabled" type="button"><span className="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span></button>
@@ -275,16 +281,16 @@ export default class InfoTables extends Component {
 							) : (
 								<div className="row my-1 text-center">
 									<div className="col-md-3 col-sm-6 px-1">
-										<button type="button" className="btn btn-outline-primary btn-block" onClick={this.downloadSelectedFile}>Download</button>
+										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={this.downloadSelectedFile}>Download</button>
 									</div>
 									<div className="col-md-3 col-sm-6 px-1">
-										<button type="button" className="btn btn-outline-primary btn-block" onClick={() => this.setState({renaming : true}) }>Rename</button>
+										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={() => this.setState({renaming : true}) }>Rename</button>
 									</div>
 									<div className="col-md-3 col-sm-6 px-1">
-										<button type="button" className="btn btn-outline-primary btn-block" onClick={this.downloadSelectedFile}>Move</button>
+										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={this.downloadSelectedFile}>Move</button>
 									</div>
 									<div className="col-md-3 col-sm-6 px-1">
-										<button type="button" className="btn btn-outline-danger btn-block" onClick={this.downloadSelectedFile}>Delete</button>
+										<button type="button" className="btn btn-outline-danger btn-block px-0" onClick={this.downloadSelectedFile}>Delete</button>
 									</div>
 								</div>
 							)}

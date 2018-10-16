@@ -17,6 +17,10 @@ export default class Container extends Component {
 		this.infoTable.current.fileClickHandler(file.isFile ? file : null);
 	}
 	
+	fileRenameHandler = (oldFile, newFile) => {
+		this.fileTable.current.fileRenameHandler(oldFile, newFile);
+	}
+	
 	dirPathClickHandler = (path) => {
 		let file = path == null ? null : {isFile: false, path: path}
 		this.fileTable.current.loadFolder(file);
@@ -32,7 +36,7 @@ export default class Container extends Component {
 				
 				<div className="row">
 					<FileTable ref={this.fileTable} fileClickHandler={this.fileClickHandler}/>
-					<InfoTables ref={this.infoTable}/>
+					<InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler}/>
 				</div>
 			</div>
 		)
