@@ -3,6 +3,8 @@ import Config from 'Config';
 import {convertSize, convertDate} from '../utils/Utils'
 import {LoadingStatus} from '../utils/Enums';
 
+import folder from '../../resources/static/folder.png';
+
 export default class FileTable extends Component {
 	
 	constructor() {
@@ -143,7 +145,7 @@ export default class FileTable extends Component {
 													 this.loadFolder(file);}
 												}
 											>
-												<td>{file.name}</td>
+												<td><img src={folder} width='30' height='30'></img>{file.name}</td>
 												<td>{convertDate(file.lastModified)}</td>
 												<td>{file.isFile ? convertSize(file.size) : '-'}</td>
 											</tr>

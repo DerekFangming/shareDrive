@@ -32,6 +32,8 @@ export const getFileType = (fileName) => {
 			return type + ' image';
 		} else if (['DOC', 'DOCX', 'HTML', 'HTM', 'ODT', 'ODS', 'PDF', 'XLS', 'XLSX', 'CSV', 'PPT', 'PPTX', 'TXT'].includes(type)) {
 			return type + ' document';
+		} else if (['ISO', 'TAR', 'GZ', '7Z', 'APK', 'ARC', 'DMG', 'JAR', 'RAR', 'WAR', 'ZIP'].includes(type)) {
+			return type + ' archive';
 		} else if (['AAC', 'AAX', 'ACT', 'AIFF', 'FLAC', 'M4A', 'M4B', 'M4P', 'MP3', 'WAV ', 'WMA'].includes(type)) {
 			return type + ' audio';
 		} else if (['WEBM', 'MKV', 'FLV', 'AVI', 'MOV', 'QT', 'WMV', 'RM', 'RMVB', 'ASF',
