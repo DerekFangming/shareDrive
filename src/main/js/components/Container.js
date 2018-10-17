@@ -12,9 +12,9 @@ export default class Container extends Component {
 		this.infoTable = React.createRef();
 	}
 	
-	fileClickHandler = (file) => {
+	showFileDetailsHandler = (file) => {
 		this.dirPath.current.createFilePath(file);
-		this.infoTable.current.fileClickHandler(file.isFile ? file : null);
+		this.infoTable.current.showFileDetailsHandler(file);
 	}
 	
 	fileRenameHandler = (oldFile, newFile) => {
@@ -24,7 +24,7 @@ export default class Container extends Component {
 	dirPathClickHandler = (path) => {
 		let file = path == null ? null : {isFile: false, path: path}
 		this.fileTable.current.loadFolder(file);
-		this.infoTable.current.fileClickHandler(null);
+		this.infoTable.current.showFileDetailsHandler(null);
 	}
 	
 	render () {
@@ -35,7 +35,7 @@ export default class Container extends Component {
 				</div>
 				
 				<div className="row">
-					<FileTable ref={this.fileTable} fileClickHandler={this.fileClickHandler}/>
+					<FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler}/>
 					<InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler}/>
 				</div>
 			</div>

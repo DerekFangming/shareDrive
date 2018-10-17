@@ -60,7 +60,7 @@ export default class InfoTables extends Component {
 		});
 	}
 	
-	fileClickHandler = (clickedFile) => {
+	showFileDetailsHandler = (clickedFile) => {
 		this.setState({
 			file: clickedFile
 		})
@@ -103,10 +103,12 @@ export default class InfoTables extends Component {
 			if (response.status == 200) {
 				response.json().then(function(json) {
 					if (json.error == '') {
-						that.props.fileRenameHandler(that.state.file, json.file)
+						let renamedFile = json.file
+						renamedFile.type = getFileType(renamedFile.path)
+						that.props.fileRenameHandler(that.state.file, renamedFile)
 						that.setState({
 							submittingName: false, fileErrMsg: '', renaming : false,
-							file : json.file
+							file : jrenamedFile
 						});
 						//reload
 					} else {
@@ -191,7 +193,7 @@ export default class InfoTables extends Component {
 					) : (
 						<div className="card-body">
 							<div className="row mb-1">
-								<div className="col-lg-3">
+								<div className="col-lg-3 pr-0">
 									<p className="card-text font-weight-bold">Name</p>
 								</div>
 								<div className="col-lg-9">
@@ -200,16 +202,16 @@ export default class InfoTables extends Component {
 							</div>
 							
 							<div className="row my-1">
-								<div className="col-lg-3">
+								<div className="col-lg-3 pr-0">
 									<p className="card-text font-weight-bold">Type</p>
 								</div>
 								<div className="col-lg-9">
-									<p className="card-text">{getFileType(this.state.file.path)}</p>
+									<p className="card-text">{this.state.file.type}</p>
 								</div>
 							</div>
 
 							<div className="row my-1">
-								<div className="col-lg-3">
+								<div className="col-lg-3 pr-0">
 									<p className="card-text font-weight-bold">Size</p>
 								</div>
 								<div className="col-lg-9">
@@ -218,7 +220,7 @@ export default class InfoTables extends Component {
 							</div>
 
 							<div className="row my-1">
-								<div className="col-lg-3">
+								<div className="col-lg-3 pr-0">
 									<p className="card-text font-weight-bold">Location</p>
 								</div>
 								<div className="col-lg-9">
@@ -227,7 +229,7 @@ export default class InfoTables extends Component {
 							</div>
 
 							<div className="row my-1">
-								<div className="col-lg-3">
+								<div className="col-lg-3 pr-0">
 									<p className="card-text font-weight-bold">Modified</p>
 								</div>
 								<div className="col-lg-9">
@@ -236,7 +238,7 @@ export default class InfoTables extends Component {
 							</div>
 
 							<div className="row my-1">
-								<div className="col-lg-3">
+								<div className="col-lg-3 pr-0">
 									<p className="card-text font-weight-bold">Created</p>
 								</div>
 								<div className="col-lg-9">

@@ -1,9 +1,16 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {convertSize, convertDate} from '../utils/Utils'
+import {convertSize, convertDate, getFileType} from '../utils/Utils'
 import {LoadingStatus} from '../utils/Enums';
 
+import archive from '../../resources/static/archive.png';
+import audio from '../../resources/static/audio.png';
+import document from '../../resources/static/document.png';
+import fileIcon from '../../resources/static/file.png';
 import folder from '../../resources/static/folder.png';
+import image from '../../resources/static/image.png';
+import video from '../../resources/static/video.png';
+
 
 export default class FileTable extends Component {
 	
@@ -140,12 +147,21 @@ export default class FileTable extends Component {
 									<tbody>
 										{this.state.fileList.map(file =>
 											<tr key={file.name} value={file.name}
-												onClick={ () =>
-													{this.props.fileClickHandler(file);
-													 this.loadFolder(file);}
-												}
-											>
-												<td><img src={folder} width='30' height='30'></img>{file.name}</td>
+												onClick={ () => this.props.showFileDetailsHandler(file) }
+												onDoubleClick={ () => this.loadFolder(file) }>
+												<td> {(() => {
+													let fileType = getFileType(file.path)
+													file.type = fileType
+													if (!file.isFile) return (<img src={folder} className='mr-2' width='30' height='30'></img>)
+													if (fileType.endsWith('image')) return (<img src={image} className='mr-2' width='30' height='30'></img>)
+													if (fileType.endsWith('document')) return (<img src={document} className='mr-2' width='30' height='30'></img>)
+													if (fileType.endsWith('archive')) return (<img src={archive} className='mr-2' width='30' height='30'></img>)
+													if (fileType.endsWith('audio')) return (<img src={audio} className='mr-2' width='30' height='30'></img>)
+													if (fileType.endsWith('video')) return (<img src={video} className='mr-2' width='30' height='30'></img>)
+													return (<img src={fileIcon} className='mr-2' width='30' height='30'></img>)
+												})()}
+												
+												{file.name}</td>
 												<td>{convertDate(file.lastModified)}</td>
 												<td>{file.isFile ? convertSize(file.size) : '-'}</td>
 											</tr>

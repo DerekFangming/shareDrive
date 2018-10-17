@@ -28,7 +28,7 @@ export const getFileType = (fileName) => {
 		return type;
 	} else {
 		type = names[names.length - 1].toUpperCase();
-		if (['TIF', 'JPG', 'GIF', 'PNG'].includes(type)) {
+		if (['TIF', 'JPG', 'GIF', 'PNG', 'DNG', 'ICO', 'ORF', 'NEF'].includes(type)) {
 			return type + ' image';
 		} else if (['DOC', 'DOCX', 'HTML', 'HTM', 'ODT', 'ODS', 'PDF', 'XLS', 'XLSX', 'CSV', 'PPT', 'PPTX', 'TXT'].includes(type)) {
 			return type + ' document';
