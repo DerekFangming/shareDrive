@@ -16,7 +16,8 @@ export default class InfoTables extends Component {
 	    	renaming: false,
 	    	newName: '',
 	    	submittingName: false,
-	    	fileErrMsg: ''
+	    	fileErrMsg: '',
+	    	loadingFolderSize: false
 	    };
 	}
 	
@@ -61,12 +62,52 @@ export default class InfoTables extends Component {
 	}
 	
 	showFileDetailsHandler = (clickedFile) => {
-		this.setState({
-			file: clickedFile
-		})
+		if (clickedFile == null) {
+			this.setState({
+				file: null
+			})
+		} else if (clickedFile.isFile) {
+			this.setState({
+				file: clickedFile
+			})
+		} else {
+			this.setState({
+				file: clickedFile,
+				loadingFolderSize: true
+			})
+			const that = this
+			fetch(Config.serverUrl + 'get_directory_size', {
+				method: 'POST',
+			    headers: {
+			    	'Accept': 'application/json',
+			    	'Content-Type': 'application/json'
+			    },
+			    body: JSON.stringify({dir : clickedFile.path})
+			})
+			.then(function (response) {
+				if (response.status == 200) {
+					response.json().then(function(json) {
+						if (json.error == '') {
+							clickedFile.size = json.size
+							that.setState({
+								file : clickedFile,
+								loadingFolderSize: false
+							});
+						} else {
+							that.setState({ loadingFolderSize: false });
+						}
+					})
+					
+				} else {
+					that.setState({ loadingFolderSize: false });
+				}
+			});
+			
+		}
+		
 	}
 	
-	createFilePath = (filePath) => {
+	createInfoFilePathHandler = (filePath) => {
 		let resultPath = ['Home'];
 		let filePathArray = filePath.split('/');
 		
@@ -86,7 +127,7 @@ export default class InfoTables extends Component {
 	renameSelectedFile = () => {
 		if (this.state.file == undefined) return;
 		
-		var that = this
+		const that = this
 		that.setState({
 			submittingName: true, fileErrMsg: ''
 		});
@@ -104,13 +145,12 @@ export default class InfoTables extends Component {
 				response.json().then(function(json) {
 					if (json.error == '') {
 						let renamedFile = json.file
-						renamedFile.type = getFileType(renamedFile.path)
+						renamedFile.type = getFileType(renamedFile)
 						that.props.fileRenameHandler(that.state.file, renamedFile)
 						that.setState({
 							submittingName: false, fileErrMsg: '', renaming : false,
-							file : jrenamedFile
+							file : renamedFile
 						});
-						//reload
 					} else {
 						that.setState({
 							submittingName: false, fileErrMsg: json.error
@@ -215,7 +255,11 @@ export default class InfoTables extends Component {
 									<p className="card-text font-weight-bold">Size</p>
 								</div>
 								<div className="col-lg-9">
-									<p className="card-text">{convertSize(this.state.file.size) + '  (' + numberWithCommas(this.state.file.size) + ' Bytes)'}</p>
+									{ (!this.state.file.isFile && this.state.loadingFolderSize) ? (
+											<p className="card-text"> <span className="fa fa-refresh fa-spin fa-1x fa-fw"></span> Loading ...</p>
+									) : (
+											<p className="card-text">{convertSize(this.state.file.size) + '  (' + numberWithCommas(this.state.file.size) + ' Bytes)'}</p>
+									)}{}
 								</div>
 							</div>
 
@@ -224,7 +268,7 @@ export default class InfoTables extends Component {
 									<p className="card-text font-weight-bold">Location</p>
 								</div>
 								<div className="col-lg-9">
-									{this.createFilePath(this.state.file.path)}
+									{this.createInfoFilePathHandler(this.state.file.path)}
 								</div>
 							</div>
 

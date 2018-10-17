@@ -19,7 +19,7 @@ public class Shareable {
 		this.path = file.getPath().replace("\\", "/").replaceFirst(homeDir, "");
 		this.isFile = file.isFile();
 		this.lastModified = file.lastModified();
-		this.size = file.length();
+		this.size = file.isFile() ? file.length() : 0;
 		try {
 			BasicFileAttributes attr = Files.readAttributes(Paths.get(homeDir + path), BasicFileAttributes.class);
 			this.created = attr.creationTime().toMillis();

@@ -19,7 +19,9 @@ export default class FileTable extends Component {
 	    this.state = {
 	    	fileList: [],
 	    	currentDir: 'root',
-	    	loadingStatus: LoadingStatus.Loading
+	    	loadingStatus: LoadingStatus.Loading,
+	    	sortCol: 'name',
+	    	sortOrder: 'neutral'
 	    };
 	}
 	
@@ -34,14 +36,14 @@ export default class FileTable extends Component {
 		if (file == null) {
 			requestedDir = this.state.currentDir;
 			this.setState({
-				loadingStatus: LoadingStatus.Loading
+				loadingStatus: LoadingStatus.Loading, sortCol: 'name', sortOrder: 'neutral'
 			});
 		} else if (file.isFile) {
 			return
 		} else {
 			requestedDir = file.path;
 			this.setState({
-				loadingStatus: LoadingStatus.Loading
+				loadingStatus: LoadingStatus.Loading, sortCol: 'name', sortOrder: 'neutral'
 			});
 		}
 		
@@ -57,11 +59,12 @@ export default class FileTable extends Component {
 			if (response.status == 200) {
 				response.json().then(function(json) {
 					if (json.error == '') {
-						json.objList.sort((a, b) => a.isFile == b.isFile ? 0 : a.isFile ? 1 : -1);
+						json.objList.sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
 						that.setState({
 							loadingStatus: LoadingStatus.Loaded,
 							fileList: json.objList
 						});
+						that.props.createFilePathHandler(file)
 					} else {
 						that.setState({
 							loadingStatus: LoadingStatus.Error,
@@ -94,6 +97,46 @@ export default class FileTable extends Component {
 		}
 	}
 	
+	sortColumnHandler =(colName) => {
+		const isNumber = (colName != 'name')
+    	if (this.state.sortOrder == 'neutral') {
+    		this.setState({
+    			sortCol: colName, sortOrder: 'asc',
+    			fileList: this.sortHelper(colName, true)
+    		});
+    	} else if (this.state.sortCol == colName) {
+    		if (this.state.sortOrder == 'asc') {
+    			this.setState({
+        			sortCol: colName, sortOrder: 'desc',
+        			fileList: this.sortHelper(colName, false)
+        		});
+    		} else {
+    			this.setState({
+        			sortCol: colName, sortOrder: 'asc',
+        			fileList: this.sortHelper(colName, true)
+        		});
+    		}
+    	} else {
+    		this.setState({
+    			sortCol: colName, sortOrder: 'asc',
+    			fileList: this.sortHelper(colName, true)
+    		});
+    	}
+    	
+	}
+	
+	sortHelper = (colName, isAsc) => {
+		const fileList = this.state.fileList.slice();
+		if (colName == 'name') {
+			fileList.sort((a, b) => isAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name))
+		} else if (colName == 'mod') {
+			fileList.sort((a, b) => isAsc ? a.lastModified - b.lastModified : b.lastModified - a.lastModified)
+		} else if (colName == 'size') {
+			fileList.sort((a, b) => isAsc ? a.size - b.size : b.size - a.size)
+		}
+		return fileList
+	}
+	
 	render () {
 		
 		return (
@@ -102,9 +145,46 @@ export default class FileTable extends Component {
 				<table className={this.state.loadingStatus == LoadingStatus.Loaded ? "table table-hover" : "table"}>
 					<thead>
 						<tr>
-							<th style={{width:'70%'}}>Name</th>
-							<th style={{width:'20%'}}>Last Modified</th>
-							<th style={{width:'10%'}}>Size</th>
+							<th className="cursor-pointer" style={{width:'70%'}} onClick={() => this.sortColumnHandler('name')} >
+								Name { (() =>{
+									if (this.state.sortOrder == 'neutral') return <i className="fa fa-minus float-right pt-1"></i>
+									if (this.state.sortCol == 'name') {
+										if (this.state.sortOrder == 'asc'){
+											return <i className="fa fa-chevron-up float-right pt-1"></i>
+										} else {
+											return <i className="fa fa-chevron-down float-right pt-1"></i>
+										}
+									}
+									return <i></i>
+								})()}
+								
+							</th>
+							<th className="cursor-pointer" style={{width:'20%'}} onClick={() => this.sortColumnHandler('mod')} >
+								Last Modified { (() =>{
+									if (this.state.sortOrder == 'neutral') return <i></i>
+									if (this.state.sortCol == 'mod') {
+										if (this.state.sortOrder == 'asc'){
+											return <i className="fa fa-chevron-up float-right pt-1"></i>
+										} else {
+											return <i className="fa fa-chevron-down float-right pt-1"></i>
+										}
+									}
+									return <i></i>
+								})()}
+							</th>
+							<th className="cursor-pointer" style={{width:'10%'}} onClick={() => this.sortColumnHandler('size')} >
+								Size { (() =>{
+									if (this.state.sortOrder == 'neutral') return <i></i>
+									if (this.state.sortCol == 'size') {
+										if (this.state.sortOrder == 'asc'){
+											return <i className="fa fa-chevron-up float-right pt-1"></i>
+										} else {
+											return <i className="fa fa-chevron-down float-right pt-1"></i>
+										}
+									}
+									return <i></i>
+								})()}
+							</th>
 						</tr>
 					</thead>
 					
@@ -150,9 +230,9 @@ export default class FileTable extends Component {
 												onClick={ () => this.props.showFileDetailsHandler(file) }
 												onDoubleClick={ () => this.loadFolder(file) }>
 												<td> {(() => {
-													let fileType = getFileType(file.path)
+													let fileType = getFileType(file)
 													file.type = fileType
-													if (!file.isFile) return (<img src={folder} className='mr-2' width='30' height='30'></img>)
+													if (fileType.endsWith('Folder')) return (<img src={folder} className='mr-2' width='30' height='30'></img>)
 													if (fileType.endsWith('image')) return (<img src={image} className='mr-2' width='30' height='30'></img>)
 													if (fileType.endsWith('document')) return (<img src={document} className='mr-2' width='30' height='30'></img>)
 													if (fileType.endsWith('archive')) return (<img src={archive} className='mr-2' width='30' height='30'></img>)

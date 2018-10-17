@@ -61,7 +61,7 @@ public class FileController {
 	@PostMapping("/rename_file")
 	public FileRenameResult renameFile(@RequestBody Map<String, Object> payload) throws InterruptedException {
 		
-		Thread.sleep(1000);
+		//Thread.sleep(1000);
 		
 		String filePath = (String)payload.get("filePath");
 		String newName = (String)payload.get("name");
@@ -84,7 +84,7 @@ public class FileController {
 			StringBuilder sb = new StringBuilder(newName);
 			sb.replace(newName.lastIndexOf(newExt), newName.lastIndexOf(newExt) + newExt.length(), previousExt );
 			newName = sb.toString();
-		} else {
+		} else if (!previousExt.equals("")) {
 			newName += '.' + previousExt;
 		}
 		

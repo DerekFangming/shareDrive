@@ -13,8 +13,11 @@ export default class Container extends Component {
 	}
 	
 	showFileDetailsHandler = (file) => {
-		this.dirPath.current.createFilePath(file);
 		this.infoTable.current.showFileDetailsHandler(file);
+	}
+	
+	createFilePathHandler = (file) => {
+		this.dirPath.current.createFilePathHandler(file);
 	}
 	
 	fileRenameHandler = (oldFile, newFile) => {
@@ -35,7 +38,7 @@ export default class Container extends Component {
 				</div>
 				
 				<div className="row">
-					<FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler}/>
+					<FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler} createFilePathHandler={this.createFilePathHandler}/>
 					<InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler}/>
 				</div>
 			</div>

@@ -20,9 +20,10 @@ export const numberWithCommas = (x) => {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-export const getFileType = (fileName) => {
+export const getFileType = (file) => {
+	if (!file.isFile) return 'Folder';
 	let type = 'Unknown';
-	let names = fileName.split('.');
+	let names = file.name.split('.');
 	
 	if (names.length == 0) {
 		return type;
