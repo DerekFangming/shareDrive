@@ -1,8 +1,13 @@
 package com.fmning.share.controller;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fmning.share.response.DirSize;
 import com.fmning.share.response.DriveStatus;
+import com.fmning.share.response.FileSearchResult;
 import com.fmning.share.response.Shareable;
 import com.fmning.share.utils.ResponseList;
 
@@ -61,53 +67,48 @@ public class DirectoryController {
 	}
 	
 	@PostMapping("/search_files_in_directory")
-	public ResponseList searchFiles(@RequestBody Map<String, Object> payload) {
+	public FileSearchResult searchFiles(@RequestBody Map<String, Object> payload) {
 		
 		String dirStr = (String)payload.get("dir");
-		if (dirStr == null) return new ResponseList("The request is not complete");
+		String keyword = (String)payload.get("keyword");
+		if (dirStr == null || keyword == null) return new FileSearchResult("The request is not complete");
 		
 		File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
 		
-		if (dir.isFile()) {
-			return new ResponseList("Requested path is not a directory.");
+		if (keyword.trim().equals("")) {
+			return new FileSearchResult("Please enter a keyword.");
+		} else if (dir.isFile()) {
+			return new FileSearchResult("Requested path is not a directory.");
 		} else if (!dir.isDirectory()) {
-			return new ResponseList("Requested path does not exist.");
+			return new FileSearchResult("Requested path does not exist.");
 		} else if (dir.listFiles() == null) {
-			return new ResponseList("Internal server error.");
+			return new FileSearchResult("Internal server error.");
 		} else {
-			File[] childFileList = dir.listFiles();
-			
-			if (childFileList == null) {
-				return new ResponseList("Internal server error.");
-			} else {
-				List<Shareable> fileList = new ArrayList<>();
+			try {
+				String regex = ".*" + keyword.trim().toLowerCase().replace(".", "\\.") + ".*";
+				List<Shareable> resultList = Files.walk(dir.toPath())
+						.map(Path::toFile)
+						.parallel()
+						.filter(p -> p.getName().toLowerCase().matches(regex))
+						.map(f -> new Shareable(f, homeDir))
+						.collect(Collectors.toList());
 				
-				//Arrays.stream(childFileList).parallel().filter(f -> f.getName().matches(regex))
-				
-				
-				for(File f : childFileList) {
-					if (!f.isHidden()) {
-						fileList.add(new Shareable(f, homeDir));
-					}
-				}
-
-				return new ResponseList(fileList);
+				return new FileSearchResult(resultList);
+			} catch (IOException e) {
+				return new FileSearchResult("Internal server error");
 			}
-			
 		}
 	}
 	
 	@GetMapping("/test")
-	public void test() {
-		File[] childFileList = (new File("/Users/fangming.ning/Desktop/")).listFiles();
-		List<File> res = Arrays.stream(childFileList).parallel().filter(f -> f.getName().matches("e")).collect(Collectors.toList());
+	public void test() throws InterruptedException, IOException {
 		
-		System.out.println("");
-		System.out.println("==================");
+		String s = "haha.e.txt";
+		System.out.println(s);
+		s = s.replace(".", "\\.");
+		System.out.println(s);
 		
-		for (File d : res) {
-			System.out.println(d.getName());
-		}
+		
 	}
 	
 	@GetMapping("/get_drive_status")
