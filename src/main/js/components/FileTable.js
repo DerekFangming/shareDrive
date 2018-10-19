@@ -194,7 +194,7 @@ export default class FileTable extends Component {
 								return (
 									<tbody>
 										<tr>
-											<td colspan="3">
+											<td colSpan="3">
 												<div className="row">
 													<div className="col">
 														<span className="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span>

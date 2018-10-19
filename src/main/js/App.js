@@ -4,11 +4,22 @@ import Header from './components/Header';
 import Container from './components/Container';
 
 class App extends Component {
+	
+	constructor() {
+		super();
+		this.header = React.createRef();
+		this.container = React.createRef();
+	}
+	
+	updateSearchPathHandler = (file) => {
+		this.header.current.updateSearchPathHandler(file);
+	}
+	
 	render () {
 		return (
 			<div>
-				<Header />
-				<Container />
+				<Header ref={this.header} />
+				<Container ref={this.container} updateSearchPathHandler={this.updateSearchPathHandler} />
 			</div>
 		);
 	}

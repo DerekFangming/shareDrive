@@ -4,7 +4,7 @@ const PropertiesReader = require('properties-reader');
 const appProperties = PropertiesReader('./src/main/resources/application.properties')._properties;
 
 module.exports = {
-	mode: 'production',
+	mode: 'development',
     entry: './src/main/js/app.js',
     devtool: 'source-map',
     output: {

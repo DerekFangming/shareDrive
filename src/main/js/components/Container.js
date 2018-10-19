@@ -18,6 +18,7 @@ export default class Container extends Component {
 	
 	createFilePathHandler = (file) => {
 		this.dirPath.current.createFilePathHandler(file);
+		this.props.updateSearchPathHandler(file);
 	}
 	
 	fileRenameHandler = (oldFile, newFile) => {
