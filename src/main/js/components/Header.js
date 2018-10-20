@@ -52,10 +52,16 @@ export default class Header extends Component {
 			if (response.status == 200) {
 				response.json().then(function(json) {
 					if (json.error == '') {
-						
-						that.setState({
-							searching: false
-						});
+						if (json.fileList.length == 0) {
+							that.setState({
+								searching: false, searchError: true, searchErrMsg: 'No file found. Please try another (shorter) keyword'
+							});
+						} else {
+							that.props.updateSearchResultHandler(json.fileList)
+							that.setState({
+								searching: false
+							});
+						}
 					} else {
 						that.setState({
 							searching: false, searchError: true, searchErrMsg: json.error
@@ -98,7 +104,7 @@ export default class Header extends Component {
 							</div>
 						</li>
 					</ul>
-					<form className="form-inline my-2 my-lg-0">
+					<div className="form-inline my-2 my-lg-0">
 						
 						<Popover isOpen={this.state.searchError} position={'bottom'} onClickOutside={this.alertCloseHandler} content={({ position, targetRect, popoverRect }) => (
 							<ArrowContainer position={position} targetRect={targetRect} popoverRect={popoverRect}
@@ -108,15 +114,15 @@ export default class Header extends Component {
 								</div>
 							</ArrowContainer>
 						)} >
-							<input className="form-control mr-sm-2" type="search" placeholder="Search" disabled={this.state.searching ? "disabled" : ""}
-								onChange={(e) => this.setState({searchKeyWord: e.target.value}) }>
+							<input className="form-control mr-sm-2" type="text" placeholder="Search" disabled={this.state.searching ? "disabled" : ""}
+								onChange={(e) => this.setState({searchKeyWord: e.target.value})} onKeyPress={(e) => { if (e.key === 'Enter') this.searchFiles() } }>
 							</input>
 				        </Popover>
 						<button className={this.state.searching? "btn btn-outline-light my-2 my-sm-0 disabled" : "btn btn-outline-light my-2 my-sm-0"}
 							type="button" onClick={this.searchFiles} >
 							{this.state.searching ? <span className="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span> : "Search"}
 						</button>
-					</form>
+					</div>
 				</div>
 			</nav>
 		);

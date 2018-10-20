@@ -15,10 +15,14 @@ class App extends Component {
 		this.header.current.updateSearchPathHandler(file);
 	}
 	
+	updateSearchResultHandler = (fileList) => {
+		this.container.current.updateSearchResultHandler(fileList);
+	}
+	
 	render () {
 		return (
 			<div>
-				<Header ref={this.header} />
+				<Header ref={this.header} updateSearchResultHandler={this.updateSearchResultHandler} />
 				<Container ref={this.container} updateSearchPathHandler={this.updateSearchPathHandler} />
 			</div>
 		);

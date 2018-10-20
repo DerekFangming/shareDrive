@@ -82,6 +82,16 @@ export default class FileTable extends Component {
 		});
 	}
 	
+	updateSearchResultHandler = (searchResultList) => {
+		searchResultList.sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
+		this.setState({
+			loadingStatus: LoadingStatus.Loaded,
+			fileList: searchResultList,
+			sortCol: 'name',
+			sortOrder: 'neutral'
+		});
+	}
+	
 	fileRenameHandler = (oldFile, newFile) => {
 		let index = this.state.fileList.findIndex((f) => {
 			return f.path == oldFile.path

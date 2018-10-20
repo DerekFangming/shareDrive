@@ -85,7 +85,7 @@ public class DirectoryController {
 			return new FileSearchResult("Internal server error.");
 		} else {
 			try {
-				String regex = ".*" + keyword.trim().toLowerCase().replace(".", "\\.") + ".*";
+				String regex = ".*" + keyword.trim().toLowerCase().replace(".", "\\.").replace("*", ".*") + ".*";
 				List<Shareable> resultList = Files.walk(dir.toPath())
 						.map(Path::toFile)
 						.parallel()

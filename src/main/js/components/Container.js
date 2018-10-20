@@ -31,6 +31,10 @@ export default class Container extends Component {
 		this.infoTable.current.showFileDetailsHandler(null);
 	}
 	
+	updateSearchResultHandler = (fileList) => {
+		this.fileTable.current.updateSearchResultHandler(fileList);
+	}
+	
 	render () {
 		return (
 			<div className="container-fluid">
