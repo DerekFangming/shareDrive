@@ -15,8 +15,8 @@ class App extends Component {
 		this.header.current.updateSearchPathHandler(file);
 	}
 	
-	updateSearchResultHandler = (fileList) => {
-		this.container.current.updateSearchResultHandler(fileList);
+	updateSearchResultHandler = (fileList, searchedPathFile) => {
+		this.container.current.updateSearchResultHandler(fileList, searchedPathFile);
 	}
 	
 	render () {

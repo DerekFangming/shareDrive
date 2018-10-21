@@ -57,7 +57,8 @@ export default class Header extends Component {
 								searching: false, searchError: true, searchErrMsg: 'No file found. Please try another (shorter) keyword'
 							});
 						} else {
-							that.props.updateSearchResultHandler(json.fileList)
+							let searchedPathFile = that.state.searchDir == 'root' ? null : {isFile: false, path: that.state.searchDir}
+							that.props.updateSearchResultHandler(json.fileList, searchedPathFile)
 							that.setState({
 								searching: false
 							});

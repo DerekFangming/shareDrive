@@ -6,16 +6,26 @@ export default class DirectoryPath extends Component {
 	constructor() {
 	    super();
 	    this.state = {
-	    	extraPath: <div></div>,
-	    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" >Home</button>{this.state.extraPath}</nav>
+	    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" >Home</button></nav>
 	    };
 	}
 	
 	createFilePathHandler = (file) => {
+		this.createFilePathHandler(file, false)
+	}
+	
+	createFilePathHandler = (file, isSearching) => {
 		if (file == null) {
-			this.setState ({
-		    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" dir="root" onClick={(e) => this.loadDir(e)} >Home</button></nav>
-		    });
+			if (isSearching) {
+				this.setState ({
+			    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" dir="root" onClick={(e) => this.loadDir(e)} >Home</button><Arrow /><button type="button" className="btn btn-link" >Search Results</button></nav>
+			    });
+			} else {
+				this.setState ({
+			    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" dir="root" onClick={(e) => this.loadDir(e)} >Home</button></nav>
+			    });
+			}
+			
 		} else if (file.isFile) {
 			return;
 		} else {
@@ -41,6 +51,11 @@ export default class DirectoryPath extends Component {
 				}
 			}
 			
+			if (isSearching) {
+				resultPath.push(<Arrow key={keyCount++} />);
+				resultPath.push(<button key={keyCount++} type="button" className="btn btn-link" >Search Results</button>);
+			}
+			
 			this.setState({
 				path: <nav className="nav nav-pills align-items-center">{resultPath}</nav>
 			})
@@ -50,15 +65,6 @@ export default class DirectoryPath extends Component {
 	loadDir = (e) => {
 		let dir = e.target.getAttribute('dir')
 		this.props.dirPathClickHandler(dir == 'root' ? null : dir)
-	}
-	
-	fileSearchPathHandler = () => {
-		let prevPath = this.state.path
-		prevPath += <Arrow />
-		prevPath += <button type="button" className="btn btn-link" >Search Results</button>
-		this.setState({
-			extraPath: prevPath
-		})
 	}
 	
 	render () {

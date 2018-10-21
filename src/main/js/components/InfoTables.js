@@ -108,7 +108,6 @@ export default class InfoTables extends Component {
 	}
 	
 	createInfoFilePathHandler = (filePath) => {
-		console.log(filePath)
 		let resultPath = ['Home'];
 		let filePathArray = filePath.split('/');
 		let keyCount = 0;

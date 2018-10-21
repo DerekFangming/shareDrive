@@ -31,9 +31,9 @@ export default class Container extends Component {
 		this.infoTable.current.showFileDetailsHandler(null);
 	}
 	
-	updateSearchResultHandler = (fileList) => {
+	updateSearchResultHandler = (fileList, searchedPathFile) => {
 		this.fileTable.current.updateSearchResultHandler(fileList);
-		this.dirPath.current.fileSearchPathHandler();
+		this.dirPath.current.createFilePathHandler(searchedPathFile, true)
 	}
 	
 	render () {
