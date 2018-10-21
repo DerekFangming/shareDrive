@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -85,7 +82,9 @@ public class DirectoryController {
 			return new FileSearchResult("Internal server error.");
 		} else {
 			try {
-				String regex = ".*" + keyword.trim().toLowerCase().replace(".", "\\.").replace("*", ".*") + ".*";
+				String regex = ".*" + keyword.trim().toLowerCase().replace(".", "\\.").replace("*", ".*").replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+						.replace("/", "\\/").replace("$", "\\$").replace("^", "\\^").replace("+", "\\+").replace("[", "\\[").replace("]", "\\]").replace("|", "\\|")
+						.replace("?", "\\?")+ ".*";
 				List<Shareable> resultList = Files.walk(dir.toPath())
 						.map(Path::toFile)
 						.parallel()
@@ -103,9 +102,9 @@ public class DirectoryController {
 	@GetMapping("/test")
 	public void test() throws InterruptedException, IOException {
 		
-		String s = "haha.e.txt";
+		String s = "haha(e.txt";
 		System.out.println(s);
-		s = s.replace(".", "\\.");
+		s = s.replace("(", "\\(");
 		System.out.println(s);
 		
 		

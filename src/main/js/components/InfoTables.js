@@ -108,13 +108,14 @@ export default class InfoTables extends Component {
 	}
 	
 	createInfoFilePathHandler = (filePath) => {
+		console.log(filePath)
 		let resultPath = ['Home'];
 		let filePathArray = filePath.split('/');
 		let keyCount = 0;
 		
 		for (let ind in filePathArray) {
 			resultPath.push(<Arrow key={keyCount ++} />);
-			resultPath.push(<span key={keyCount ++}>filePathArray[ind]</span>);
+			resultPath.push(<span key={keyCount ++}>{filePathArray[ind]}</span>);
 		}
 		
 		return (<div>{resultPath}</div>)

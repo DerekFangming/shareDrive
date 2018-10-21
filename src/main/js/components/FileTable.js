@@ -236,7 +236,7 @@ export default class FileTable extends Component {
 								return (
 									<tbody>
 										{this.state.fileList.map(file =>
-											<tr key={file.name} value={file.name}
+											<tr key={file.path + file.name} value={file.name}
 												onClick={ () => this.props.showFileDetailsHandler(file) }
 												onDoubleClick={ () => this.loadFolder(file) }>
 												<td> {(() => {

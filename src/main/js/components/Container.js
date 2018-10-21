@@ -33,6 +33,7 @@ export default class Container extends Component {
 	
 	updateSearchResultHandler = (fileList) => {
 		this.fileTable.current.updateSearchResultHandler(fileList);
+		this.dirPath.current.fileSearchPathHandler();
 	}
 	
 	render () {

@@ -6,11 +6,10 @@ export default class DirectoryPath extends Component {
 	constructor() {
 	    super();
 	    this.state = {
-	    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" >Home</button></nav>
+	    	extraPath: <div></div>,
+	    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" >Home</button>{this.state.extraPath}</nav>
 	    };
 	}
-	
-	
 	
 	createFilePathHandler = (file) => {
 		if (file == null) {
@@ -51,6 +50,15 @@ export default class DirectoryPath extends Component {
 	loadDir = (e) => {
 		let dir = e.target.getAttribute('dir')
 		this.props.dirPathClickHandler(dir == 'root' ? null : dir)
+	}
+	
+	fileSearchPathHandler = () => {
+		let prevPath = this.state.path
+		prevPath += <Arrow />
+		prevPath += <button type="button" className="btn btn-link" >Search Results</button>
+		this.setState({
+			extraPath: prevPath
+		})
 	}
 	
 	render () {
