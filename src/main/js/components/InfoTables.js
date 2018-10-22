@@ -3,6 +3,7 @@ import Config from 'Config';
 import {convertSize, convertDate, numberWithCommas, getFileType} from '../utils/Utils';
 import Arrow from './Arrow';
 import {LoadingStatus} from '../utils/Enums';
+import MoveFileModal from './MoveFileModal'
 
 export default class InfoTables extends Component {
 	
@@ -19,6 +20,7 @@ export default class InfoTables extends Component {
 	    	fileErrMsg: '',
 	    	loadingFolderSize: false
 	    };
+	    this.moveFileModal = React.createRef();
 	}
 	
 	componentDidMount() {
@@ -334,11 +336,16 @@ export default class InfoTables extends Component {
 										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={() => this.setState({renaming : true}) }>Rename</button>
 									</div>
 									<div className="col-md-3 col-sm-6 px-1">
-										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={this.downloadSelectedFile}>Move</button>
+										<button type="button" className="btn btn-outline-primary btn-block px-0" data-toggle="modal" data-target="#exampleModal"
+											onClick={() => this.moveFileModal.current.loadFolder(null)} >Move</button>
 									</div>
 									<div className="col-md-3 col-sm-6 px-1">
 										<button type="button" className="btn btn-outline-danger btn-block px-0" onClick={this.downloadSelectedFile}>Delete</button>
 									</div>
+									
+									
+									
+									
 								</div>
 							)}
 							
@@ -346,6 +353,8 @@ export default class InfoTables extends Component {
 					)}
 					
 				</div>
+				
+				<MoveFileModal ref={this.moveFileModal} />
 				
 			</div>
 		);

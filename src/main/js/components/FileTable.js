@@ -147,6 +147,11 @@ export default class FileTable extends Component {
 		return fileList
 	}
 	
+	selectTableRow = (row, file) => {
+		this.props.showFileDetailsHandler(file);
+		$(row).parent().addClass('selected').siblings().removeClass('selected');
+	}
+	
 	render () {
 		
 		return (
@@ -221,7 +226,7 @@ export default class FileTable extends Component {
 								return (
 									<tbody>
 										<tr onClick={() => this.loadFolder(null)}>
-											<td className="text-center" colspan="3">
+											<td className="text-center" colSpan="3">
 												<div className="alert alert-warning cursor-pointer" role="alert">
 													<h4 className="alert-heading">Error</h4>
 													<p>Something went wrong while loading the directory. {this.state.loadingMsg}</p>
@@ -237,7 +242,7 @@ export default class FileTable extends Component {
 									<tbody>
 										{this.state.fileList.map(file =>
 											<tr key={file.path + file.name} value={file.name}
-												onClick={ () => this.props.showFileDetailsHandler(file) }
+												onClick={ (e) => this.selectTableRow(e.target, file) }
 												onDoubleClick={ () => this.loadFolder(file) }>
 												<td> {(() => {
 													let fileType = getFileType(file)

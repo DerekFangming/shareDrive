@@ -34,6 +34,8 @@ public class DirectoryController {
 	public ResponseList getFiles(@RequestBody Map<String, Object> payload) {
 		
 		String dirStr = (String)payload.get("dir");
+		Object loadDirOnly = payload.get("loadDirOnly");
+		boolean dirOnly = loadDirOnly == null ? false : (boolean)loadDirOnly;
 		if (dirStr == null) return new ResponseList("The request is not complete");
 		
 		File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
@@ -53,7 +55,13 @@ public class DirectoryController {
 				List<Shareable> fileList = new ArrayList<>();
 				for(File f : childFileList) {
 					if (!f.isHidden()) {
-						fileList.add(new Shareable(f, homeDir));
+						if (dirOnly) {
+							if (f.isDirectory()) {
+								fileList.add(new Shareable(f, homeDir));
+							}
+						} else {
+							fileList.add(new Shareable(f, homeDir));
+						}
 					}
 				}
 

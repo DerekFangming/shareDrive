@@ -2,6 +2,10 @@ tr {
 	cursor: default;
 }
 
+tr.selected td {
+  background-color: #C4C4C4 !important;
+}
+
 .cursor-pointer {
 	cursor: pointer;
 }
