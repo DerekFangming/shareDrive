@@ -59,9 +59,7 @@ public class FileController {
 	}
 	
 	@PostMapping("/rename_file")
-	public FileRenameResult renameFile(@RequestBody Map<String, Object> payload) throws InterruptedException {
-		
-		//Thread.sleep(1000);
+	public FileRenameResult renameFile(@RequestBody Map<String, Object> payload) {
 		
 		String filePath = (String)payload.get("filePath");
 		String newName = (String)payload.get("name");
@@ -100,6 +98,28 @@ public class FileController {
 		} else {
 			return new FileRenameResult("Internal Server error. Please try again later");
 		}
+	}
+	
+	@PostMapping("/move_file")
+	public FileRenameResult moveFile(@RequestBody Map<String, Object> payload) {
+		
+		String filePath = (String)payload.get("filePath");
+		String newPath = (String)payload.get("newPath");
+		if (filePath == null || newPath == null) return new FileRenameResult("The request is not complete");
+		
+		filePath = homeDir + filePath;
+		newPath = newPath.equals("root") ? homeDir : homeDir + newPath;//TODO: need work// move file into, does not have name
+		
+		String[] paths = filePath.split("/");
+		String originalName = paths[paths.length - 1];
+		
+		paths = newPath.split("/");
+		if (!originalName.equals( paths[paths.length - 1])) {
+			return new FileRenameResult("Cannot rename file in this request");
+		}
+		
+		
+		return new FileRenameResult("Internal Server error. Please try again later");
 	}
 
 }

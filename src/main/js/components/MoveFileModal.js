@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import {LoadingStatus} from '../utils/Enums';
 import folder from '../../resources/static/folder.png';
+import ret from '../../resources/static/return.png';
 
 export default class MoveFileModal extends Component {
 	
@@ -10,12 +11,18 @@ export default class MoveFileModal extends Component {
 		this.state = {
 		    	fileList: [],
 		    	loadingStatus: LoadingStatus.Loading,
-		    	loadingMsg: ''
+		    	loadingMsg: '',
+		    	currentPath: 'root',
+		    	moveToPath: 'root'
 	    };
 		
 	}
 	
 	loadFolder = (filePath) => {
+		this.loadFolder(filePath, false)
+	}
+	
+	loadFolder = (filePath, loadParent) => {
 		const that = this
 		this.setState({
 			loadingStatus: LoadingStatus.Loading
@@ -23,7 +30,23 @@ export default class MoveFileModal extends Component {
 		
 		if (filePath == null) {
 			filePath = 'root'
+			if (loadParent) {
+				this.setState({
+					loadingStatus: LoadingStatus.Error,
+					loadingMsg: 'No more parent folder to load'
+				});
+			}
 		}
+		
+		if (loadParent) {
+			let paths = filePath.split("/");
+			paths.pop()
+			
+			filePath = paths.length == 0 ? 'root' : paths.join("/");
+		}
+		this.setState({
+			currentPath: filePath
+		});
 		
 		fetch(Config.serverUrl + 'get_files_in_directory', {
 			method: 'POST',
@@ -62,6 +85,16 @@ export default class MoveFileModal extends Component {
 	
 	selectTableRow = (row) => {
 		$(row).parent().addClass('selected').siblings().removeClass('selected');
+		let path = $(row).parent().attr('path')
+		let pathToMove = path
+		
+		if (path =='.prev') {
+			let paths = path.split("/");
+			paths.pop()
+			pathToMove = paths.length == 0 ? 'root' : paths.join("/");
+		}
+		
+		this.setState({moveToPath: pathToMove})
 	}
 	
 	render () {
@@ -71,7 +104,7 @@ export default class MoveFileModal extends Component {
 					<div className="modal-content">
 						<div className="modal-header">
 							<h5 className="modal-title" id="exampleModalLabel">Select a folder to move to</h5>
-							<button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={() => console.log('ccc')}>
+							<button type="button" className="close" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 							</button>
 						</div>
@@ -105,7 +138,7 @@ export default class MoveFileModal extends Component {
 									case LoadingStatus.Error:
 										return (
 											<tbody>
-												<tr onClick={() => this.loadFolder(null)}>
+												<tr onClick={() => this.loadFolder(this.state.currentPath)}>
 													<td className="text-center" colSpan="3">
 														<div className="alert alert-warning cursor-pointer" role="alert">
 															<h4 className="alert-heading">Error</h4>
@@ -120,8 +153,21 @@ export default class MoveFileModal extends Component {
 									case LoadingStatus.Loaded:
 										return (
 											<tbody>
+												{(() => {
+													if (this.state.currentPath != 'root') {
+														return (
+															<tr onClick={ (e) => this.selectTableRow(e.target) } path=".prev"
+															onDoubleClick={ () => this.loadFolder(this.state.currentPath, true) }>
+																<td>
+																	<img src={ret} className='mr-2' width='30' height='30'></img>
+																	Return to parent directory
+																</td>
+															</tr>
+														)
+													}
+												})()}
 												{this.state.fileList.map(file =>
-													<tr key={file.path + file.name} value={file.name}
+													<tr key={file.path + file.name} path={file.path}
 														onClick={ (e) => this.selectTableRow(e.target) }
 														onDoubleClick={ () => this.loadFolder(file.path) }>
 														<td>
@@ -138,8 +184,8 @@ export default class MoveFileModal extends Component {
 						</div>
 						
 						<div className="modal-footer">
-							<button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-							<button type="button" className="btn btn-primary">Save changes</button>
+							<button type="button" className="btn btn-success" data-dismiss="modal" onClick={() => this.props.moveSelectedFile(this.state.moveToPath)}>Move</button>
+							<button type="button" className="btn btn-secondary" data-dismiss="modal">Cancel</button>
 						</div>
 					</div>
 				</div>

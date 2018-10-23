@@ -127,6 +127,14 @@ export default class InfoTables extends Component {
 		window.open(Config.serverUrl + 'download_file?file=' + this.state.file.path)
 	}
 	
+	moveSelectedFile = (destPath) => {
+		if (this.state.file == undefined) return;
+		
+		console.log(this.state.file)
+		
+		console.log('Moving ' + this.state.file.name + ' FROM: ' + this.state.file.path + ' to: ' + destPath )
+	}
+	
 	renameSelectedFile = () => {
 		if (this.state.file == undefined) return;
 		
@@ -342,10 +350,6 @@ export default class InfoTables extends Component {
 									<div className="col-md-3 col-sm-6 px-1">
 										<button type="button" className="btn btn-outline-danger btn-block px-0" onClick={this.downloadSelectedFile}>Delete</button>
 									</div>
-									
-									
-									
-									
 								</div>
 							)}
 							
@@ -354,7 +358,7 @@ export default class InfoTables extends Component {
 					
 				</div>
 				
-				<MoveFileModal ref={this.moveFileModal} />
+				<MoveFileModal ref={this.moveFileModal} moveSelectedFile={this.moveSelectedFile} />
 				
 			</div>
 		);
