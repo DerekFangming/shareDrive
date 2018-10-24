@@ -24,8 +24,10 @@ export default class MoveFileModal extends Component {
 	
 	loadFolder = (filePath, loadParent) => {
 		const that = this
+		
+		const toPath = filePath == null? 'root' : filePath
 		this.setState({
-			loadingStatus: LoadingStatus.Loading
+			loadingStatus: LoadingStatus.Loading, moveToPath: toPath
 		});
 		
 		if (filePath == null) {

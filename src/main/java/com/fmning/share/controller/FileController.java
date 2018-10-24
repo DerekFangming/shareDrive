@@ -106,20 +106,25 @@ public class FileController {
 		String filePath = (String)payload.get("filePath");
 		String newPath = (String)payload.get("newPath");
 		if (filePath == null || newPath == null) return new FileRenameResult("The request is not complete");
-		
+		//newPath = ".sharedrive_trash";
 		filePath = homeDir + filePath;
-		newPath = newPath.equals("root") ? homeDir : homeDir + newPath;//TODO: need work// move file into, does not have name
+		newPath = newPath.equals("root") ? homeDir : homeDir + newPath + "/";
 		
 		String[] paths = filePath.split("/");
 		String originalName = paths[paths.length - 1];
+		newPath += originalName;
 		
-		paths = newPath.split("/");
-		if (!originalName.equals( paths[paths.length - 1])) {
-			return new FileRenameResult("Cannot rename file in this request");
+		if (filePath.equals(newPath)) {
+			return new FileRenameResult("The file is already at the selected directory");
 		}
 		
+		System.out.println(filePath + " rename to: " + newPath);
 		
-		return new FileRenameResult("Internal Server error. Please try again later");
+		if ((new File(filePath)).renameTo((new File(newPath)))) {
+			return new FileRenameResult(new File(newPath), homeDir);
+		} else {
+			return new FileRenameResult("Internal Server error. Please try again later");
+		}
 	}
 
 }

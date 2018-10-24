@@ -18,7 +18,8 @@ export default class InfoTables extends Component {
 	    	newName: '',
 	    	submittingName: false,
 	    	fileErrMsg: '',
-	    	loadingFolderSize: false
+	    	loadingFolderSize: false,
+	    	moving: false
 	    };
 	    this.moveFileModal = React.createRef();
 	}
@@ -129,17 +130,55 @@ export default class InfoTables extends Component {
 	
 	moveSelectedFile = (destPath) => {
 		if (this.state.file == undefined) return;
-		
-		console.log(this.state.file)
-		
+		if (this.state.file.path == destPath) {
+			this.setState({
+				moving: false, fileErrMsg: 'Cannot move folder into itself'
+			});
+			return
+		}
 		console.log('Moving ' + this.state.file.name + ' FROM: ' + this.state.file.path + ' to: ' + destPath )
+		const that = this
+		this.setState({
+			moving: true, fileErrMsg: ''
+		});
+		
+		fetch(Config.serverUrl + 'move_file', {
+			method: 'POST',
+		    headers: {
+		    	'Accept': 'application/json',
+		    	'Content-Type': 'application/json'
+		    },
+		    body: JSON.stringify({filePath : this.state.file.path, newPath : destPath})
+		})
+		.then(function (response) {
+			if (response.status == 200) {
+				response.json().then(function(json) {
+					if (json.error == '') {
+						that.props.fileMoveHandler(that.state.file)
+						that.setState({
+							moving: false, fileErrMsg: ''
+						});
+					} else {
+						that.setState({
+							moving: false, fileErrMsg: json.error
+						});
+					}
+				})
+				
+			} else {
+				that.setState({
+					moving: false, fileErrMsg: 'Internal server error. Please try again later'
+				});
+			}
+		});
+		
 	}
 	
 	renameSelectedFile = () => {
 		if (this.state.file == undefined) return;
 		
 		const that = this
-		that.setState({
+		this.setState({
 			submittingName: true, fileErrMsg: ''
 		});
 		
@@ -344,8 +383,15 @@ export default class InfoTables extends Component {
 										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={() => this.setState({renaming : true}) }>Rename</button>
 									</div>
 									<div className="col-md-3 col-sm-6 px-1">
-										<button type="button" className="btn btn-outline-primary btn-block px-0" data-toggle="modal" data-target="#exampleModal"
-											onClick={() => this.moveFileModal.current.loadFolder(null)} >Move</button>
+										{ this.state.moving ? (
+											<button type="button" className="btn btn-outline-primary btn-block px-0 disabled">
+												<span className="fa fa-refresh fa-spin fa-1x fa-fw"></span>
+											</button>
+										) : (
+											<button type="button" className="btn btn-outline-primary btn-block px-0" data-toggle="modal" data-target="#exampleModal"
+												onClick={() => this.moveFileModal.current.loadFolder(null)} >Move</button>
+										) }
+										
 									</div>
 									<div className="col-md-3 col-sm-6 px-1">
 										<button type="button" className="btn btn-outline-danger btn-block px-0" onClick={this.downloadSelectedFile}>Delete</button>

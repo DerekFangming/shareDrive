@@ -107,6 +107,21 @@ export default class FileTable extends Component {
 		}
 	}
 	
+	 fileMoveHandler= (file) => {
+		let index = this.state.fileList.findIndex((f) => {
+			return f.path == file.path
+		});
+		
+		if (index != -1) {
+			let newFileList = this.state.fileList.slice()
+			newFileList.splice(index, 1);
+			
+			this.setState({
+				fileList: newFileList
+			});
+		}
+	}
+	
 	sortColumnHandler =(colName) => {
 		const isNumber = (colName != 'name')
     	if (this.state.sortOrder == 'neutral') {
