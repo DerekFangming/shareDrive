@@ -19,7 +19,9 @@ export default class InfoTables extends Component {
 	    	submittingName: false,
 	    	fileErrMsg: '',
 	    	loadingFolderSize: false,
-	    	moving: false
+	    	moving: false,
+	    	deleting: false,
+	    	submittingDelete: false
 	    };
 	    this.moveFileModal = React.createRef();
 	}
@@ -130,17 +132,30 @@ export default class InfoTables extends Component {
 	
 	moveSelectedFile = (destPath) => {
 		if (this.state.file == undefined) return;
-		if (this.state.file.path == destPath) {
+		const that = this
+		
+		if (destPath != null && this.state.file.path == destPath) {
 			this.setState({
 				moving: false, fileErrMsg: 'Cannot move folder into itself'
 			});
 			return
 		}
-		console.log('Moving ' + this.state.file.name + ' FROM: ' + this.state.file.path + ' to: ' + destPath )
-		const that = this
-		this.setState({
-			moving: true, fileErrMsg: ''
-		});
+		
+		
+		if (destPath == null) {
+			console.log('Deleting ' + this.state.file.name )
+			this.setState({
+				deleting: false, submittingDelete: true, fileErrMsg: ''
+			});
+		} else {
+			console.log('Moving ' + this.state.file.name + ' FROM: ' + this.state.file.path + ' to: ' + destPath )
+			
+			this.setState({
+				moving: true, fileErrMsg: ''
+			});
+		}
+		
+		
 		
 		fetch(Config.serverUrl + 'move_file', {
 			method: 'POST',
@@ -148,27 +163,46 @@ export default class InfoTables extends Component {
 		    	'Accept': 'application/json',
 		    	'Content-Type': 'application/json'
 		    },
-		    body: JSON.stringify({filePath : this.state.file.path, newPath : destPath})
+		    body: JSON.stringify(destPath == null ? {filePath : this.state.file.path} : {filePath : this.state.file.path, newPath : destPath})
 		})
 		.then(function (response) {
 			if (response.status == 200) {
 				response.json().then(function(json) {
 					if (json.error == '') {
 						that.props.fileMoveHandler(that.state.file)
-						that.setState({
-							moving: false, fileErrMsg: ''
-						});
+						if (destPath == null) {
+							that.setState({
+								submittingDelete: false, fileErrMsg: ''
+							});
+						} else {
+							that.setState({
+								moving: false, fileErrMsg: ''
+							});
+						}
+						
 					} else {
-						that.setState({
-							moving: false, fileErrMsg: json.error
-						});
+						if (destPath == null) {
+							that.setState({
+								submittingDelete: false, fileErrMsg: json.error
+							});
+						} else {
+							that.setState({
+								moving: false, fileErrMsg: json.error
+							});
+						}
 					}
 				})
 				
 			} else {
-				that.setState({
-					moving: false, fileErrMsg: 'Internal server error. Please try again later'
-				});
+				if (destPath == null) {
+					that.setState({
+						submittingDelete: false, fileErrMsg: 'Internal server error. Please try again later'
+					});
+				} else {
+					that.setState({
+						moving: false, fileErrMsg: 'Internal server error. Please try again later'
+					});
+				}
 			}
 		});
 		
@@ -374,6 +408,18 @@ export default class InfoTables extends Component {
 										</div>
 									</div>
 								</div>
+							) : this.state.deleting ? (
+								<div className="row my-1 text-center">
+									<div className="col-md-12 mb-4">
+										<p className="card-text font-weight-bold">Are you sure about deleting this {this.state.file.isFile ? "file" : "folder"}?</p>
+									</div>
+									<div className="col-md-6">
+										<button type="button" className="btn btn-danger btn-block px-0" onClick={() => this.moveSelectedFile(null)}>Delete</button>
+									</div>
+									<div className="col-md-6">
+										<button type="button" className="btn btn-secondary btn-block px-0" onClick={() => this.setState({deleting : false}) }>Cancel</button>
+									</div>
+								</div>
 							) : (
 								<div className="row my-1 text-center">
 									<div className="col-md-3 col-sm-6 px-1">
@@ -394,7 +440,12 @@ export default class InfoTables extends Component {
 										
 									</div>
 									<div className="col-md-3 col-sm-6 px-1">
-										<button type="button" className="btn btn-outline-danger btn-block px-0" onClick={this.downloadSelectedFile}>Delete</button>
+										{ this.state.submittingDelete ? (
+											<button type="button" className="btn btn-danger btn-block px-0  disabled"><span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
+										) : (
+											<button type="button" className="btn btn-outline-danger btn-block px-0" onClick={() => this.setState({deleting : true}) }>Delete</button>
+										)}
+										
 									</div>
 								</div>
 							)}

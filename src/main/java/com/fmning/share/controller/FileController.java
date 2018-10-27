@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fmning.share.response.FileDownloadResult;
 import com.fmning.share.response.FileRenameResult;
+import com.fmning.share.utils.Utils;
 
 @RestController
 @RequestMapping("/api")
@@ -105,10 +106,16 @@ public class FileController {
 		
 		String filePath = (String)payload.get("filePath");
 		String newPath = (String)payload.get("newPath");
-		if (filePath == null || newPath == null) return new FileRenameResult("The request is not complete");
+		if (filePath == null) return new FileRenameResult("The request is not complete");
+		
+		
 		//newPath = ".sharedrive_trash";
 		filePath = homeDir + filePath;
-		newPath = newPath.equals("root") ? homeDir : homeDir + newPath + "/";
+		if (newPath == null) {
+			newPath = homeDir + Utils.RECYCLE_BIN_FOLDER_NAME + "/" + System.currentTimeMillis() + "_";
+		} else {
+			newPath = newPath.equals("root") ? homeDir : homeDir + newPath + "/";
+		}
 		
 		String[] paths = filePath.split("/");
 		String originalName = paths[paths.length - 1];
