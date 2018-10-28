@@ -434,7 +434,7 @@ export default class InfoTables extends Component {
 												<span className="fa fa-refresh fa-spin fa-1x fa-fw"></span>
 											</button>
 										) : (
-											<button type="button" className="btn btn-outline-primary btn-block px-0" data-toggle="modal" data-target="#exampleModal"
+											<button type="button" className="btn btn-outline-primary btn-block px-0" data-toggle="modal" data-target="#moveFileModal"
 												onClick={() => this.moveFileModal.current.loadFolder(null)} >Move</button>
 										) }
 										

@@ -9,3 +9,32 @@ tr.selected td {
 .cursor-pointer {
 	cursor: pointer;
 }
+
+.upload-btn {
+	height: 300px
+} 
+
+.upload-btn input[type=file] {
+	position: absolute; 
+	top: 0; 
+	left:0;
+	right:0;
+	bottom:0;
+	width: 100%;
+	text-align: right; 
+	filter: alpha(opacity=1); 
+	opacity: 0;  
+	cursor: inherit; 
+}
+
+.upload-btn:hover {
+	background: #DFDFDF; 
+}
+
+.upload-btn-drag-over {
+	background: #DFDFDF; 
+}
+
+.upload-btn-child {
+  pointer-events: none;
+}

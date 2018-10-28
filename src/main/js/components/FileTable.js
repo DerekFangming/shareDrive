@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import {convertSize, convertDate, getFileType} from '../utils/Utils'
 import {LoadingStatus} from '../utils/Enums';
+import UploadFileModal from './UploadFileModal'
 
 import archive from '../../resources/static/archive.png';
 import audio from '../../resources/static/audio.png';
@@ -171,7 +172,16 @@ export default class FileTable extends Component {
 		
 		return (
 			<div className="col-md-9">
-				<h2 className="mb-4 ml-2"><small>Files</small></h2>
+				<div className="row">
+					<div className="col">
+						<h2 className="mb-4 ml-2"><small>Files</small></h2>
+					</div>
+					<div className="col">
+						<button className="btn btn-primary float-right" type="button" data-toggle="modal" data-target="#uploadModal"><span className="fa fa-plus mr-2"></span>Upload</button>
+					</div>
+				</div>
+				
+				
 				<table className={this.state.loadingStatus == LoadingStatus.Loaded ? "table table-hover" : "table"}>
 					<thead>
 						<tr>
@@ -285,7 +295,7 @@ export default class FileTable extends Component {
 							
 
 				</table>
-				
+				<UploadFileModal />
 			</div>
 		);
 	}

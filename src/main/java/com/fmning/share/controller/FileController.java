@@ -10,16 +10,21 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fmning.share.response.FileDownloadResult;
 import com.fmning.share.response.FileRenameResult;
@@ -131,6 +136,33 @@ public class FileController {
 			return new FileRenameResult(new File(newPath), homeDir);
 		} else {
 			return new FileRenameResult("Internal Server error. Please try again later");
+		}
+	}
+	
+//	@RequestMapping(value = "/upload_file", method = RequestMethod.POST, consumes = {"multipart/form-data"})
+//	public String importQuestion(@Valid @RequestParam("filaName") 
+//	MultipartFile multipart,  BindingResult result, ModelMap model) {
+//		System.out.println("Post method of uploaded Questions ");
+//
+//	    System.out.println("Uploaded file Name : " + multipart.getOriginalFilename());
+//	   return "importQuestion";
+//	}
+	
+	@PostMapping("/upload_file")
+	public void uploadFiles(@RequestParam("file") MultipartFile file) {
+		System.out.println("Uploaded file Name : " + file.getOriginalFilename());
+		
+		File deskFolder = new File("D:/QQDownload/aa");
+		File uploadedFile = new File("D:/QQDownload/aa/" + file.getOriginalFilename());
+		
+		try {
+			file.transferTo(uploadedFile);
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
