@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
 import com.fmning.share.response.FileDownloadResult;
 import com.fmning.share.response.FileRenameResult;
@@ -149,21 +151,28 @@ public class FileController {
 //	}
 	
 	@PostMapping("/upload_file")
-	public void uploadFiles(@RequestParam("file") MultipartFile file) {
-		System.out.println("Uploaded file Name : " + file.getOriginalFilename());
+	public void uploadFiles(@RequestParam("file") List<MultipartFile> files, @RequestParam("dir") String dir, MultipartRequest request) {
 		
-		File deskFolder = new File("D:/QQDownload/aa");
-		File uploadedFile = new File("D:/QQDownload/aa/" + file.getOriginalFilename());
+		System.out.println(files.size());
 		
-		try {
-			file.transferTo(uploadedFile);
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for (MultipartFile file : files) {
+			System.out.println("Uploaded file Name : " + file.getOriginalFilename() + " into directory: " + dir);
+			
+			//File deskFolder = new File("D:/QQDownload/aa");
+			File uploadedFile = new File("D:/QQDownload/aa/" + file.getOriginalFilename());
+			
+			try {
+				file.transferTo(uploadedFile);
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		
+		
 	}
 
 }
