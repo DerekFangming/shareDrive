@@ -38,3 +38,14 @@ tr.selected td {
 .upload-btn-child {
   pointer-events: none;
 }
+
+.table td.fix-text {
+    max-width: 300px;
+}
+.table td.fix-text span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 100%;
+}
