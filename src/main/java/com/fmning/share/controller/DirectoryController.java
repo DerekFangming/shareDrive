@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fmning.share.response.DirSize;
 import com.fmning.share.response.DriveStatus;
 import com.fmning.share.response.FileSearchResult;
+import com.fmning.share.response.FileRetrieveResult;
 import com.fmning.share.response.Shareable;
-import com.fmning.share.utils.ResponseList;
 
 @RestController
 @RequestMapping("/api")
@@ -31,26 +31,26 @@ public class DirectoryController {
 	private String homeDir;
 	
 	@PostMapping("/get_files_in_directory")
-	public ResponseList getFiles(@RequestBody Map<String, Object> payload) {
+	public FileRetrieveResult getFiles(@RequestBody Map<String, Object> payload) {
 		
 		String dirStr = (String)payload.get("dir");
 		Object loadDirOnly = payload.get("loadDirOnly");
 		boolean dirOnly = loadDirOnly == null ? false : (boolean)loadDirOnly;
-		if (dirStr == null) return new ResponseList("The request is not complete");
+		if (dirStr == null) return new FileRetrieveResult("The request is not complete");
 		
 		File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
 		
 		if (dir.isFile()) {
-			return new ResponseList("Requested path is not a directory.");
+			return new FileRetrieveResult("Requested path is not a directory.");
 		} else if (!dir.isDirectory()) {
-			return new ResponseList("Requested path does not exist.");
+			return new FileRetrieveResult("Requested path does not exist.");
 		} else if (dir.listFiles() == null) {
-			return new ResponseList("Internal server error.");
+			return new FileRetrieveResult("Internal server error.");
 		} else {
 			File[] childFileList = dir.listFiles();
 			
 			if (childFileList == null) {
-				return new ResponseList("Internal server error.");
+				return new FileRetrieveResult("Internal server error.");
 			} else {
 				List<Shareable> fileList = new ArrayList<>();
 				for(File f : childFileList) {
@@ -65,7 +65,7 @@ public class DirectoryController {
 					}
 				}
 
-				return new ResponseList(fileList);
+				return new FileRetrieveResult(fileList);
 			}
 			
 		}

@@ -62,10 +62,10 @@ export default class MoveFileModal extends Component {
 			if (response.status == 200) {
 				response.json().then(function(json) {
 					if (json.error == '') {
-						json.objList.sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
+						json.fileList.sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
 						that.setState({
 							loadingStatus: LoadingStatus.Loaded,
-							fileList: json.objList
+							fileList: json.fileList
 						});
 					} else {
 						that.setState({
