@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {convertSize} from '../utils/Utils'
+import {convertSize, secondsToStr, keepTwoDigits} from '../utils/Utils'
 import Config from 'Config';
 import axios from 'axios'
 import plus from '../../resources/static/plus.png';
@@ -13,8 +13,9 @@ export default class UploadFileModal extends Component {
 			fileSize: 0,
 			uploadButtonClass: '',
 			errMsg: '',
-			uploading: true,
-			ratio: 50.3
+			uploading: false,
+			ratio: 0,
+			remainMsg: ''
 		};
 	}
 	
@@ -103,23 +104,55 @@ export default class UploadFileModal extends Component {
 	
 	uploadFile = () => {
 		var formData = new FormData();
+		this.setState({uploading: true, ratio: 0})
 
-		console.log('len: ' + this.state.files.length)
+		//console.log('len: ' + this.state.files.length)
 		Array.from(this.state.files).map(file =>{
-			formData.append("file", file);
+			formData.append("files", file);
 		})
-		
 		formData.append("dir", "some randome");
+
+		
+		let previousRatio = 0;
+		let that = this
+		let progressCal = setInterval(() => {
+			let currentRatio = this.state.ratio
+			let newProgress = currentRatio - previousRatio;
+			previousRatio = currentRatio
+			if (newProgress <= 0) {
+				this.setState({remainMsg: '-'})
+			} else {
+				let remainingSeconds = (100 - currentRatio)/newProgress
+				let remainingStr = secondsToStr(remainingSeconds)
+				this.setState({remainMsg: remainingStr})
+				
+			}
+			
+			if (this.state.ratio == 100 || !this.state.uploading) {
+				
+				clearInterval(progressCal)
+			}
+		}, 1000)
+		
 		axios.post(Config.serverUrl + 'upload_file', formData, {
 			headers: {
 			  'Content-Type': 'multipart/form-data'
 			},
 			onUploadProgress: ProgressEvent => {
-				let percent = Number(ProgressEvent.loaded / ProgressEvent.total * 100).toFixed(2)
+				let percent = keepTwoDigits(ProgressEvent.loaded / ProgressEvent.total * 100)
 				this.setState({ratio: percent })
 			}
 		})
+		.then(res => {
+			console.log(12)
+			this.setState({uploading: false, ratio: 0})
+			console.log(res.data.error)
+			console.log(res.data.fileList)
+			
+		})
 		.then(null, res => {
+			console.log(11)
+			this.setState({uploading: false, ratio: 0})
 			if (res.response) {
 				console.log(res.response.status)
 				console.log(res.response)
@@ -127,6 +160,7 @@ export default class UploadFileModal extends Component {
 				console.log("Internal server error")
 			}
 		})
+		
 	}
 	
 	removeFile = (fileName) => {
@@ -151,14 +185,6 @@ export default class UploadFileModal extends Component {
 	cancelBtnHandler = () => {
 		this.setState({ files: [], fileSize: 0, errMsg: '' });
 		$('#uploadModal').modal('hide');
-		let n = 0
-		windows.setInterval(() => {
-			if (n++ == 5) {
-				console.log(n)
-				clearInterval() 
-			}
-		}, 500)
-		console.log('done')
 	}
 	
 	render () {//106 is done
@@ -168,16 +194,16 @@ export default class UploadFileModal extends Component {
 					<div className="modal-content">
 						<div className="modal-header">
 							<h5 className="modal-title" id="uploadModalLabel">Upload a file</h5>
-							<button type="button" className="close" onClick={this.cancelBtnHandler} aria-label="Close">
+							<button type="button" className={this.state.uploading ? "close d-none" : "close"} onClick={this.cancelBtnHandler} aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 							</button>
 						</div>
 						
-						<div className={"modal-body upload-btn d-flex align-items-center " + this.state.uploadButtonClass} id="uploadBox">
+						<div className={this.state.uploading ? "d-none" : "modal-body upload-btn d-flex align-items-center " + this.state.uploadButtonClass} id="uploadBox">
 							<input type="file" name="filefield" multiple="multiple" id="fileSelectButton"></input>
 							<div className="container text-center upload-btn-child">
-							<img src={plus} width='80' height='80'></img>
-							<h4 className="font-weight-light" >Click here or drop a file here</h4>
+								<img src={plus} width='80' height='80'></img>
+								<h4 className="font-weight-light" >Click here or drop a file here</h4>
 							</div>
 						</div>
 						
@@ -186,11 +212,11 @@ export default class UploadFileModal extends Component {
 								return(
 									<div className="modal-body">
 										<div className="row">
-											<div className="col-md-5 pr-0 pt-1">
+											<div className="col-md-2 pr-0 pt-1">
 												<span className="fa fa-refresh fa-spin fa-fw float-right"></span>
 											</div>
-											<div className="col-md-7">
-												<p className="float-left">Loading ...</p>
+											<div className="col-md-10">
+												<p className="float-left">Uploading ... Remaining time: {this.state.remainMsg}</p>
 											</div>
 										</div>
 										<div className="progress">
@@ -217,9 +243,8 @@ export default class UploadFileModal extends Component {
 														<td className="fix-text" style={{width:'70%'}}><span>{file.name}</span></td>
 														<td  style={{width:'15%'}}>{convertSize(file.size)}</td>
 														<td style={{width:'15%'}}>
-															<button type="button" className="btn btn-danger btn-sm float-right" onClick={() => this.removeFile(file.name)} >
-																remove
-															</button>
+															<button type="button" className="btn btn-danger btn-sm float-right" onClick={() => this.removeFile(file.name)}
+																disabled={this.state.uploading ? "disabled" : ""}>remove</button>
 														</td>
 													</tr>
 												)}
@@ -232,13 +257,14 @@ export default class UploadFileModal extends Component {
 						})()}
 						
 						<div className="modal-footer">
-							<button type="button" className="btn btn-success"  onClick={this.uploadFile}>Upload</button>
+							<button type="button" className="btn btn-success" onClick={this.uploadFile} disabled={this.state.uploading ? "disabled" : ""} >Upload</button>
 							{(() => {
 								if (this.state.files.length > 0) {
-									return <button type="button" className="btn btn-danger" onClick={this.removeAllFiles}>Clear all files</button>
+									return <button type="button" className="btn btn-danger" onClick={this.removeAllFiles} disabled={this.state.uploading ? "disabled" : ""}>Clear all files</button>
 								}
 							})()}
-							<button type="button" className="btn btn-secondary" onClick={this.cancelBtnHandler}>Cancel</button>
+							<button type="button" className="btn btn-secondary" onClick={this.cancelBtnHandler}
+								disabled={this.state.uploading ? "disabled" : ""} >Cancel</button>
 						</div>
 					</div>
 				</div>

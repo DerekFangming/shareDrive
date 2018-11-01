@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {convertSize, convertDate, numberWithCommas, getFileType} from '../utils/Utils';
+import {convertSize, convertDate, numberWithCommas, getFileType, keepTwoDigits} from '../utils/Utils';
 import Arrow from './Arrow';
 import {LoadingStatus} from '../utils/Enums';
 import MoveFileModal from './MoveFileModal'
@@ -42,7 +42,7 @@ export default class InfoTables extends Component {
 			if (response.status == 200) {
 				response.json().then(function(json) {
 					if (json.error == '') {
-						let ratioString = ((json.totalSize - json.availableSize) * 100 / json.totalSize).toFixed(2);;
+						let ratioString = keepTwoDigits((json.totalSize - json.availableSize) * 100 / json.totalSize);
 						that.setState({
 							totalSize: json.totalSize,
 							availableSize: json.availableSize,

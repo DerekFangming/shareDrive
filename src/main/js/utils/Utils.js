@@ -45,3 +45,38 @@ export const getFileType = (file) => {
 		}
 	}
 }
+
+export const keepTwoDigits = (num) => {
+	return Number(num).toFixed(2)
+}
+
+export const numberEnding = (number) => {
+    return (number > 1) ? 's' : '';
+}
+
+export const secondsToStr = (sec) => {
+
+    var years = Math.floor(sec / 31536000);
+    if (years) {
+        return years + ' year' + numberEnding(years);
+    }
+    
+    var days = Math.floor((sec %= 31536000) / 86400);
+    if (days) {
+        return days + ' day' + numberEnding(days);
+    }
+    var hours = Math.floor((sec %= 86400) / 3600);
+    if (hours) {
+        return hours + ' hour' + numberEnding(hours);
+    }
+    var minutes = Math.floor((sec %= 3600) / 60);
+    if (minutes) {
+        return minutes + ' minute' + numberEnding(minutes);
+    }
+    var seconds = sec % 60;
+    if (seconds >= 1) {
+        return keepTwoDigits(seconds) + ' second' + numberEnding(seconds);
+    } else {
+    	return 'less than a second';
+    }
+}

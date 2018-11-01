@@ -7,22 +7,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.ui.ModelMap;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +27,8 @@ import org.springframework.web.multipart.MultipartRequest;
 
 import com.fmning.share.response.FileDownloadResult;
 import com.fmning.share.response.FileRenameResult;
+import com.fmning.share.response.FileRetrieveResult;
+import com.fmning.share.response.Shareable;
 import com.fmning.share.utils.Utils;
 
 @RestController
@@ -141,37 +140,30 @@ public class FileController {
 		}
 	}
 	
-//	@RequestMapping(value = "/upload_file", method = RequestMethod.POST, consumes = {"multipart/form-data"})
-//	public String importQuestion(@Valid @RequestParam("filaName") 
-//	MultipartFile multipart,  BindingResult result, ModelMap model) {
-//		System.out.println("Post method of uploaded Questions ");
-//
-//	    System.out.println("Uploaded file Name : " + multipart.getOriginalFilename());
-//	   return "importQuestion";
-//	}
-	
 	@PostMapping("/upload_file")
-	public void uploadFiles(@RequestParam("file") List<MultipartFile> files, @RequestParam("dir") String dir, MultipartRequest request) {
+	public FileRetrieveResult uploadFiles(@RequestParam("files") List<MultipartFile> files, @RequestParam("dir") String dir, MultipartRequest request) {
 		
-		System.out.println(files.size());
+		String errorMessage = "";
+		List<Shareable> fileList = new ArrayList<>();
 		
 		for (MultipartFile file : files) {
-			System.out.println("Uploaded file Name : " + file.getOriginalFilename() + " into directory: " + dir);
+			System.out.println("Uploading file Name : " + file.getOriginalFilename() + " into directory: " + dir);
 			
-			//File deskFolder = new File("D:/QQDownload/aa");
 			File uploadedFile = new File("D:/QQDownload/aa/" + file.getOriginalFilename());
+			//File uploadedFile = new File("/Users/fangming.ning/test/" + file.getOriginalFilename());
 			
 			try {
 				file.transferTo(uploadedFile);
-			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				fileList.add(new Shareable(uploadedFile, homeDir));
+			} catch (Exception e) {
+				errorMessage = "Some files are not uploaded successfully.";
 			}
 		}
 		
+		FileRetrieveResult response = new FileRetrieveResult(errorMessage);
+		response.setFileList(fileList);
+		
+		return response;
 		
 	}
 
