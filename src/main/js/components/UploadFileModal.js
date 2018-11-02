@@ -11,12 +11,25 @@ export default class UploadFileModal extends Component {
 		this.state = {
 			files: [],
 			fileSize: 0,
+			existingFiles: [],
+			availableDriveSize: 0,
+			currentDir: '',
 			uploadButtonClass: '',
 			errMsg: '',
 			uploading: false,
 			ratio: 0,
 			remainMsg: ''
 		};
+	}
+	
+	updateDriveStatus = (existingFiles, availableDriveSize, currentDir) => {
+		console.log(availableDriveSize + currentDir)
+		
+		this.setState({
+			existingFiles: existingFiles,
+			availableDriveSize: availableDriveSize,
+			currentDir: currentDir
+		})
 	}
 	
 	componentDidMount() {
@@ -96,9 +109,6 @@ export default class UploadFileModal extends Component {
 		
 		let currentFileList = this.state.files.slice();
 		let combinedFileList = currentFileList.concat(newFiles)
-//		console.log(currentFileList);
-//		console.log(newFiles)
-//		console.log(combinedFileList)
 		this.setState({files: combinedFileList, fileSize: totalSize, uploadButtonClass: '', errMsg: ''})
 	}
 	
@@ -106,7 +116,6 @@ export default class UploadFileModal extends Component {
 		var formData = new FormData();
 		this.setState({uploading: true, ratio: 0})
 
-		//console.log('len: ' + this.state.files.length)
 		Array.from(this.state.files).map(file =>{
 			formData.append("files", file);
 		})

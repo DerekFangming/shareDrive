@@ -40,6 +40,10 @@ export default class Container extends Component {
 		this.dirPath.current.createFilePathHandler(searchedPathFile, true)
 	}
 	
+	getAvailableDriveSize = () => {
+		return this.infoTable.current.getAvailableDriveSize();
+	}
+	
 	render () {
 		return (
 			<div className="container-fluid">
@@ -48,7 +52,8 @@ export default class Container extends Component {
 				</div>
 				
 				<div className="row">
-					<FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler} createFilePathHandler={this.createFilePathHandler}/>
+					<FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler} createFilePathHandler={this.createFilePathHandler}
+					getAvailableDriveSize={this.getAvailableDriveSize}/>
 					<InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler} fileMoveHandler={this.fileMoveHandler}/>
 				</div>
 			</div>

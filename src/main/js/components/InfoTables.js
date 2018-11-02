@@ -250,6 +250,10 @@ export default class InfoTables extends Component {
 		});
 	}
 	
+	getAvailableDriveSize = () => {
+		return this.state.availableSize
+	}
+	
 	render () {
 		return (
 			<div className="col-md-3">

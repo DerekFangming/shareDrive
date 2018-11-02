@@ -24,6 +24,7 @@ export default class FileTable extends Component {
 	    	sortCol: 'name',
 	    	sortOrder: 'neutral'
 	    };
+	    this.uploadModal = React.createRef()
 	}
 	
 	componentDidMount() {
@@ -35,7 +36,7 @@ export default class FileTable extends Component {
 		var requestedDir
 			
 		if (file == null) {
-			requestedDir = this.state.currentDir;
+			requestedDir = 'root';
 			this.setState({
 				loadingStatus: LoadingStatus.Loading, sortCol: 'name', sortOrder: 'neutral'
 			});
@@ -63,7 +64,8 @@ export default class FileTable extends Component {
 						json.fileList.sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
 						that.setState({
 							loadingStatus: LoadingStatus.Loaded,
-							fileList: json.fileList
+							fileList: json.fileList,
+							currentDir: requestedDir
 						});
 						that.props.createFilePathHandler(file)
 					} else {
@@ -168,6 +170,13 @@ export default class FileTable extends Component {
 		$(row).parent().addClass('selected').siblings().removeClass('selected');
 	}
 	
+	uploadBtnHandler = () => {
+		let availableSize = this.props.getAvailableDriveSize()
+		console.log(this.state.currentDir)
+		this.uploadModal.current.updateDriveStatus(this.state.fileList, availableSize, this.state.currentDir)
+		$('#uploadModal').modal('show');
+	}
+	
 	render () {
 		
 		return (
@@ -177,7 +186,7 @@ export default class FileTable extends Component {
 						<h2 className="mb-4 ml-2"><small>Files</small></h2>
 					</div>
 					<div className="col">
-						<button className="btn btn-primary float-right" type="button" data-toggle="modal" data-target="#uploadModal"><span className="fa fa-plus mr-2"></span>Upload</button>
+						<button className="btn btn-primary float-right" type="button" onClick={this.uploadBtnHandler} ><span className="fa fa-plus mr-2"></span>Upload</button>
 					</div>
 				</div>
 				
@@ -295,7 +304,7 @@ export default class FileTable extends Component {
 							
 
 				</table>
-				<UploadFileModal />
+				<UploadFileModal ref={this.uploadModal} />
 			</div>
 		);
 	}
