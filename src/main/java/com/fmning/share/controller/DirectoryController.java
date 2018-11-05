@@ -37,9 +37,9 @@ public class DirectoryController {
 		String dirStr = (String)payload.get("dir");
 		Object loadDirOnly = payload.get("loadDirOnly");
 		boolean dirOnly = loadDirOnly == null ? false : (boolean)loadDirOnly;
-		if (dirStr == null) return new FileRetrieveResult("The request is not complete");
+		if (dirStr == null) dirStr = "";
 		
-		File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
+		File dir = new File(homeDir + dirStr);
 		
 		if (dir.isFile()) {
 			return new FileRetrieveResult("Requested path is not a directory.");

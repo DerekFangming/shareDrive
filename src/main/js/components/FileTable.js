@@ -40,7 +40,6 @@ export default class FileTable extends Component {
 		var requestedDir
 			
 		if (file == null) {
-			requestedDir = 'root';
 			this.setState({
 				loadingStatus: LoadingStatus.Loading, sortCol: 'name', sortOrder: 'neutral'
 			});

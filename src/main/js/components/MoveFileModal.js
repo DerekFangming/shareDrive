@@ -12,8 +12,8 @@ export default class MoveFileModal extends Component {
 		    	fileList: [],
 		    	loadingStatus: LoadingStatus.Loading,
 		    	loadingMsg: '',
-		    	currentPath: 'root',
-		    	moveToPath: 'root'
+		    	currentPath: null,
+		    	moveToPath: null
 	    };
 		
 	}
@@ -25,13 +25,11 @@ export default class MoveFileModal extends Component {
 	loadFolder = (filePath, loadParent) => {
 		const that = this
 		
-		const toPath = filePath == null? 'root' : filePath
 		this.setState({
-			loadingStatus: LoadingStatus.Loading, moveToPath: toPath
+			loadingStatus: LoadingStatus.Loading, moveToPath: filePath
 		});
 		
 		if (filePath == null) {
-			filePath = 'root'
 			if (loadParent) {
 				this.setState({
 					loadingStatus: LoadingStatus.Error,
@@ -44,7 +42,7 @@ export default class MoveFileModal extends Component {
 			let paths = filePath.split("/");
 			paths.pop()
 			
-			filePath = paths.length == 0 ? 'root' : paths.join("/");
+			filePath = paths.length == 0 ? null : paths.join("/");
 		}
 		this.setState({
 			currentPath: filePath
