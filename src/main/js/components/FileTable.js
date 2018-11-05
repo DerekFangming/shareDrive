@@ -176,7 +176,6 @@ export default class FileTable extends Component {
 	
 	uploadBtnHandler = () => {
 		let availableSize = this.props.getAvailableDriveSize()
-		console.log(this.state.currentDir)
 		this.uploadModal.current.updateDriveStatus(this.state.fileList, availableSize, this.state.currentDir)
 		$('#uploadModal').modal('show');
 	}
@@ -189,9 +188,6 @@ export default class FileTable extends Component {
 	}
 	
 	createNewFolder = () => {
-//		console.log(this.state.newFolderName)
-//		return
-		
 		const that = this
 		this.setState({
 			submittingFolder: true, folderErrMsg: ''
@@ -209,7 +205,6 @@ export default class FileTable extends Component {
 			if (response.status == 200) {
 				response.json().then(function(json) {
 					if (json.error == '') {
-						console.log("ok")
 						let currentFileList = that.state.fileList.slice();
 						currentFileList.unshift(json.file);
 						that.setState({

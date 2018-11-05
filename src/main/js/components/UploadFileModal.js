@@ -84,7 +84,6 @@ export default class UploadFileModal extends Component {
 		let newFileSize = 0
 		for (var newFile of newFiles)  {
 			let dup = this.state.files.some( file => {
-				//console.log(file.name + ' ' + newFile.name)
 				return file.name == newFile.name
 			})
 			
@@ -95,7 +94,6 @@ export default class UploadFileModal extends Component {
 			}
 			
 			dup = this.state.existingFiles.some( file => {
-				//console.log(file.name + ' ' + newFile.name)
 				return file.name == newFile.name
 			})
 			
@@ -199,8 +197,6 @@ export default class UploadFileModal extends Component {
 			}
 			
 			this.setState({})
-			console.log(res.data.error)
-			console.log(res.data.fileList)
 			
 		})
 		.then(null, res => {
@@ -233,7 +229,7 @@ export default class UploadFileModal extends Component {
 		$('#uploadModal').modal('hide');
 	}
 	
-	render () {//106 is done
+	render () {
 		return (
 			<div className="modal fade" id="uploadModal" tabIndex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
 				<div className="modal-dialog" role="document">

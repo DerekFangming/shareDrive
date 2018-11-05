@@ -143,13 +143,10 @@ export default class InfoTables extends Component {
 		
 		
 		if (destPath == null) {
-			console.log('Deleting ' + this.state.file.name )
 			this.setState({
 				deleting: false, submittingDelete: true, fileErrMsg: ''
 			});
 		} else {
-			console.log('Moving ' + this.state.file.name + ' FROM: ' + this.state.file.path + ' to: ' + destPath )
-			
 			this.setState({
 				moving: true, fileErrMsg: ''
 			});

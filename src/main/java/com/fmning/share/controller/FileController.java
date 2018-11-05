@@ -114,8 +114,6 @@ public class FileController {
 		String newPath = (String)payload.get("newPath");
 		if (filePath == null) return new FileRenameResult("The request is not complete");
 		
-		
-		//newPath = ".sharedrive_trash";
 		filePath = homeDir + filePath;
 		if (newPath == null) {
 			newPath = homeDir + Utils.RECYCLE_BIN_FOLDER_NAME + "/" + System.currentTimeMillis() + "_";
@@ -131,8 +129,6 @@ public class FileController {
 			return new FileRenameResult("The file is already at the selected directory");
 		}
 		
-		System.out.println(filePath + " rename to: " + newPath);
-		
 		if ((new File(filePath)).renameTo((new File(newPath)))) {
 			return new FileRenameResult(new File(newPath), homeDir);
 		} else {
@@ -147,11 +143,7 @@ public class FileController {
 		List<Shareable> fileList = new ArrayList<>();
 		
 		for (MultipartFile file : files) {
-			System.out.println("Uploading file Name : " + file.getOriginalFilename() + " into directory: " + dir);
-			
-			//File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
 			File uploadedFile = dir.equals("root") ? new File(homeDir + file.getOriginalFilename()): new File(homeDir + dir + "/" + file.getOriginalFilename());
-			//File uploadedFile = new File("/Users/fangming.ning/test/" + file.getOriginalFilename());
 			
 			try {
 				file.transferTo(uploadedFile);
