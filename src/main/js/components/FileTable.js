@@ -3,6 +3,7 @@ import Config from 'Config';
 import {convertSize, convertDate, getFileType} from '../utils/Utils'
 import {LoadingStatus} from '../utils/Enums';
 import UploadFileModal from './UploadFileModal'
+import Popover, { ArrowContainer } from 'react-tiny-popover'
 
 import archive from '../../resources/static/archive.png';
 import audio from '../../resources/static/audio.png';
@@ -22,7 +23,10 @@ export default class FileTable extends Component {
 	    	currentDir: 'root',
 	    	loadingStatus: LoadingStatus.Loading,
 	    	sortCol: 'name',
-	    	sortOrder: 'neutral'
+	    	sortOrder: 'neutral',
+	    	creatingFolder: false,
+	    	submittingFolder: false,
+	    	folderErrMsg: ''
 	    };
 	    this.uploadModal = React.createRef()
 	}
@@ -177,17 +181,101 @@ export default class FileTable extends Component {
 		$('#uploadModal').modal('show');
 	}
 	
+	uploadDoneHanlder = (newFiles) => {
+		let currentFileList = this.state.fileList.slice();
+		let combinedFileList = newFiles.concat(currentFileList)
+		this.setState({fileList: combinedFileList})
+		this.props.refreshStorageInfoHandler()
+	}
+	
+	createNewFolder = () => {
+//		console.log(this.state.newFolderName)
+//		return
+		
+		const that = this
+		this.setState({
+			submittingFolder: true, folderErrMsg: ''
+		});
+		
+		fetch(Config.serverUrl + 'create_folder', {
+			method: 'POST',
+		    headers: {
+		    	'Accept': 'application/json',
+		    	'Content-Type': 'application/json'
+		    },
+		    body: JSON.stringify({dir : this.state.currentDir, folderName : this.state.newFolderName})
+		})
+		.then(function (response) {
+			if (response.status == 200) {
+				response.json().then(function(json) {
+					if (json.error == '') {
+						console.log("ok")
+						let currentFileList = that.state.fileList.slice();
+						currentFileList.unshift(json.file);
+						that.setState({
+							submittingFolder: false, folderErrMsg: '', creatingFolder : false, fileList: currentFileList
+						});
+					} else {
+						that.setState({
+							submittingFolder: false, folderErrMsg: json.error
+						});
+					}
+				})
+				
+			} else {
+				that.setState({
+					submittingFolder: false, folderErrMsg: 'Internal server error. Please try again later'
+				});
+			}
+		});
+	}
+	
 	render () {
 		
 		return (
 			<div className="col-md-9">
 				<div className="row">
-					<div className="col">
+					<div className="col-md-8">
 						<h2 className="mb-4 ml-2"><small>Files</small></h2>
 					</div>
-					<div className="col">
-						<button className="btn btn-primary float-right" type="button" onClick={this.uploadBtnHandler} ><span className="fa fa-plus mr-2"></span>Upload</button>
-					</div>
+					{this.state.creatingFolder ? (
+						<div className="col-md-4">
+							<div className="input-group">
+								<Popover isOpen={this.state.folderErrMsg != ''} position={'bottom'} onClickOutside={() => this.setState({folderErrMsg: ''})}
+									content={({ position, targetRect, popoverRect }) => (
+									<ArrowContainer position={position} targetRect={targetRect} popoverRect={popoverRect}
+							        	arrowColor={'#F8D7DA'} arrowSize={10}>
+										<div className="alert alert-danger py-2" role="alert">
+											{this.state.folderErrMsg}
+										</div>
+									</ArrowContainer>
+								)} >
+									<input type="text" className="form-control" placeholder="Enter new folder name" 
+										onChange={(e) => this.setState({newFolderName: e.target.value}) } disabled={this.state.submittingFolder? "disabled" : ""}
+										onKeyPress={(e) => {
+											if (e.key === 'Enter') this.createNewFolder()
+										}}></input>
+								</Popover>
+								{ this.state.submittingFolder ? (
+									<div className="input-group-append">
+										<button className="btn btn-success disabled" type="button"><span className="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span></button>
+									</div>
+								) : (
+									<div className="input-group-append">
+										<button className="btn btn-success" type="button" onClick={this.createNewFolder} >Create</button>
+										<button className="btn btn-secondary" type="button" onClick={() => this.setState({creatingFolder : false})}>Cancel</button>
+									</div>
+								)}
+							</div>
+						</div>
+					) : (
+						<div className="col-md-4">
+							<button className="btn btn-primary float-right" type="button" onClick={this.uploadBtnHandler} ><span className="fa fa-plus mr-2"></span>Upload</button>
+							<button className="btn btn-primary float-right mr-2" type="button" onClick={() => this.setState({creatingFolder: true})} ><span className="fa fa-folder-o mr-2"></span>New folder</button>
+						</div>
+					)}
+							
+					
 				</div>
 				
 				
@@ -304,7 +392,7 @@ export default class FileTable extends Component {
 							
 
 				</table>
-				<UploadFileModal ref={this.uploadModal} />
+				<UploadFileModal ref={this.uploadModal} uploadDoneHanlder={this.uploadDoneHanlder}/>
 			</div>
 		);
 	}

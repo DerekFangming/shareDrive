@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fmning.share.response.DirSize;
 import com.fmning.share.response.DriveStatus;
+import com.fmning.share.response.FileRenameResult;
 import com.fmning.share.response.FileSearchResult;
 import com.fmning.share.response.FileRetrieveResult;
 import com.fmning.share.response.Shareable;
@@ -139,6 +140,29 @@ public class DirectoryController {
 		} else {
 			return new DirSize(FileUtils.sizeOfDirectory(dir));
 		}
+	}
+	
+	@PostMapping("/create_folder")
+	public FileRenameResult createFoler(@RequestBody Map<String, Object> payload) {
+		
+		String dirStr = (String)payload.get("dir");
+		String folderName = (String)payload.get("folderName");
+		if (dirStr == null || folderName == null) return new FileRenameResult("The request is not complete");
+		
+		File newDir = new File(homeDir + dirStr + "/" + folderName);
+		
+		if (newDir.exists()) {
+			return new FileRenameResult("The folder already exits"); 
+		}
+		
+		boolean result = newDir.mkdirs();
+		
+		if (result) {
+			return new FileRenameResult(newDir, homeDir);
+		} else {
+			return new FileRenameResult("Failed to create folder due to internal server error.");
+		}
+		
 	}
 	
 

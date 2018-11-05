@@ -149,7 +149,8 @@ public class FileController {
 		for (MultipartFile file : files) {
 			System.out.println("Uploading file Name : " + file.getOriginalFilename() + " into directory: " + dir);
 			
-			File uploadedFile = new File("D:/QQDownload/aa/" + file.getOriginalFilename());
+			//File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
+			File uploadedFile = dir.equals("root") ? new File(homeDir + file.getOriginalFilename()): new File(homeDir + dir + "/" + file.getOriginalFilename());
 			//File uploadedFile = new File("/Users/fangming.ning/test/" + file.getOriginalFilename());
 			
 			try {

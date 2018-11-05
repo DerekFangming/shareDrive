@@ -23,7 +23,6 @@ export default class UploadFileModal extends Component {
 	}
 	
 	updateDriveStatus = (existingFiles, availableDriveSize, currentDir) => {
-		console.log(availableDriveSize + currentDir)
 		
 		this.setState({
 			existingFiles: existingFiles,
@@ -84,25 +83,41 @@ export default class UploadFileModal extends Component {
 	processNewFiles = (newFiles) => {
 		let newFileSize = 0
 		for (var newFile of newFiles)  {
-			
 			let dup = this.state.files.some( file => {
-				console.log(file.name + ' ' + newFile.name)
+				//console.log(file.name + ' ' + newFile.name)
 				return file.name == newFile.name
 			})
-			
-			newFileSize += newFile.size
 			
 			if (dup) {
 				let msg = 'Cannot have duplicated file names \'' + newFile.name + '\' under the same directory.'
 				this.setState({errMsg: msg, uploadButtonClass: ''})
 				return false
 			}
+			
+			dup = this.state.existingFiles.some( file => {
+				//console.log(file.name + ' ' + newFile.name)
+				return file.name == newFile.name
+			})
+			
+			if (dup) {
+				let msg = 'The current directory already has a file named \'' + newFile.name + '\'.'
+				this.setState({errMsg: msg, uploadButtonClass: ''})
+				return false
+			}
+			
+			newFileSize += newFile.size
+			
 		}
 		
 		let totalSize = newFileSize + this.state.fileSize;
 		if (totalSize > Config["spring.servlet.multipart.max-file-size"]) {
 			let msg = 'File size limit reached. You can only upload ' + convertSize(Config["spring.servlet.multipart.max-file-size"])
 				+ ' worth of files at a time';
+			this.setState({errMsg: msg, uploadButtonClass: ''})
+			return false
+		} else if (totalSize > this.state.availableDriveSize) {
+			let msg = 'Share drive is full. Cannot upload more file than the left over ' + convertSize(this.state.availableDriveSize)
+			+ ' worth of space';
 			this.setState({errMsg: msg, uploadButtonClass: ''})
 			return false
 		}
@@ -113,13 +128,18 @@ export default class UploadFileModal extends Component {
 	}
 	
 	uploadFile = () => {
-		var formData = new FormData();
-		this.setState({uploading: true, ratio: 0})
+		if (this.state.files.length == 0) {
+			this.setState({errMsg: 'Nothing to upload. Please select files or drop files above first.'})
+			return
+		} else {
+			this.setState({uploading: true, ratio: 0, errMsg: ''})
+		}
 
+		var formData = new FormData();
 		Array.from(this.state.files).map(file =>{
 			formData.append("files", file);
 		})
-		formData.append("dir", "some randome");
+		formData.append("dir", this.state.currentDir);
 
 		
 		let previousRatio = 0;
@@ -153,21 +173,38 @@ export default class UploadFileModal extends Component {
 			}
 		})
 		.then(res => {
-			console.log(12)
-			this.setState({uploading: false, ratio: 0})
+			if(res.data.error == '') {
+				this.setState({ files: [], fileSize: 0, errMsg: '', uploading: false, ratio: 0 });
+				this.props.uploadDoneHanlder(res.data.fileList);
+				$('#uploadModal').modal('hide');
+			} else if (res.data.error == 'Some files are not uploaded successfully.') {
+				let uploadFileList = this.state.files.slice();
+				
+				let newFileSize = this.state.fileSize;
+				for (var uploadedFile of res.data.fileList)  {
+					let index = uploadFileList.findIndex((f) => {
+						return f.name == uploadedFile.name
+					});
+					
+					if (index != -1) {
+						uploadFileList.splice(index, 1);
+						newFileSize -= uploadedFile.size
+					}
+				}
+				
+				this.setState({ files: uploadFileList, fileSize: newFileSize, errMsg: 'The following files failed to upload. Please try again later.', uploading: false, ratio: 0 });
+				this.props.uploadDoneHanlder(res.data.fileList);
+			} else {
+				this.setState({errMsg: 'Failed to upload files due to internal error. Please try again later. ', uploading: false, ratio: 0});
+			}
+			
+			this.setState({})
 			console.log(res.data.error)
 			console.log(res.data.fileList)
 			
 		})
 		.then(null, res => {
-			console.log(11)
-			this.setState({uploading: false, ratio: 0})
-			if (res.response) {
-				console.log(res.response.status)
-				console.log(res.response)
-			} else {
-				console.log("Internal server error")
-			}
+			this.setState({errMsg: 'Failed to upload files due to internal error. Please try again later. ', uploading: false, ratio: 0})
 		})
 		
 	}

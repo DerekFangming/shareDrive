@@ -44,6 +44,10 @@ export default class Container extends Component {
 		return this.infoTable.current.getAvailableDriveSize();
 	}
 	
+	refreshStorageInfoHandler = () => {
+		this.infoTable.current.loadStorageInfo();
+	}
+	
 	render () {
 		return (
 			<div className="container-fluid">
@@ -53,7 +57,7 @@ export default class Container extends Component {
 				
 				<div className="row">
 					<FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler} createFilePathHandler={this.createFilePathHandler}
-					getAvailableDriveSize={this.getAvailableDriveSize}/>
+					getAvailableDriveSize={this.getAvailableDriveSize} refreshStorageInfoHandler={this.refreshStorageInfoHandler} />
 					<InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler} fileMoveHandler={this.fileMoveHandler}/>
 				</div>
 			</div>
