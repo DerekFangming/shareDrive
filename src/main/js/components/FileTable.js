@@ -20,7 +20,7 @@ export default class FileTable extends Component {
 	    super();
 	    this.state = {
 	    	fileList: [],
-	    	currentDir: 'root',
+	    	currentDir: null,
 	    	loadingStatus: LoadingStatus.Loading,
 	    	sortCol: 'name',
 	    	sortOrder: 'neutral',
@@ -37,7 +37,7 @@ export default class FileTable extends Component {
 	
 	loadFolder = (file) => {
 		var that = this
-		var requestedDir
+		var requestedDir = null
 			
 		if (file == null) {
 			this.setState({

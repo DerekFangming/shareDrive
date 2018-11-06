@@ -13,7 +13,7 @@ export default class UploadFileModal extends Component {
 			fileSize: 0,
 			existingFiles: [],
 			availableDriveSize: 0,
-			currentDir: '',
+			currentDir: null,
 			uploadButtonClass: '',
 			errMsg: '',
 			uploading: false,
@@ -23,7 +23,6 @@ export default class UploadFileModal extends Component {
 	}
 	
 	updateDriveStatus = (existingFiles, availableDriveSize, currentDir) => {
-		
 		this.setState({
 			existingFiles: existingFiles,
 			availableDriveSize: availableDriveSize,
@@ -137,8 +136,10 @@ export default class UploadFileModal extends Component {
 		Array.from(this.state.files).map(file =>{
 			formData.append("files", file);
 		})
-		formData.append("dir", this.state.currentDir);
-
+		
+		if (this.state.currentDir != null) {
+			formData.append("dir", this.state.currentDir);
+		}
 		
 		let previousRatio = 0;
 		let that = this

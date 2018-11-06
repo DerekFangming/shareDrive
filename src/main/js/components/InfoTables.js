@@ -130,7 +130,7 @@ export default class InfoTables extends Component {
 		window.open(Config.serverUrl + 'download_file?file=' + this.state.file.path)
 	}
 	
-	moveSelectedFile = (destPath) => {
+	moveSelectedFile = (destPath, deleteFile) => {
 		if (this.state.file == undefined) return;
 		const that = this
 		
@@ -141,18 +141,19 @@ export default class InfoTables extends Component {
 			return
 		}
 		
-		
-		if (destPath == null) {
+		let paramBody = {};
+		if (destPath == null || deleteFile) {
+			paramBody = {filePath : this.state.file.path}
 			this.setState({
 				deleting: false, submittingDelete: true, fileErrMsg: ''
 			});
 		} else {
+			paramBody = {filePath : this.state.file.path, newPath : destPath}
 			this.setState({
 				moving: true, fileErrMsg: ''
 			});
 		}
-		
-		
+		paramBody.delete = deleteFile
 		
 		fetch(Config.serverUrl + 'move_file', {
 			method: 'POST',
@@ -160,7 +161,7 @@ export default class InfoTables extends Component {
 		    	'Accept': 'application/json',
 		    	'Content-Type': 'application/json'
 		    },
-		    body: JSON.stringify(destPath == null ? {filePath : this.state.file.path} : {filePath : this.state.file.path, newPath : destPath})
+		    body: JSON.stringify(paramBody )
 		})
 		.then(function (response) {
 			if (response.status == 200) {
@@ -415,7 +416,7 @@ export default class InfoTables extends Component {
 										<p className="card-text font-weight-bold">Are you sure about deleting this {this.state.file.isFile ? "file" : "folder"}?</p>
 									</div>
 									<div className="col-md-6">
-										<button type="button" className="btn btn-danger btn-block px-0" onClick={() => this.moveSelectedFile(null)}>Delete</button>
+										<button type="button" className="btn btn-danger btn-block px-0" onClick={() => this.moveSelectedFile(null, true)}>Delete</button>
 									</div>
 									<div className="col-md-6">
 										<button type="button" className="btn btn-secondary btn-block px-0" onClick={() => this.setState({deleting : false}) }>Cancel</button>

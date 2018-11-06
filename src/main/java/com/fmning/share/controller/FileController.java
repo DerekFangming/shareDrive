@@ -116,9 +116,15 @@ public class FileController {
 		
 		filePath = homeDir + filePath;
 		if (newPath == null) {
-			newPath = homeDir + Utils.RECYCLE_BIN_FOLDER_NAME + "/" + System.currentTimeMillis() + "_";
+			Boolean deleteFile = (Boolean)payload.get("delete");
+			boolean delete = deleteFile == null ? false : deleteFile;
+			if (delete) {
+				newPath = homeDir + Utils.RECYCLE_BIN_FOLDER_NAME + "/" + System.currentTimeMillis() + "_";
+			} else {
+				newPath = homeDir;
+			}
 		} else {
-			newPath = newPath.equals("root") ? homeDir : homeDir + newPath + "/";
+			newPath = homeDir + newPath + "/";
 		}
 		
 		String[] paths = filePath.split("/");
@@ -137,13 +143,13 @@ public class FileController {
 	}
 	
 	@PostMapping("/upload_file")
-	public FileRetrieveResult uploadFiles(@RequestParam("files") List<MultipartFile> files, @RequestParam("dir") String dir, MultipartRequest request) {
+	public FileRetrieveResult uploadFiles(@RequestParam("files") List<MultipartFile> files, @RequestParam(value = "dir", required=false) String dir, MultipartRequest request) {
 		
 		String errorMessage = "";
 		List<Shareable> fileList = new ArrayList<>();
 		
 		for (MultipartFile file : files) {
-			File uploadedFile = dir.equals("root") ? new File(homeDir + file.getOriginalFilename()): new File(homeDir + dir + "/" + file.getOriginalFilename());
+			File uploadedFile = dir == null ? new File(homeDir + file.getOriginalFilename()): new File(homeDir + dir + "/" + file.getOriginalFilename());
 			
 			try {
 				file.transferTo(uploadedFile);

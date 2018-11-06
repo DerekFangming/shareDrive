@@ -91,7 +91,7 @@ export default class MoveFileModal extends Component {
 		if (path =='.prev') {
 			let paths = path.split("/");
 			paths.pop()
-			pathToMove = paths.length == 0 ? 'root' : paths.join("/");
+			pathToMove = paths.length == 0 ? null : paths.join("/");
 		}
 		
 		this.setState({moveToPath: pathToMove})
@@ -154,7 +154,7 @@ export default class MoveFileModal extends Component {
 										return (
 											<tbody>
 												{(() => {
-													if (this.state.currentPath != 'root') {
+													if (this.state.currentPath != null) {
 														return (
 															<tr onClick={ (e) => this.selectTableRow(e.target) } path=".prev"
 															onDoubleClick={ () => this.loadFolder(this.state.currentPath, true) }>
@@ -184,7 +184,7 @@ export default class MoveFileModal extends Component {
 						</div>
 						
 						<div className="modal-footer">
-							<button type="button" className="btn btn-success" data-dismiss="modal" onClick={() => this.props.moveSelectedFile(this.state.moveToPath)}>Move</button>
+							<button type="button" className="btn btn-success" data-dismiss="modal" onClick={() => this.props.moveSelectedFile(this.state.moveToPath, false)}>Move</button>
 							<button type="button" className="btn btn-secondary" data-dismiss="modal">Cancel</button>
 						</div>
 					</div>

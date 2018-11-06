@@ -121,8 +121,8 @@ public class DirectoryController {
 	
 	@GetMapping("/get_drive_status")
 	public DriveStatus getDriveStatus() {
-		File root = new File(homeDir);
-		return new DriveStatus(root.getTotalSpace(), root.getUsableSpace());
+		File baseDir = new File(homeDir);
+		return new DriveStatus(baseDir.getTotalSpace(), baseDir.getUsableSpace());
 	}
 	
 	@PostMapping("/get_directory_size")
