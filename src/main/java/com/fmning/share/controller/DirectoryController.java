@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +33,9 @@ public class DirectoryController {
 	private String homeDir;
 	
 	@PostMapping("/get_files_in_directory")
-	public FileRetrieveResult getFiles(@RequestBody Map<String, Object> payload) {
+	public FileRetrieveResult getFiles(@RequestHeader("Accept") String auth, @RequestBody Map<String, Object> payload) {
+		
+		System.out.println(auth);
 		
 		String dirStr = (String)payload.get("dir");
 		Object loadDirOnly = payload.get("loadDirOnly");
@@ -77,9 +80,9 @@ public class DirectoryController {
 		
 		String dirStr = (String)payload.get("dir");
 		String keyword = (String)payload.get("keyword");
-		if (dirStr == null || keyword == null) return new FileSearchResult("The request is not complete");
+		if (keyword == null) return new FileSearchResult("The request is not complete");
 		
-		File dir = dirStr.equals("root") ? new File(homeDir) : new File(homeDir + dirStr);
+		File dir = dirStr == null ? new File(homeDir) : new File(homeDir + dirStr);
 		
 		if (keyword.trim().equals("")) {
 			return new FileSearchResult("Please enter a keyword.");
@@ -106,17 +109,6 @@ public class DirectoryController {
 				return new FileSearchResult("Internal server error");
 			}
 		}
-	}
-	
-	@GetMapping("/test")
-	public void test() throws InterruptedException, IOException {
-		
-		String s = "haha(e.txt";
-		System.out.println(s);
-		s = s.replace("(", "\\(");
-		System.out.println(s);
-		
-		
 	}
 	
 	@GetMapping("/get_drive_status")
@@ -147,9 +139,9 @@ public class DirectoryController {
 		
 		String dirStr = (String)payload.get("dir");
 		String folderName = (String)payload.get("folderName");
-		if (dirStr == null || folderName == null) return new FileRenameResult("The request is not complete");
+		if (folderName == null) return new FileRenameResult("The request is not complete");
 		
-		File newDir = new File(homeDir + dirStr + "/" + folderName);
+		File newDir = dirStr == null ? new File(homeDir + File.separator + folderName) : new File(homeDir + dirStr + File.separator + folderName);
 		
 		if (newDir.exists()) {
 			return new FileRenameResult("The folder already exits"); 

@@ -119,15 +119,15 @@ public class FileController {
 			Boolean deleteFile = (Boolean)payload.get("delete");
 			boolean delete = deleteFile == null ? false : deleteFile;
 			if (delete) {
-				newPath = homeDir + Utils.RECYCLE_BIN_FOLDER_NAME + "/" + System.currentTimeMillis() + "_";
+				newPath = homeDir + Utils.RECYCLE_BIN_FOLDER_NAME + File.separator + System.currentTimeMillis() + "_";
 			} else {
 				newPath = homeDir;
 			}
 		} else {
-			newPath = homeDir + newPath + "/";
+			newPath = homeDir + newPath + File.separator;
 		}
 		
-		String[] paths = filePath.split("/");
+		String[] paths = filePath.split(File.separator);
 		String originalName = paths[paths.length - 1];
 		newPath += originalName;
 		
@@ -149,7 +149,7 @@ public class FileController {
 		List<Shareable> fileList = new ArrayList<>();
 		
 		for (MultipartFile file : files) {
-			File uploadedFile = dir == null ? new File(homeDir + file.getOriginalFilename()): new File(homeDir + dir + "/" + file.getOriginalFilename());
+			File uploadedFile = dir == null ? new File(homeDir + file.getOriginalFilename()): new File(homeDir + dir + File.separator + file.getOriginalFilename());
 			
 			try {
 				file.transferTo(uploadedFile);

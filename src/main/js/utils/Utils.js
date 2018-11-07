@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import Config from 'Config';
 
 const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
@@ -79,4 +80,15 @@ export const secondsToStr = (sec) => {
     } else {
     	return 'less than a second';
     }
+}
+
+export const getCookie = (name) => {
+	let value = '; ' + document.cookie;
+	let parts = value.split('; ' + name + '=');
+	if (parts.length == 2) return parts.pop().split(';').shift();
+	return '';
+}
+
+export const getSecretKey = () => {
+	return getCookie(Config.secretKey)
 }

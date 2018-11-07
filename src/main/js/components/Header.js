@@ -9,7 +9,7 @@ export default class Header extends Component {
 	    this.state = {
 	    	searchError: false,
 	    	searchErrMsg:'',
-	    	searchDir: 'root',
+	    	searchDir: null,
 	    	searchKeyWord: '',
 	    	searching: false
 	    };
@@ -24,7 +24,7 @@ export default class Header extends Component {
 	
 	updateSearchPathHandler = (file) => {
 		if (file == null) {
-			this.setState ({searchDir: 'root' });
+			this.setState ({searchDir: null });
 		} else if (file.isFile) {
 			return;
 		} else {
@@ -57,7 +57,7 @@ export default class Header extends Component {
 								searching: false, searchError: true, searchErrMsg: 'No file found. Please try another (shorter) keyword'
 							});
 						} else {
-							let searchedPathFile = that.state.searchDir == 'root' ? null : {isFile: false, path: that.state.searchDir}
+							let searchedPathFile = that.state.searchDir == null ? null : {isFile: false, path: that.state.searchDir}
 							that.props.updateSearchResultHandler(json.fileList, searchedPathFile)
 							that.setState({
 								searching: false
@@ -78,6 +78,10 @@ export default class Header extends Component {
 		});
 	}
 	
+	logout = () => {
+		this.props.logoutHandler()
+	}
+	
 	render () {
 		return (
 			<nav className="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -87,21 +91,12 @@ export default class Header extends Component {
 				</button>
 				<div className="collapse navbar-collapse" id="navbarSupportedContent">
 					<ul className="navbar-nav mr-auto">
-						<li className="nav-item active">
-							<a className="nav-link" href="#">Home <span className="sr-only">(current)</span></a>
-						</li>
-						<li className="nav-item">
-							<a className="nav-link" href="#">Link</a>
-						</li>
-						<li className="nav-item dropdown">
+						<li className="nav-item dropdown active">
 							<a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							Dropdown
+								Loged in as Admin
 							</a>
 							<div className="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a className="dropdown-item" href="#">Action</a>
-								<a className="dropdown-item" href="#">Another action</a>
-								<div className="dropdown-divider"></div>
-								<a className="dropdown-item" href="#">Something else here</a>
+								<a className="dropdown-item cursor-pointer" onClick={this.logout} >Log out</a>
 							</div>
 						</li>
 					</ul>

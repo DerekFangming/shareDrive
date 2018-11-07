@@ -18,11 +18,11 @@ export default class DirectoryPath extends Component {
 		if (file == null) {
 			if (isSearching) {
 				this.setState ({
-			    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" dir="root" onClick={(e) => this.loadDir(e)} >Home</button><Arrow /><button type="button" className="btn btn-link" >Search Results</button></nav>
+			    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" onClick={(e) => this.loadDir(e)} >Home</button><Arrow /><button type="button" className="btn btn-link" >Search Results</button></nav>
 			    });
 			} else {
 				this.setState ({
-			    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" dir="root" onClick={(e) => this.loadDir(e)} >Home</button></nav>
+			    	path: <nav className="nav nav-pills align-items-center"><button type="button" className="btn btn-link" onClick={(e) => this.loadDir(e)} >Home</button></nav>
 			    });
 			}
 			
@@ -31,7 +31,7 @@ export default class DirectoryPath extends Component {
 		} else {
 			let filePath = file.path;
 			let keyCount = 0;
-			let resultPath = [<button key={keyCount++} type="button" className="btn btn-link" dir="root" onClick={(e) => this.loadDir(e) } >Home</button>];
+			let resultPath = [<button key={keyCount++} type="button" className="btn btn-link" onClick={(e) => this.loadDir(e) } >Home</button>];
 			
 			if (filePath != '') {
 				let filePathArray = filePath.split('/');
@@ -64,7 +64,7 @@ export default class DirectoryPath extends Component {
 	
 	loadDir = (e) => {
 		let dir = e.target.getAttribute('dir')
-		this.props.dirPathClickHandler(dir == 'root' ? null : dir)
+		this.props.dirPathClickHandler(dir)
 	}
 	
 	render () {

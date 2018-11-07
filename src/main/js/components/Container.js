@@ -52,7 +52,7 @@ export default class Container extends Component {
 		return (
 			<div className="container-fluid">
 				<div className="row mt-2">
-					<DirectoryPath ref={this.dirPath} dirPathClickHandler={this.dirPathClickHandler}/>
+					<DirectoryPath ref={this.dirPath} dirPathClickHandler={this.dirPathClickHandler} />
 				</div>
 				
 				<div className="row">
