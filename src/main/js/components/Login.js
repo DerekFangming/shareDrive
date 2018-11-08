@@ -59,9 +59,9 @@ export default class Login extends Component {
 		return (
 			<div className="container">
 				<div className="row mt-5 justify-content-center">
-					<div className="col">
+					<div className="col-12 col-md-2 col-lg-4">
 					</div>
-					<div className="col">
+					<div className="col-12 col-md-2 col-lg-4">
 						<form>
 					    	<p className="lead mt-5 mb-4">Please login</p>
 					        <div className="form-group">
@@ -94,7 +94,7 @@ export default class Login extends Component {
 					        
 					    </form>
 					</div>
-					<div className="col">
+					<div className="col-12 col-md-2 col-lg-4">
 					</div>
 				</div>
 			</div>
