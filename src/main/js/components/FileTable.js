@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {convertSize, convertDate, getFileType} from '../utils/Utils'
+import {convertSize, convertDate, getFileType, getRequestJsonHeader} from '../utils/Utils'
 import {LoadingStatus} from '../utils/Enums';
 import UploadFileModal from './UploadFileModal'
 import Popover, { ArrowContainer } from 'react-tiny-popover'
@@ -54,10 +54,7 @@ export default class FileTable extends Component {
 		
 		fetch(Config.serverUrl + 'get_files_in_directory', {
 			method: 'POST',
-		    headers: {
-		    	'Accept': 'application/json',
-		    	'Content-Type': 'application/json'
-		    },
+		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({dir : requestedDir})
 		})
 		.then(function (response) {
@@ -194,10 +191,7 @@ export default class FileTable extends Component {
 		
 		fetch(Config.serverUrl + 'create_folder', {
 			method: 'POST',
-		    headers: {
-		    	'Accept': 'application/json',
-		    	'Content-Type': 'application/json'
-		    },
+		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({dir : this.state.currentDir, folderName : this.state.newFolderName})
 		})
 		.then(function (response) {

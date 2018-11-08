@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
+import {getRequestJsonHeader} from '../utils/Utils';
 import Popover, { ArrowContainer } from 'react-tiny-popover'
 
 export default class Header extends Component {
@@ -42,10 +43,7 @@ export default class Header extends Component {
 		
 		fetch(Config.serverUrl + 'search_files_in_directory', {
 			method: 'POST',
-		    headers: {
-		    	'Accept': 'application/json',
-		    	'Content-Type': 'application/json'
-		    },
+		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({dir : this.state.searchDir, keyword : this.state.searchKeyWord})
 		})
 		.then(function (response) {

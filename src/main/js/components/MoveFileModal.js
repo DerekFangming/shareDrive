@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
+import {getRequestJsonHeader} from '../utils/Utils'
 import {LoadingStatus} from '../utils/Enums';
 import folder from '../../resources/static/folder.png';
 import ret from '../../resources/static/return.png';
@@ -50,10 +51,7 @@ export default class MoveFileModal extends Component {
 		
 		fetch(Config.serverUrl + 'get_files_in_directory', {
 			method: 'POST',
-		    headers: {
-		    	'Accept': 'application/json',
-		    	'Content-Type': 'application/json'
-		    },
+		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({dir : filePath, loadDirOnly: true})
 		})
 		.then(function (response) {

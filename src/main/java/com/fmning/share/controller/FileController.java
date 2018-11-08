@@ -19,6 +19,7 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,9 +39,11 @@ public class FileController {
 	@Value("${homeDir}")
 	private String homeDir;
 	
+	@Value("${secretValue}")
+	private String secretValue;
+	
 	@GetMapping("/download_file")
 	public FileDownloadResult getFile(@RequestParam("file") String filename, HttpServletResponse response) throws IOException {
-		
 		File file = new File(homeDir + filename);
 		
 		if (file.isDirectory()) {
@@ -66,7 +69,10 @@ public class FileController {
 	}
 	
 	@PostMapping("/rename_file")
-	public FileRenameResult renameFile(@RequestBody Map<String, Object> payload) {
+	public FileRenameResult renameFile(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
+		if (!auth.equals(secretValue)) {
+			return new FileRenameResult("Not autorized.");
+		}
 		
 		String filePath = (String)payload.get("filePath");
 		String newName = (String)payload.get("name");
@@ -108,7 +114,10 @@ public class FileController {
 	}
 	
 	@PostMapping("/move_file")
-	public FileRenameResult moveFile(@RequestBody Map<String, Object> payload) {
+	public FileRenameResult moveFile(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
+		if (!auth.equals(secretValue)) {
+			return new FileRenameResult("Not autorized.");
+		}
 		
 		String filePath = (String)payload.get("filePath");
 		String newPath = (String)payload.get("newPath");
@@ -143,7 +152,10 @@ public class FileController {
 	}
 	
 	@PostMapping("/upload_file")
-	public FileRetrieveResult uploadFiles(@RequestParam("files") List<MultipartFile> files, @RequestParam(value = "dir", required=false) String dir, MultipartRequest request) {
+	public FileRetrieveResult uploadFiles(@RequestHeader("Authorization") String auth, @RequestParam("files") List<MultipartFile> files, @RequestParam(value = "dir", required=false) String dir, MultipartRequest request) {
+		if (!auth.equals(secretValue)) {
+			return new FileRetrieveResult("Not autorized.");
+		}
 		
 		String errorMessage = "";
 		List<Shareable> fileList = new ArrayList<>();

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {convertSize, convertDate, numberWithCommas, getFileType, keepTwoDigits} from '../utils/Utils';
+import {convertSize, convertDate, numberWithCommas, getFileType, keepTwoDigits, getSecretKey, getRequestJsonHeader} from '../utils/Utils';
 import Arrow from './Arrow';
 import {LoadingStatus} from '../utils/Enums';
 import MoveFileModal from './MoveFileModal'
@@ -37,7 +37,10 @@ export default class InfoTables extends Component {
 			loadingStatus: LoadingStatus.Loading
 		});
 		
-		fetch(Config.serverUrl + 'get_drive_status')
+		fetch(Config.serverUrl + 'get_drive_status', {
+			method: "GET",
+			headers: {'Authorization': getSecretKey()}
+			})
 		.then(function (response) {
 			if (response.status == 200) {
 				response.json().then(function(json) {
@@ -83,10 +86,7 @@ export default class InfoTables extends Component {
 			const that = this
 			fetch(Config.serverUrl + 'get_directory_size', {
 				method: 'POST',
-			    headers: {
-			    	'Accept': 'application/json',
-			    	'Content-Type': 'application/json'
-			    },
+			    headers: getRequestJsonHeader(),
 			    body: JSON.stringify({dir : clickedFile.path})
 			})
 			.then(function (response) {
@@ -157,10 +157,7 @@ export default class InfoTables extends Component {
 		
 		fetch(Config.serverUrl + 'move_file', {
 			method: 'POST',
-		    headers: {
-		    	'Accept': 'application/json',
-		    	'Content-Type': 'application/json'
-		    },
+		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify(paramBody )
 		})
 		.then(function (response) {
@@ -216,10 +213,7 @@ export default class InfoTables extends Component {
 		
 		fetch(Config.serverUrl + 'rename_file', {
 			method: 'POST',
-		    headers: {
-		    	'Accept': 'application/json',
-		    	'Content-Type': 'application/json'
-		    },
+		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({filePath : this.state.file.path, name : this.state.newName})
 		})
 		.then(function (response) {

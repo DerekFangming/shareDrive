@@ -92,3 +92,11 @@ export const getCookie = (name) => {
 export const getSecretKey = () => {
 	return getCookie(Config.secretKey)
 }
+
+export const getRequestJsonHeader = () => {
+	return  {
+    	'Accept': 'application/json',
+    	'Content-Type': 'application/json',
+    	'Authorization': getSecretKey()
+    }
+}

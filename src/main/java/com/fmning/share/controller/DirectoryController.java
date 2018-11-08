@@ -32,10 +32,14 @@ public class DirectoryController {
 	@Value("${homeDir}")
 	private String homeDir;
 	
+	@Value("${secretValue}")
+	private String secretValue;
+	
 	@PostMapping("/get_files_in_directory")
-	public FileRetrieveResult getFiles(@RequestHeader("Accept") String auth, @RequestBody Map<String, Object> payload) {
-		
-		System.out.println(auth);
+	public FileRetrieveResult getFiles(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
+		if (!auth.equals(secretValue)) {
+			return new FileRetrieveResult("Not autorized.");
+		}
 		
 		String dirStr = (String)payload.get("dir");
 		Object loadDirOnly = payload.get("loadDirOnly");
@@ -76,7 +80,10 @@ public class DirectoryController {
 	}
 	
 	@PostMapping("/search_files_in_directory")
-	public FileSearchResult searchFiles(@RequestBody Map<String, Object> payload) {
+	public FileSearchResult searchFiles(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
+		if (!auth.equals(secretValue)) {
+			return new FileSearchResult("Not autorized.");
+		}
 		
 		String dirStr = (String)payload.get("dir");
 		String keyword = (String)payload.get("keyword");
@@ -112,13 +119,20 @@ public class DirectoryController {
 	}
 	
 	@GetMapping("/get_drive_status")
-	public DriveStatus getDriveStatus() {
+	public DriveStatus getDriveStatus(@RequestHeader("Authorization") String auth) {
+		if (!auth.equals(secretValue)) {
+			return new DriveStatus("Not autorized.");
+		}
+		
 		File baseDir = new File(homeDir);
 		return new DriveStatus(baseDir.getTotalSpace(), baseDir.getUsableSpace());
 	}
 	
 	@PostMapping("/get_directory_size")
-	public DirSize getDirSize(@RequestBody Map<String, Object> payload) {
+	public DirSize getDirSize(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
+		if (!auth.equals(secretValue)) {
+			return new DirSize("Not autorized.");
+		}
 		
 		String dirStr = (String)payload.get("dir");
 		if (dirStr == null) return new DirSize("The request is not complete");
@@ -135,7 +149,10 @@ public class DirectoryController {
 	}
 	
 	@PostMapping("/create_folder")
-	public FileRenameResult createFoler(@RequestBody Map<String, Object> payload) {
+	public FileRenameResult createFoler(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
+		if (!auth.equals(secretValue)) {
+			return new FileRenameResult("Not autorized.");
+		}
 		
 		String dirStr = (String)payload.get("dir");
 		String folderName = (String)payload.get("folderName");

@@ -79,7 +79,7 @@ export default class Login extends Component {
 									</ArrowContainer>
 								)} >
 									<input className="form-control" type="password" placeholder="Password" 
-										onChange={(e) => this.setState({loginPwd: e.target.value})} onKeyPress={(e) => { if (e.key === 'Enter') this.login() } }>
+										onChange={(e) => this.setState({loginPwd: e.target.value, loginErrMsg: ''})} onKeyPress={(e) => { if (e.key === 'Enter') this.login()} }>
 									</input>
 						        </Popover>
 					        </div>
