@@ -61,7 +61,7 @@ export default class Login extends Component {
 				<div className="row mt-5 justify-content-center">
 					<div className="col-12 col-md-2 col-lg-4">
 					</div>
-					<div className="col-12 col-md-2 col-lg-4">
+					<div className="col-12 col-md-8 col-lg-4">
 						<form>
 					    	<p className="lead mt-5 mb-4">Please login</p>
 					        <div className="form-group">

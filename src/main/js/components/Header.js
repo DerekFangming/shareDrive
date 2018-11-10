@@ -8,12 +8,25 @@ export default class Header extends Component {
 	constructor() {
 	    super();
 	    this.state = {
+	    	mobile: window.innerWidth <= 768,
 	    	searchError: false,
 	    	searchErrMsg:'',
 	    	searchDir: null,
 	    	searchKeyWord: '',
 	    	searching: false
 	    };
+	}
+	
+	componentDidMount() {
+		window.addEventListener('resize', this.windowSizeHandler);
+	}
+	
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.windowSizeHandler);
+	}
+	
+	windowSizeHandler = () => {
+		this.setState({mobile: window.innerWidth <= 768});
 	}
 	
 	alertCloseHandler = () => {
@@ -98,8 +111,9 @@ export default class Header extends Component {
 							</div>
 						</li>
 					</ul>
-					<div className="form-inline my-2 my-lg-0">
-						
+					
+					<div className={this.state.mobile ? "form-inline input-group d-md-none" : "form-inline d-none d-md-block"} >
+					
 						<Popover isOpen={this.state.searchError} position={'bottom'} onClickOutside={this.alertCloseHandler} content={({ position, targetRect, popoverRect }) => (
 							<ArrowContainer position={position} targetRect={targetRect} popoverRect={popoverRect}
 					        	arrowColor={'#F8D7DA'} arrowSize={10}>
@@ -108,15 +122,17 @@ export default class Header extends Component {
 								</div>
 							</ArrowContainer>
 						)} >
-							<input className="form-control mr-sm-2" type="text" placeholder="Search" disabled={this.state.searching ? "disabled" : ""}
+							<input className="form-control mr-2" type="text" placeholder="Search" disabled={this.state.searching ? "disabled" : ""}
 								onChange={(e) => this.setState({searchKeyWord: e.target.value})} onKeyPress={(e) => { if (e.key === 'Enter') this.searchFiles() } }>
 							</input>
 				        </Popover>
-						<button className={this.state.searching? "btn btn-outline-light my-2 my-sm-0 disabled" : "btn btn-outline-light my-2 my-sm-0"}
+						<button className={this.state.searching? "btn btn-outline-light disabled" : "btn btn-outline-light"}
 							type="button" onClick={this.searchFiles} >
 							{this.state.searching ? <span className="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span> : "Search"}
 						</button>
 					</div>
+				
+					
 				</div>
 			</nav>
 		);

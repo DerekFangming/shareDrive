@@ -10,6 +10,10 @@ tr.selected td {
 	cursor: pointer;
 }
 
+.half-btn-width {
+	width: 45%;
+}
+
 .upload-btn {
 	height: 300px
 } 

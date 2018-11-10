@@ -19,6 +19,7 @@ export default class FileTable extends Component {
 	constructor() {
 	    super();
 	    this.state = {
+	    	mobile: window.innerWidth <= 768,
 	    	fileList: [],
 	    	currentDir: null,
 	    	loadingStatus: LoadingStatus.Loading,
@@ -33,6 +34,15 @@ export default class FileTable extends Component {
 	
 	componentDidMount() {
 		this.loadFolder(null)
+		window.addEventListener('resize', this.windowSizeHandler);
+	}
+	
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.windowSizeHandler);
+	}
+	
+	windowSizeHandler = () => {
+		this.setState({mobile: window.innerWidth <= 768});
 	}
 	
 	loadFolder = (file) => {
@@ -223,11 +233,11 @@ export default class FileTable extends Component {
 		return (
 			<div className="col-md-9">
 				<div className="row">
-					<div className="col-md-8">
+					<div className="col-12 col-lg-7">
 						<h2 className="mb-4 ml-2"><small>Files</small></h2>
 					</div>
 					{this.state.creatingFolder ? (
-						<div className="col-md-4">
+						<div className="col-12 col-lg-5">
 							<div className="input-group">
 								<Popover isOpen={this.state.folderErrMsg != ''} position={'bottom'} onClickOutside={() => this.setState({folderErrMsg: ''})}
 									content={({ position, targetRect, popoverRect }) => (
@@ -257,9 +267,9 @@ export default class FileTable extends Component {
 							</div>
 						</div>
 					) : (
-						<div className="col-md-4">
-							<button className="btn btn-primary float-right" type="button" onClick={this.uploadBtnHandler} ><span className="fa fa-plus mr-2"></span>Upload</button>
-							<button className="btn btn-primary float-right mr-2" type="button" onClick={() => this.setState({creatingFolder: true})} ><span className="fa fa-folder-o mr-2"></span>New folder</button>
+						<div className={this.state.mobile? "col-12 col-lg-5 d-flex justify-content-around" : "col-12 col-lg-5"}>
+							<button className={this.state.mobile? "btn btn-primary half-btn-width" : "btn btn-primary float-right"} type="button" onClick={this.uploadBtnHandler} ><span className="fa fa-plus mr-2"></span>Upload</button>
+							<button className={this.state.mobile? "btn btn-primary half-btn-width" : "btn btn-primary float-right mr-2"} type="button" onClick={() => this.setState({creatingFolder: true})} ><span className="fa fa-folder-o mr-2"></span>New folder</button>
 						</div>
 					)}
 							
@@ -267,7 +277,7 @@ export default class FileTable extends Component {
 				</div>
 				
 				
-				<table className={this.state.loadingStatus == LoadingStatus.Loaded ? "table table-hover" : "table"}>
+				<table className={this.state.loadingStatus == LoadingStatus.Loaded ? "table table-hover mt-3" : "table mt-3"}>
 					<thead>
 						<tr>
 							<th className="cursor-pointer" style={{width:'70%'}} onClick={() => this.sortColumnHandler('name')} >

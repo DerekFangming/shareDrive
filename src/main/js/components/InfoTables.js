@@ -300,7 +300,7 @@ export default class InfoTables extends Component {
 					
 				</div>
 				
-				<div className="card my-4 sticky-top">
+				<div className="card my-4 sticky-top d-none d-md-block">
 					<h5 className="card-header">File Details</h5>
 					{this.state.file == undefined ? (
 						<div className="card-body">
