@@ -233,11 +233,11 @@ export default class FileTable extends Component {
 		return (
 			<div className="col-md-9">
 				<div className="row">
-					<div className="col-12 col-lg-7">
+					<div className="col-12 col-md-3">
 						<h2 className="mb-4 ml-2"><small>Files</small></h2>
 					</div>
 					{this.state.creatingFolder ? (
-						<div className="col-12 col-lg-5">
+						<div className="col-12 col-md-9">
 							<div className="input-group">
 								<Popover isOpen={this.state.folderErrMsg != ''} position={'bottom'} onClickOutside={() => this.setState({folderErrMsg: ''})}
 									content={({ position, targetRect, popoverRect }) => (
@@ -267,60 +267,64 @@ export default class FileTable extends Component {
 							</div>
 						</div>
 					) : (
-						<div className={this.state.mobile? "col-12 col-lg-5 d-flex justify-content-around" : "col-12 col-lg-5"}>
+						<div className={this.state.mobile? "col-12 col-md-9 d-flex justify-content-around" : "col-12 col-md-9"}>
 							<button className={this.state.mobile? "btn btn-primary half-btn-width" : "btn btn-primary float-right"} type="button" onClick={this.uploadBtnHandler} ><span className="fa fa-plus mr-2"></span>Upload</button>
 							<button className={this.state.mobile? "btn btn-primary half-btn-width" : "btn btn-primary float-right mr-2"} type="button" onClick={() => this.setState({creatingFolder: true})} ><span className="fa fa-folder-o mr-2"></span>New folder</button>
 						</div>
 					)}
-							
-					
 				</div>
-				
 				
 				<table className={this.state.loadingStatus == LoadingStatus.Loaded ? "table table-hover mt-3" : "table mt-3"}>
 					<thead>
-						<tr>
-							<th className="cursor-pointer" style={{width:'70%'}} onClick={() => this.sortColumnHandler('name')} >
-								Name { (() =>{
-									if (this.state.sortOrder == 'neutral') return <i className="fa fa-minus float-right pt-1"></i>
-									if (this.state.sortCol == 'name') {
-										if (this.state.sortOrder == 'asc'){
-											return <i className="fa fa-chevron-up float-right pt-1"></i>
-										} else {
-											return <i className="fa fa-chevron-down float-right pt-1"></i>
+						{this.state.mobile ? (
+							<tr>
+								<th className="cursor-pointer">Name</th>
+							</tr>
+						):(
+							<tr>
+								<th className="cursor-pointer" style={{width:'70%'}} onClick={() => this.sortColumnHandler('name')} >
+									Name { (() =>{
+										if (this.state.sortOrder == 'neutral') return <i className="fa fa-minus float-right pt-1"></i>
+										if (this.state.sortCol == 'name') {
+											if (this.state.sortOrder == 'asc'){
+												return <i className="fa fa-chevron-up float-right pt-1"></i>
+											} else {
+												return <i className="fa fa-chevron-down float-right pt-1"></i>
+											}
 										}
-									}
-									return <i></i>
-								})()}
-								
-							</th>
-							<th className="cursor-pointer" style={{width:'20%'}} onClick={() => this.sortColumnHandler('mod')} >
-								Last Modified { (() =>{
-									if (this.state.sortOrder == 'neutral') return <i></i>
-									if (this.state.sortCol == 'mod') {
-										if (this.state.sortOrder == 'asc'){
-											return <i className="fa fa-chevron-up float-right pt-1"></i>
-										} else {
-											return <i className="fa fa-chevron-down float-right pt-1"></i>
+										return <i></i>
+									})()}
+									
+								</th>
+								<th className="cursor-pointer" style={{width:'20%'}} onClick={() => this.sortColumnHandler('mod')} >
+									Last Modified { (() =>{
+										if (this.state.sortOrder == 'neutral') return <i></i>
+										if (this.state.sortCol == 'mod') {
+											if (this.state.sortOrder == 'asc'){
+												return <i className="fa fa-chevron-up float-right pt-1"></i>
+											} else {
+												return <i className="fa fa-chevron-down float-right pt-1"></i>
+											}
 										}
-									}
-									return <i></i>
-								})()}
-							</th>
-							<th className="cursor-pointer" style={{width:'10%'}} onClick={() => this.sortColumnHandler('size')} >
-								Size { (() =>{
-									if (this.state.sortOrder == 'neutral') return <i></i>
-									if (this.state.sortCol == 'size') {
-										if (this.state.sortOrder == 'asc'){
-											return <i className="fa fa-chevron-up float-right pt-1"></i>
-										} else {
-											return <i className="fa fa-chevron-down float-right pt-1"></i>
+										return <i></i>
+									})()}
+								</th>
+								<th className="cursor-pointer" style={{width:'10%'}} onClick={() => this.sortColumnHandler('size')} >
+									Size { (() =>{
+										if (this.state.sortOrder == 'neutral') return <i></i>
+										if (this.state.sortCol == 'size') {
+											if (this.state.sortOrder == 'asc'){
+												return <i className="fa fa-chevron-up float-right pt-1"></i>
+											} else {
+												return <i className="fa fa-chevron-down float-right pt-1"></i>
+											}
 										}
-									}
-									return <i></i>
-								})()}
-							</th>
-						</tr>
+										return <i></i>
+									})()}
+								</th>
+							</tr>
+						)}
+							
 					</thead>
 					
 					{(() => {
@@ -358,31 +362,60 @@ export default class FileTable extends Component {
 									</tbody>
 									)
 							case LoadingStatus.Loaded:
-								return (
-									<tbody>
-										{this.state.fileList.map(file =>
-											<tr key={file.path + file.name} value={file.name}
-												onClick={ (e) => this.selectTableRow(e.target, file) }
-												onDoubleClick={ () => this.loadFolder(file) }>
-												<td> {(() => {
-													let fileType = getFileType(file)
-													file.type = fileType
-													if (fileType.endsWith('Folder')) return (<img src={folder} className='mr-2' width='30' height='30'></img>)
-													if (fileType.endsWith('image')) return (<img src={image} className='mr-2' width='30' height='30'></img>)
-													if (fileType.endsWith('document')) return (<img src={document} className='mr-2' width='30' height='30'></img>)
-													if (fileType.endsWith('archive')) return (<img src={archive} className='mr-2' width='30' height='30'></img>)
-													if (fileType.endsWith('audio')) return (<img src={audio} className='mr-2' width='30' height='30'></img>)
-													if (fileType.endsWith('video')) return (<img src={video} className='mr-2' width='30' height='30'></img>)
-													return (<img src={fileIcon} className='mr-2' width='30' height='30'></img>)
-												})()}
+								if (this.state.mobile) {
+									return (
+										<tbody>
+											{this.state.fileList.map(file =>
+												<tr key={file.path + file.name} value={file.name}
+													onClick={ (e) => this.selectTableRow(e.target, file) }
+													onDoubleClick={ () => this.loadFolder(file) }>
+													<td className="fix-text"><span> {(() => {
+														let fileType = getFileType(file)
+														file.type = fileType
+														if (fileType.endsWith('Folder')) return (<img src={folder} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('image')) return (<img src={image} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('document')) return (<img src={document} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('archive')) return (<img src={archive} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('audio')) return (<img src={audio} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('video')) return (<img src={video} className='mr-2' width='30' height='30'></img>)
+														return (<img src={fileIcon} className='mr-2' width='30' height='30'></img>)
+													})()}
+													{file.name}</span></td>
+												</tr>
 												
-												{file.name}</td>
-												<td>{convertDate(file.lastModified)}</td>
-												<td>{file.isFile ? convertSize(file.size) : '-'}</td>
-											</tr>
-										)}
-									</tbody>
-								)
+											)}
+										</tbody>
+									)
+								} else {
+									return (
+										<tbody>
+											{this.state.fileList.map(file =>
+												<tr key={file.path + file.name} value={file.name}
+													onClick={ (e) => this.selectTableRow(e.target, file) }
+													onDoubleClick={ () => this.loadFolder(file) }>
+													<td> {(() => {
+														let fileType = getFileType(file)
+														file.type = fileType
+														if (fileType.endsWith('Folder')) return (<img src={folder} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('image')) return (<img src={image} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('document')) return (<img src={document} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('archive')) return (<img src={archive} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('audio')) return (<img src={audio} className='mr-2' width='30' height='30'></img>)
+														if (fileType.endsWith('video')) return (<img src={video} className='mr-2' width='30' height='30'></img>)
+														return (<img src={fileIcon} className='mr-2' width='30' height='30'></img>)
+													})()}
+													
+													{file.name}</td>
+													
+													<td>{convertDate(file.lastModified)}</td>
+													<td>{file.isFile ? convertSize(file.size) : '-'}</td>
+												</tr>
+												
+											)}
+										</tbody>
+									)
+								}
+								
 						}
 					})()}
 						

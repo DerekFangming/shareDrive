@@ -418,13 +418,13 @@ export default class InfoTables extends Component {
 								</div>
 							) : (
 								<div className="row my-1 text-center">
-									<div className="col-md-3 col-sm-6 px-1">
+									<div className="col-6 col-xl-3 px-1 py-1">
 										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={this.downloadSelectedFile}>Download</button>
 									</div>
-									<div className="col-md-3 col-sm-6 px-1">
+									<div className="col-6 col-xl-3 px-1 py-1">
 										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={() => this.setState({renaming : true}) }>Rename</button>
 									</div>
-									<div className="col-md-3 col-sm-6 px-1">
+									<div className="col-6 col-xl-3 px-1 py-1">
 										{ this.state.moving ? (
 											<button type="button" className="btn btn-outline-primary btn-block px-0 disabled">
 												<span className="fa fa-refresh fa-spin fa-1x fa-fw"></span>
@@ -435,7 +435,7 @@ export default class InfoTables extends Component {
 										) }
 										
 									</div>
-									<div className="col-md-3 col-sm-6 px-1">
+									<div className="col-6 col-xl-3 px-1 py-1">
 										{ this.state.submittingDelete ? (
 											<button type="button" className="btn btn-danger btn-block px-0  disabled"><span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
 										) : (
