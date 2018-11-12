@@ -27,7 +27,8 @@ export default class FileTable extends Component {
 	    	sortOrder: 'neutral',
 	    	creatingFolder: false,
 	    	submittingFolder: false,
-	    	folderErrMsg: ''
+	    	folderErrMsg: '',
+	    	mobileSelectedFileName: ''
 	    };
 	    this.uploadModal = React.createRef()
 	}
@@ -176,8 +177,12 @@ export default class FileTable extends Component {
 	}
 	
 	selectTableRow = (row, file) => {
-		this.props.showFileDetailsHandler(file);
-		$(row).parent().addClass('selected').siblings().removeClass('selected');
+		if (this.state.mobile) {
+			this.setState({mobileSelectedFileName: file.name})
+		} else {
+			this.props.showFileDetailsHandler(file);
+			$(row).parent().addClass('selected').siblings().removeClass('selected');
+		}
 	}
 	
 	uploadBtnHandler = () => {
@@ -379,10 +384,59 @@ export default class FileTable extends Component {
 														if (fileType.endsWith('audio')) return (<img src={audio} className='mr-2' width='30' height='30'></img>)
 														if (fileType.endsWith('video')) return (<img src={video} className='mr-2' width='30' height='30'></img>)
 														return (<img src={fileIcon} className='mr-2' width='30' height='30'></img>)
-													})()}
-													{file.name}</span></td>
+														})()}
+														{file.name}</span>
+														
+														<div className={this.state.mobileSelectedFileName == file.name? "" : "d-none"}>
+														
+															<div className="row mt-3">
+																<div className="col">
+																	<p className="font-weight-bold mobile-text">Type:</p>
+																	<p className="font-italic mobile-text ml-4 pl-2">{file.type}</p>
+																</div>
+																<div className="col">
+																	<p className="font-weight-bold mobile-text">Size:</p>
+																	<p className="font-italic mobile-text ml-4 pl-2">{file.size == 0 ? " - " : convertSize(file.size)}</p>
+																</div>
+															</div>
+															
+															<div className="row">
+																<div className="col">
+																	<p className="font-weight-bold mobile-text">Modified:</p>
+																	<p className="font-italic mobile-text">{convertDate(file.lastModified)}</p>
+																</div>
+																<div className="col">
+																	<p className="font-weight-bold mobile-text">Created:</p>
+																	<p className="font-italic mobile-text">{convertDate(file.created)}</p>
+																</div>
+															</div>
+														
+															<div className="row my-1">
+																<div className="col">
+																	<button type="button" className="btn btn-outline-primary btn-block"
+																		onClick={() => {
+																			file.isFile ? window.open(Config.serverUrl + 'download_file?file=' + encodeURIComponent(file.path)) : this.loadFolder(file)
+																		}	
+																	}>{file.isFile ? "Download" : "View content"}</button>
+																</div>
+																<div className="col">
+																	<button type="button" className="btn btn-outline-primary btn-block">Rename</button>
+																</div>
+															</div>
+															
+															<div className="row my-1">
+																<div className="col">
+																	<button type="button" className="btn btn-outline-primary btn-block">Move</button>
+																</div>
+																<div className="col">
+																	<button type="button" className="btn btn-outline-danger btn-block" onClick={() => 
+																		this.props.mobileMoveSelectedFile(file, null, true)
+																	}>Delete</button>
+																</div>
+															</div>
+														</div>
+													</td>
 												</tr>
-												
 											)}
 										</tbody>
 									)
@@ -415,13 +469,8 @@ export default class FileTable extends Component {
 										</tbody>
 									)
 								}
-								
 						}
 					})()}
-						
-						
-							
-
 				</table>
 				<UploadFileModal ref={this.uploadModal} uploadDoneHanlder={this.uploadDoneHanlder}/>
 			</div>

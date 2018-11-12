@@ -55,7 +55,8 @@ public class FileController {
 		String mimeType= URLConnection.guessContentTypeFromName(file.getName());
         if (mimeType == null) mimeType = "application/octet-stream";
         
-        String encodedFileName = URLEncoder.encode(file.getName(), "UTF-8").replace("+", "%20").replace("%28", "(").replace("%29", ")");
+        String encodedFileName = URLEncoder.encode(file.getName(), "UTF-8").replace("+", "%20").replace("%28", "(").replace("%29", ")")
+        		.replace("%5B", "[").replace("%5D", "]");
          
         response.setContentType(mimeType);
         response.setCharacterEncoding("UTF-8");

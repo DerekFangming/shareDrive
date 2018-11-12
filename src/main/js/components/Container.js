@@ -57,7 +57,7 @@ export default class Container extends Component {
 				
 				<div className="row">
 					<FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler} createFilePathHandler={this.createFilePathHandler}
-					getAvailableDriveSize={this.getAvailableDriveSize} refreshStorageInfoHandler={this.refreshStorageInfoHandler} />
+					getAvailableDriveSize={this.getAvailableDriveSize} refreshStorageInfoHandler={this.refreshStorageInfoHandler}/>
 					<InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler} fileMoveHandler={this.fileMoveHandler}/>
 				</div>
 			</div>

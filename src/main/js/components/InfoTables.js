@@ -126,8 +126,8 @@ export default class InfoTables extends Component {
 	}
 	
 	downloadSelectedFile = () => {
-		if (this.state.file == undefined) return;
-		window.open(Config.serverUrl + 'download_file?file=' + this.state.file.path)
+		if (this.state.file == undefined || !this.state.file.isFile) return;
+		window.open(Config.serverUrl + 'download_file?file=' + encodeURIComponent(this.state.file.path))
 	}
 	
 	moveSelectedFile = (destPath, deleteFile) => {
@@ -419,7 +419,8 @@ export default class InfoTables extends Component {
 							) : (
 								<div className="row my-1 text-center">
 									<div className="col-6 col-xl-3 px-1 py-1">
-										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={this.downloadSelectedFile}>Download</button>
+										<button type="button" className={this.state.file.isFile ? "btn btn-outline-primary btn-block px-0" : "btn btn-outline-primary btn-block px-0 disabled"}
+											onClick={this.downloadSelectedFile}>Download</button>
 									</div>
 									<div className="col-6 col-xl-3 px-1 py-1">
 										<button type="button" className="btn btn-outline-primary btn-block px-0" onClick={() => this.setState({renaming : true}) }>Rename</button>

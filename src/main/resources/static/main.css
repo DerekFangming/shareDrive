@@ -53,3 +53,8 @@ tr.selected td {
     display: inline-block;
     max-width: 100%;
 }
+
+.mobile-text {
+	display: inline-block;
+}
+
