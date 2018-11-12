@@ -28,7 +28,11 @@ export default class FileTable extends Component {
 	    	creatingFolder: false,
 	    	submittingFolder: false,
 	    	folderErrMsg: '',
-	    	mobileSelectedFileName: ''
+	    	mobileSelectedFileName: '',
+	    	newName: '',
+	    	renaming: false,
+	    	submittingName: false,
+	    	fileErrMsg: ''
 	    };
 	    this.uploadModal = React.createRef()
 	}
@@ -178,7 +182,7 @@ export default class FileTable extends Component {
 	
 	selectTableRow = (row, file) => {
 		if (this.state.mobile) {
-			this.setState({mobileSelectedFileName: file.name})
+			this.setState({mobileSelectedFileName: file.name, fileErrMsg: ''})
 		} else {
 			this.props.showFileDetailsHandler(file);
 			$(row).parent().addClass('selected').siblings().removeClass('selected');
@@ -228,6 +232,115 @@ export default class FileTable extends Component {
 			} else {
 				that.setState({
 					submittingFolder: false, folderErrMsg: 'Internal server error. Please try again later'
+				});
+			}
+		});
+	}
+	
+	moveSelectedFile = (destPath, deleteFile) => {
+		if (this.state.file == undefined) return;
+		const that = this
+		
+		if (destPath != null && this.state.file.path == destPath) {
+			this.setState({
+				moving: false, fileErrMsg: 'Cannot move folder into itself'
+			});
+			return
+		}
+		
+		let paramBody = {};
+		if (destPath == null || deleteFile) {
+			paramBody = {filePath : this.state.file.path}
+			this.setState({
+				deleting: false, submittingDelete: true, fileErrMsg: ''
+			});
+		} else {
+			paramBody = {filePath : this.state.file.path, newPath : destPath}
+			this.setState({
+				moving: true, fileErrMsg: ''
+			});
+		}
+		paramBody.delete = deleteFile
+		
+		fetch(Config.serverUrl + 'move_file', {
+			method: 'POST',
+		    headers: getRequestJsonHeader(),
+		    body: JSON.stringify(paramBody )
+		})
+		.then(function (response) {
+			if (response.status == 200) {
+				response.json().then(function(json) {
+					if (json.error == '') {
+						that.props.fileMoveHandler(that.state.file)
+						if (destPath == null) {
+							that.setState({
+								submittingDelete: false, fileErrMsg: ''
+							});
+						} else {
+							that.setState({
+								moving: false, fileErrMsg: ''
+							});
+						}
+						
+					} else {
+						if (destPath == null) {
+							that.setState({
+								submittingDelete: false, fileErrMsg: json.error
+							});
+						} else {
+							that.setState({
+								moving: false, fileErrMsg: json.error
+							});
+						}
+					}
+				})
+				
+			} else {
+				if (destPath == null) {
+					that.setState({
+						submittingDelete: false, fileErrMsg: 'Internal server error. Please try again later'
+					});
+				} else {
+					that.setState({
+						moving: false, fileErrMsg: 'Internal server error. Please try again later'
+					});
+				}
+			}
+		});
+		
+	}
+	
+	renameSelectedFile = (file) => {
+		const that = this
+		this.setState({
+			submittingName: true, fileErrMsg: ''
+		});
+		
+		fetch(Config.serverUrl + 'rename_file', {
+			method: 'POST',
+		    headers: getRequestJsonHeader(),
+		    body: JSON.stringify({filePath : file.path, name : this.state.newName})
+		})
+		.then(function (response) {
+			if (response.status == 200) {
+				response.json().then(function(json) {
+					if (json.error == '') {
+						let renamedFile = json.file
+						renamedFile.type = getFileType(renamedFile)
+						that.fileRenameHandler(file, renamedFile)
+						that.setState({
+							submittingName: false, fileErrMsg: '', renaming : false
+						});
+					} else {
+						that.setState({
+							submittingName: false, fileErrMsg: json.error
+						});
+					}
+				})
+				
+			} else {
+				that.setState({
+					submittingName: false, fileErrMsg: 'Internal server error. Please try again later'
 				});
 			}
 		});
@@ -410,30 +523,67 @@ export default class FileTable extends Component {
 																	<p className="font-italic mobile-text">{convertDate(file.created)}</p>
 																</div>
 															</div>
-														
-															<div className="row my-1">
-																<div className="col">
-																	<button type="button" className="btn btn-outline-primary btn-block"
-																		onClick={() => {
-																			file.isFile ? window.open(Config.serverUrl + 'download_file?file=' + encodeURIComponent(file.path)) : this.loadFolder(file)
-																		}	
-																	}>{file.isFile ? "Download" : "View content"}</button>
-																</div>
-																<div className="col">
-																	<button type="button" className="btn btn-outline-primary btn-block">Rename</button>
-																</div>
-															</div>
 															
-															<div className="row my-1">
-																<div className="col">
-																	<button type="button" className="btn btn-outline-primary btn-block">Move</button>
+															{this.state.fileErrMsg == '' ? (
+																<div></div>
+															) : (
+																<div className="row my-1 text-center">
+																	<div className="col">
+																		<div className="alert alert-danger" role="alert">{this.state.fileErrMsg}</div>
+																	</div>
 																</div>
-																<div className="col">
-																	<button type="button" className="btn btn-outline-danger btn-block" onClick={() => 
-																		this.props.mobileMoveSelectedFile(file, null, true)
-																	}>Delete</button>
+															)}
+															
+															{this.state.renaming ? (
+																<div className="row my-1 text-center">
+																	<div className="col">
+																		<div className="input-group">
+																			<input type="text" className="form-control" placeholder="Enter new file name" 
+																				onChange={(e) => this.setState({newName: e.target.value}) } disabled={this.state.submittingName? "disabled" : ""}
+																				onKeyPress={(e) => {
+																					if (e.key === 'Enter') this.renameSelectedFile(file)
+																				}}></input>
+																			{ this.state.submittingName ? (
+																				<div className="input-group-append">
+																					<button className="btn btn-success disabled" type="button"><span className="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span></button>
+																				</div>
+																			) : (
+																				<div className="input-group-append">
+																					<button className="btn btn-success" type="button" onClick={() => this.renameSelectedFile(file)} >Save</button>
+																					<button className="btn btn-secondary" type="button" onClick={() => this.setState({renaming : false, fileErrMsg: ''})}>Cancel</button>
+																				</div>
+																			)}
+																		</div>
+																	</div>
 																</div>
-															</div>
+															):(
+																<>
+																<div className="row my-1">
+																	<div className="col">
+																		<button type="button" className="btn btn-outline-primary btn-block"
+																			onClick={() => {
+																				file.isFile ? window.open(Config.serverUrl + 'download_file?file=' + encodeURIComponent(file.path)) : this.loadFolder(file)
+																			}	
+																		}>{file.isFile ? "Download" : "View content"}</button>
+																	</div>
+																	<div className="col">
+																		<button type="button" className="btn btn-outline-primary btn-block"  onClick={() => this.setState({renaming : true})} >Rename</button>
+																	</div>
+																</div>
+																
+																<div className="row my-1">
+																	<div className="col">
+																		<button type="button" className="btn btn-outline-primary btn-block">Move</button>
+																	</div>
+																	<div className="col">
+																		<button type="button" className="btn btn-outline-danger btn-block" onClick={() => 
+																			this.props.mobileMoveSelectedFile(file, null, true)
+																		}>Delete</button>
+																	</div>
+																</div>
+																</>
+															)}
+															
 														</div>
 													</td>
 												</tr>
