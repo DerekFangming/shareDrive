@@ -137,7 +137,7 @@ public class FileController {
 			newPath = homeDir + newPath + File.separator;
 		}
 		
-		String[] paths = filePath.split(File.separator);
+		String[] paths = filePath.split("/");
 		String originalName = paths[paths.length - 1];
 		newPath += originalName;
 		

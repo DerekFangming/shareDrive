@@ -32,7 +32,8 @@ export default class FileTable extends Component {
 	    	newName: '',
 	    	renaming: false,
 	    	submittingName: false,
-	    	fileErrMsg: ''
+	    	fileErrMsg: '',
+	    	deleting: false
 	    };
 	    this.uploadModal = React.createRef()
 	}
@@ -181,8 +182,11 @@ export default class FileTable extends Component {
 	}
 	
 	selectTableRow = (row, file) => {
+		console.log(1)
 		if (this.state.mobile) {
-			this.setState({mobileSelectedFileName: file.name, fileErrMsg: ''})
+			if (file.name != this.state.mobileSelectedFileName) {
+				this.setState({mobileSelectedFileName: file.name, fileErrMsg: '', renaming: false, deleting: false})
+			}
 		} else {
 			this.props.showFileDetailsHandler(file);
 			$(row).parent().addClass('selected').siblings().removeClass('selected');
@@ -556,6 +560,18 @@ export default class FileTable extends Component {
 																		</div>
 																	</div>
 																</div>
+															): this.state.deleting ? (
+																<div className="row my-1 text-center">
+																	<div className="col-12">
+																		<p className="card-text font-weight-bold">Are you sure about deleting this {file.isFile ? "file" : "folder"}?</p>
+																	</div>
+																	<div className="col-6">
+																		<button type="button" className="btn btn-danger btn-block px-0" onClick={() => this.moveSelectedFile(null, true)}>Delete</button>
+																	</div>
+																	<div className="col-6">
+																		<button type="button" className="btn btn-secondary btn-block px-0" onClick={() => this.setState({deleting : false}) }>Cancel</button>
+																	</div>
+																</div>
 															):(
 																<>
 																<div className="row my-1">
@@ -574,11 +590,11 @@ export default class FileTable extends Component {
 																<div className="row my-1">
 																	<div className="col">
 																		<button type="button" className="btn btn-outline-primary btn-block">Move</button>
+																		<button type="button" className="btn btn-outline-primary btn-block" data-toggle="modal" data-target="#moveFileModal"
+																			onClick={this.props.initiateMoveModal} >Move</button>
 																	</div>
 																	<div className="col">
-																		<button type="button" className="btn btn-outline-danger btn-block" onClick={() => 
-																			this.props.mobileMoveSelectedFile(file, null, true)
-																		}>Delete</button>
+																		<button type="button" className="btn btn-outline-danger btn-block" onClick={() => this.setState({deleting : true})}>Delete</button>
 																	</div>
 																</div>
 																</>

@@ -246,6 +246,10 @@ export default class InfoTables extends Component {
 		return this.state.availableSize
 	}
 	
+	initiateMoveModal = () => {
+		this.moveFileModal.current.loadFolder(null)
+	}
+	
 	render () {
 		return (
 			<div className="col-md-3">
@@ -259,10 +263,10 @@ export default class InfoTables extends Component {
 								return (
 									<div className="card-body">
 										<div className="row">
-											<div className="col-md-5">
+											<div className="col-5">
 												<span className="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span>
 											</div>
-											<div className="col-md-7">
+											<div className="col-7">
 												<h4 className="float-left">Loading ...</h4>
 											</div>
 										</div>
@@ -431,8 +435,7 @@ export default class InfoTables extends Component {
 												<span className="fa fa-refresh fa-spin fa-1x fa-fw"></span>
 											</button>
 										) : (
-											<button type="button" className="btn btn-outline-primary btn-block px-0" data-toggle="modal" data-target="#moveFileModal"
-												onClick={() => this.moveFileModal.current.loadFolder(null)} >Move</button>
+											<button type="button" className="btn btn-outline-primary btn-block px-0" data-toggle="modal" data-target="#moveFileModal" onClick={this.initiateMoveModal} >Move</button>
 										) }
 										
 									</div>

@@ -122,10 +122,10 @@ export default class MoveFileModal extends Component {
 												<tr>
 													<td colSpan="3">
 														<div className="row">
-															<div className="col-md-5">
+															<div className="col-5">
 																<span className="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span>
 															</div>
-															<div className="col-md-7">
+															<div className="col-7">
 																<h4 className="float-left">Loading ...</h4>
 															</div>
 														</div>
