@@ -52,6 +52,10 @@ export default class Container extends Component {
 		this.infoTable.current.initiateMoveModal()
 	}
 	
+	moveSelectedFile = (destPath, deleteFile) => {
+		this.fileTable.current.moveSelectedFilePasser(destPath, deleteFile)
+	}
+	
 	render () {
 		return (
 			<div className="container-fluid">
@@ -63,7 +67,8 @@ export default class Container extends Component {
 					<FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler} createFilePathHandler={this.createFilePathHandler}
 					getAvailableDriveSize={this.getAvailableDriveSize} refreshStorageInfoHandler={this.refreshStorageInfoHandler}
 					initiateMoveModal={this.initiateMoveModal}/>
-					<InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler} fileMoveHandler={this.fileMoveHandler}/>
+					<InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler} fileMoveHandler={this.fileMoveHandler}
+					moveSelectedFile={this.moveSelectedFile}/>
 				</div>
 			</div>
 		)

@@ -131,6 +131,10 @@ export default class InfoTables extends Component {
 	}
 	
 	moveSelectedFile = (destPath, deleteFile) => {
+		if (window.innerWidth <= 768) {
+			this.props.moveSelectedFile(destPath, deleteFile)
+			return
+		}
 		if (this.state.file == undefined) return;
 		const that = this
 		

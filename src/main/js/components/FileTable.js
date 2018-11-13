@@ -33,7 +33,9 @@ export default class FileTable extends Component {
 	    	renaming: false,
 	    	submittingName: false,
 	    	fileErrMsg: '',
-	    	deleting: false
+	    	deleting: false,
+	    	submittingDelete: false,
+	    	moving: false
 	    };
 	    this.uploadModal = React.createRef()
 	}
@@ -182,7 +184,6 @@ export default class FileTable extends Component {
 	}
 	
 	selectTableRow = (row, file) => {
-		console.log(1)
 		if (this.state.mobile) {
 			if (file.name != this.state.mobileSelectedFileName) {
 				this.setState({mobileSelectedFileName: file.name, fileErrMsg: '', renaming: false, deleting: false})
@@ -241,11 +242,21 @@ export default class FileTable extends Component {
 		});
 	}
 	
-	moveSelectedFile = (destPath, deleteFile) => {
-		if (this.state.file == undefined) return;
+	moveSelectedFileModal = (file) => {
+		this.props.initiateMoveModal()
+		this.setState({moveSelectedFile: file})
+		
+	}
+	
+	moveSelectedFilePasser = (destPath, deleteFile) => {
+		console.log(1)
+		this.moveSelectedFile(this.state.moveSelectedFile, destPath, deleteFile)
+	}
+	
+	moveSelectedFile = (file, destPath, deleteFile) => {
 		const that = this
 		
-		if (destPath != null && this.state.file.path == destPath) {
+		if (destPath != null && file.path == destPath) {
 			this.setState({
 				moving: false, fileErrMsg: 'Cannot move folder into itself'
 			});
@@ -254,12 +265,12 @@ export default class FileTable extends Component {
 		
 		let paramBody = {};
 		if (destPath == null || deleteFile) {
-			paramBody = {filePath : this.state.file.path}
+			paramBody = {filePath : file.path}
 			this.setState({
 				deleting: false, submittingDelete: true, fileErrMsg: ''
 			});
 		} else {
-			paramBody = {filePath : this.state.file.path, newPath : destPath}
+			paramBody = {filePath : file.path, newPath : destPath}
 			this.setState({
 				moving: true, fileErrMsg: ''
 			});
@@ -275,7 +286,7 @@ export default class FileTable extends Component {
 			if (response.status == 200) {
 				response.json().then(function(json) {
 					if (json.error == '') {
-						that.props.fileMoveHandler(that.state.file)
+						that.fileMoveHandler(file)
 						if (destPath == null) {
 							that.setState({
 								submittingDelete: false, fileErrMsg: ''
@@ -566,7 +577,7 @@ export default class FileTable extends Component {
 																		<p className="card-text font-weight-bold">Are you sure about deleting this {file.isFile ? "file" : "folder"}?</p>
 																	</div>
 																	<div className="col-6">
-																		<button type="button" className="btn btn-danger btn-block px-0" onClick={() => this.moveSelectedFile(null, true)}>Delete</button>
+																		<button type="button" className="btn btn-danger btn-block px-0" onClick={() => this.moveSelectedFile(file, null, true)}>Delete</button>
 																	</div>
 																	<div className="col-6">
 																		<button type="button" className="btn btn-secondary btn-block px-0" onClick={() => this.setState({deleting : false}) }>Cancel</button>
@@ -589,12 +600,22 @@ export default class FileTable extends Component {
 																
 																<div className="row my-1">
 																	<div className="col">
-																		<button type="button" className="btn btn-outline-primary btn-block">Move</button>
-																		<button type="button" className="btn btn-outline-primary btn-block" data-toggle="modal" data-target="#moveFileModal"
-																			onClick={this.props.initiateMoveModal} >Move</button>
+																		{ this.state.moving ? (
+																			<button type="button" className="btn btn-outline-primary btn-block disabled">
+																				<span className="fa fa-refresh fa-spin fa-1x fa-fw"></span>
+																			</button>
+																		) : (
+																				<button type="button" className="btn btn-outline-primary btn-block" data-toggle="modal" data-target="#moveFileModal"
+																					onClick={() => this.moveSelectedFileModal(file)} >Move</button>
+																		) }
+																		
 																	</div>
 																	<div className="col">
-																		<button type="button" className="btn btn-outline-danger btn-block" onClick={() => this.setState({deleting : true})}>Delete</button>
+																		{ this.state.submittingDelete ? (
+																			<button type="button" className="btn btn-outline-danger btn-block disabled"><span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
+																		) : (
+																			<button type="button" className="btn btn-outline-danger btn-block" onClick={() => this.setState({deleting : true})}>Delete</button>
+																		)}
 																	</div>
 																</div>
 																</>
