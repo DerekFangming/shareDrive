@@ -21,7 +21,7 @@ export default class Login extends Component {
 		
 		const that = this
 		
-		fetch(Config.serverUrl + 'login', {
+		fetch(window.location.href + 'api/login', {
 			method: 'POST',
 		    headers: {
 		    	'Accept': 'application/json',

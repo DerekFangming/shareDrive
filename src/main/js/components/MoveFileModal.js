@@ -49,7 +49,7 @@ export default class MoveFileModal extends Component {
 			currentPath: filePath
 		});
 		
-		fetch(Config.serverUrl + 'get_files_in_directory', {
+		fetch(window.location.href + 'api/get_files_in_directory', {
 			method: 'POST',
 		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({dir : filePath, loadDirOnly: true})

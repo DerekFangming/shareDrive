@@ -162,7 +162,7 @@ export default class UploadFileModal extends Component {
 			}
 		}, 1000)
 		
-		axios.post(Config.serverUrl + 'upload_file', formData, {
+		axios.post(window.location.href + 'api/upload_file', formData, {
 			headers: {
 			  'Content-Type': 'multipart/form-data',
 			  'Authorization': getSecretKey()

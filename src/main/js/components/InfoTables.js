@@ -37,7 +37,7 @@ export default class InfoTables extends Component {
 			loadingStatus: LoadingStatus.Loading
 		});
 		
-		fetch(Config.serverUrl + 'get_drive_status', {
+		fetch(window.location.href + 'api/get_drive_status', {
 			method: "GET",
 			headers: {'Authorization': getSecretKey()}
 			})
@@ -84,7 +84,7 @@ export default class InfoTables extends Component {
 				loadingFolderSize: true
 			})
 			const that = this
-			fetch(Config.serverUrl + 'get_directory_size', {
+			fetch(window.location.href + 'api/get_directory_size', {
 				method: 'POST',
 			    headers: getRequestJsonHeader(),
 			    body: JSON.stringify({dir : clickedFile.path})
@@ -127,7 +127,7 @@ export default class InfoTables extends Component {
 	
 	downloadSelectedFile = () => {
 		if (this.state.file == undefined || !this.state.file.isFile) return;
-		window.open(Config.serverUrl + 'download_file?file=' + encodeURIComponent(this.state.file.path))
+		window.open(window.location.href + 'api/download_file?file=' + encodeURIComponent(this.state.file.path))
 	}
 	
 	moveSelectedFile = (destPath, deleteFile) => {
@@ -159,7 +159,7 @@ export default class InfoTables extends Component {
 		}
 		paramBody.delete = deleteFile
 		
-		fetch(Config.serverUrl + 'move_file', {
+		fetch(window.location.href + 'api/move_file', {
 			method: 'POST',
 		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify(paramBody )
@@ -215,7 +215,7 @@ export default class InfoTables extends Component {
 			submittingName: true, fileErrMsg: ''
 		});
 		
-		fetch(Config.serverUrl + 'rename_file', {
+		fetch(window.location.href + 'api/rename_file', {
 			method: 'POST',
 		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({filePath : this.state.file.path, name : this.state.newName})

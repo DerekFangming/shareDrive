@@ -54,7 +54,7 @@ export default class Header extends Component {
 			searching: true
 		});
 		
-		fetch(Config.serverUrl + 'search_files_in_directory', {
+		fetch(window.location.href + 'api/search_files_in_directory', {
 			method: 'POST',
 		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({dir : this.state.searchDir, keyword : this.state.searchKeyWord})

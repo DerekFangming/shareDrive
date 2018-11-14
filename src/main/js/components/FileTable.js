@@ -70,7 +70,7 @@ export default class FileTable extends Component {
 			});
 		}
 		
-		fetch(Config.serverUrl + 'get_files_in_directory', {
+		fetch(window.location.href + 'api/get_files_in_directory', {
 			method: 'POST',
 		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({dir : requestedDir})
@@ -213,7 +213,7 @@ export default class FileTable extends Component {
 			submittingFolder: true, folderErrMsg: ''
 		});
 		
-		fetch(Config.serverUrl + 'create_folder', {
+		fetch(window.location.href + 'api/create_folder', {
 			method: 'POST',
 		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({dir : this.state.currentDir, folderName : this.state.newFolderName})
@@ -277,7 +277,7 @@ export default class FileTable extends Component {
 		}
 		paramBody.delete = deleteFile
 		
-		fetch(Config.serverUrl + 'move_file', {
+		fetch(window.location.href + 'api/move_file', {
 			method: 'POST',
 		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify(paramBody )
@@ -331,7 +331,7 @@ export default class FileTable extends Component {
 			submittingName: true, fileErrMsg: ''
 		});
 		
-		fetch(Config.serverUrl + 'rename_file', {
+		fetch(window.location.href + 'api/rename_file', {
 			method: 'POST',
 		    headers: getRequestJsonHeader(),
 		    body: JSON.stringify({filePath : file.path, name : this.state.newName})
@@ -468,10 +468,10 @@ export default class FileTable extends Component {
 										<tr>
 											<td colSpan="3">
 												<div className="row">
-													<div className="col">
+													<div className="col-5">
 														<span className="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span>
 													</div>
-													<div className="col">
+													<div className="col-7">
 														<h4 className="float-left">Loading ...</h4>
 													</div>
 												</div>
@@ -589,7 +589,7 @@ export default class FileTable extends Component {
 																	<div className="col">
 																		<button type="button" className="btn btn-outline-primary btn-block"
 																			onClick={() => {
-																				file.isFile ? window.open(Config.serverUrl + 'download_file?file=' + encodeURIComponent(file.path)) : this.loadFolder(file)
+																				file.isFile ? window.open(window.location.href + 'api/download_file?file=' + encodeURIComponent(file.path)) : this.loadFolder(file)
 																			}	
 																		}>{file.isFile ? "Download" : "View content"}</button>
 																	</div>
