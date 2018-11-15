@@ -19,40 +19,106 @@
 	
 	<div class="container">
 		<div class="row mt-5 justify-content-center">
-			<div class="col-12 col-md-2 col-lg-4">
+			<div class="col-12 col-md-2 col-lg-3">
 			</div>
-			<div class="col-12 col-md-8 col-lg-4">
+			<div class="col-12 col-md-8 col-lg-6">
 				<form>
 			    	<h1 class="font-weight-light mt-3 mb-5">Initial setup</h1>
-			        <div class="form-group">
-			        	<p class="lead">The username of the admin account.</p>
-			            <input type="text" class="form-control" placeholder="Admin's username">
+			    	
+					<div id="errMsg" class="alert alert-danger" role="alert" style="display: none;"></div>
+			        <div class="form-group mb-4">
+			        	<p class="font-weight-light mb-0">The username of the admin account.</p>
+			            <input id="usrname" type="text" class="form-control" placeholder="Admin's username">
 			        </div>
 	
-			        <div class="form-group">
-			        	<p class="lead">The password of the admin account.</p>
-			        	<input type="password" class="form-control" placeholder="Admin's password">
+			        <div class="form-group mb-4">
+			        	<p class="font-weight-light mb-0">The password of the admin account.</p>
+			        	<input id="pwd" type="password" class="form-control" placeholder="Admin's password">
 			        </div>
 			        
+			        <div class="form-group mb-4">
+			        	<p class="font-weight-light mb-0">Confirm password.</p>
+			        	<input id="pwdConfirm" type="password" class="form-control" placeholder="Confirm dmin's password">
+			        </div>
 			        
-			        <div class="form-group">
-			        	<p class="lead">The path on your hard drive that you want to share. For example, D:/share/</p>
-			        	<input type="password" class="form-control" placeholder="Root path">
+			        <div class="form-group mb-4">
+			        	<p class="font-weight-light mb-0">The path on your hard drive that you want to share. For example, D:/share/</p>
+			        	<input id="path" type="text" class="form-control" placeholder="Root path">
 			        </div>
 			        
 					<button type="button" class="btn btn-primary mt-4 btn-block disabled d-none">
 						<span class="fa fa-refresh fa-spin fa-1x fa-fw"></span>
 					</button>
 
-					<button type="button" class="btn btn-primary mt-4 btn-block">Login</button>
+					<button type="button" id="btnSubmit" class="btn btn-primary mt-4 btn-block">Submit</button>
 			        
 			    </form>
 			</div>
-			<div class="col-12 col-md-2 col-lg-4">
+			<div class="col-12 col-md-2 col-lg-3">
 			</div>
 		</div>
 	</div>
 	
+	<script>
+		$(document).ready(function() {
+		    $("#btnSubmit").click(function(){
+		    	$("#errMsg").hide();
+		    	var username = $("#usrname").val();
+		    	var password = $("#pwd").val();
+		    	var homeDir = $("#path").val();
+		    	
+		    	if (username.trim() != username || password.trim() != password) {
+		    		$("#errMsg").html("Username and password cannot start or end with space");
+		        	$("#errMsg").show();
+		    	} else if (username.trim() == "" || password.trim() == "") {
+		    		$("#errMsg").html("Username and password cannot be empty");
+		        	$("#errMsg").show();
+		    	} else if (password != $("#pwdConfirm").val()) {
+		        	$("#errMsg").html("The two passwords are not matching");
+		        	$("#errMsg").show();
+		        } else if (homeDir.trim() == "") {
+		        	$("#errMsg").html("Path cannot be empty");
+		        	$("#errMsg").show();
+		        } else {
+		        	homeDir = homeDir.replace(/\\/g,"/");
+		    		password = sha256(password).then(function (hashedPassword) {
+		    			fetch(window.location.href + 'api/initial_setup', {
+			    			method: 'POST',
+			    		    headers: {
+			    		    	'Accept': 'application/json',
+			    		    	'Content-Type': 'application/json'
+			    		    },
+			    		    body: JSON.stringify({username : username, password: hashedPassword.toUpperCase(), homeDir: homeDir})
+			    		})
+			    		.then(function (response) {
+			    			if (response.status == 200) {
+			    				response.json().then(function(json) {
+			    					if (json.error == '') {
+			    						//
+			    					} else {
+			    						$("#errMsg").html(json.error);
+			    			        	$("#errMsg").show();
+			    					}
+			    				})
+			    				
+			    			} else {
+			    				$("#errMsg").html('Internal server error. Please try again later');
+	    			        	$("#errMsg").show();
+			    			}
+			    		});
+		    		});
+		        }
+		    }); 
+		});
+		
+		async function sha256(message) {
+		    const msgBuffer = new TextEncoder('utf-8').encode(message);
+		    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+		    const hashArray = Array.from(new Uint8Array(hashBuffer));
+		    const hashHex = hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('');
+		    return hashHex;
+		}
+	</script>
 
 </body>
 </html>

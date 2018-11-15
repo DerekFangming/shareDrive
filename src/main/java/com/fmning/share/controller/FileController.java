@@ -36,15 +36,12 @@ import com.fmning.share.utils.Utils;
 @RequestMapping("/api")
 public class FileController {
 	
-	@Value("${homeDir}")
-	private String homeDir;
-	
 	@Value("${secretValue}")
 	private String secretValue;
 	
 	@GetMapping("/download_file")
 	public FileDownloadResult getFile(@RequestParam("file") String filename, HttpServletResponse response) throws IOException {
-		File file = new File(homeDir + filename);
+		File file = new File(Utils.homeDir + filename);
 		
 		if (file.isDirectory()) {
 			return new FileDownloadResult("Cannot download a directory");
@@ -84,7 +81,7 @@ public class FileController {
 		
 		if (newName.matches(".*[/\n\r\t\0\f`?*\\<>|\":].*")) return new FileRenameResult("File name cannot contain characters like / ` ? * \\ < > | \" :");
 		
-		File previousFile = new File(homeDir + filePath);		
+		File previousFile = new File(Utils.homeDir + filePath);		
 		String previousExt = FilenameUtils.getExtension(previousFile.getPath());
 		String newExt = FilenameUtils.getExtension(newName);
 		
@@ -102,13 +99,13 @@ public class FileController {
 		
 		String newPath = previousFile.getParent() + '/' + newName;
 		
-		if (newPath.equals(homeDir + filePath)) return new FileRenameResult("File name is the same as before");
+		if (newPath.equals(Utils.homeDir + filePath)) return new FileRenameResult("File name is the same as before");
 		
 		File newFile = new File(newPath);
 		if (newFile.exists()) return new FileRenameResult("There is already a file in the directory called " + newName);
 		
 		if (previousFile.renameTo(newFile)) {
-			return new FileRenameResult(newFile, homeDir);
+			return new FileRenameResult(newFile, Utils.homeDir);
 		} else {
 			return new FileRenameResult("Internal Server error. Please try again later");
 		}
@@ -124,17 +121,17 @@ public class FileController {
 		String newPath = (String)payload.get("newPath");
 		if (filePath == null) return new FileRenameResult("The request is not complete");
 		
-		filePath = homeDir + filePath;
+		filePath = Utils.homeDir + filePath;
 		if (newPath == null) {
 			Boolean deleteFile = (Boolean)payload.get("delete");
 			boolean delete = deleteFile == null ? false : deleteFile;
 			if (delete) {
-				newPath = homeDir + Utils.RECYCLE_BIN_FOLDER_NAME + File.separator + System.currentTimeMillis() + "_";
+				newPath = Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME + File.separator + System.currentTimeMillis() + "_";
 			} else {
-				newPath = homeDir;
+				newPath = Utils.homeDir;
 			}
 		} else {
-			newPath = homeDir + newPath + File.separator;
+			newPath = Utils.homeDir + newPath + File.separator;
 		}
 		
 		String[] paths = filePath.split("/");
@@ -146,7 +143,7 @@ public class FileController {
 		}
 		
 		if ((new File(filePath)).renameTo((new File(newPath)))) {
-			return new FileRenameResult(new File(newPath), homeDir);
+			return new FileRenameResult(new File(newPath), Utils.homeDir);
 		} else {
 			return new FileRenameResult("Internal Server error. Please try again later");
 		}
@@ -162,11 +159,11 @@ public class FileController {
 		List<Shareable> fileList = new ArrayList<>();
 		
 		for (MultipartFile file : files) {
-			File uploadedFile = dir == null ? new File(homeDir + file.getOriginalFilename()): new File(homeDir + dir + File.separator + file.getOriginalFilename());
+			File uploadedFile = dir == null ? new File(Utils.homeDir + file.getOriginalFilename()): new File(Utils.homeDir + dir + File.separator + file.getOriginalFilename());
 			
 			try {
 				file.transferTo(uploadedFile);
-				fileList.add(new Shareable(uploadedFile, homeDir));
+				fileList.add(new Shareable(uploadedFile, Utils.homeDir));
 			} catch (Exception e) {
 				errorMessage = "Some files are not uploaded successfully.";
 			}

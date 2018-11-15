@@ -24,13 +24,11 @@ import com.fmning.share.response.FileRenameResult;
 import com.fmning.share.response.FileSearchResult;
 import com.fmning.share.response.FileRetrieveResult;
 import com.fmning.share.response.Shareable;
+import com.fmning.share.utils.Utils;
 
 @RestController
 @RequestMapping("/api")
 public class DirectoryController {
-	
-	@Value("${homeDir}")
-	private String homeDir;
 	
 	@Value("${secretValue}")
 	private String secretValue;
@@ -46,7 +44,7 @@ public class DirectoryController {
 		boolean dirOnly = loadDirOnly == null ? false : (boolean)loadDirOnly;
 		if (dirStr == null) dirStr = "";
 		
-		File dir = new File(homeDir + dirStr);
+		File dir = new File(Utils.homeDir + dirStr);
 		
 		if (dir.isFile()) {
 			return new FileRetrieveResult("Requested path is not a directory.");
@@ -65,10 +63,10 @@ public class DirectoryController {
 					if (!f.isHidden() && !f.getName().startsWith(".")) {
 						if (dirOnly) {
 							if (f.isDirectory()) {
-								fileList.add(new Shareable(f, homeDir));
+								fileList.add(new Shareable(f, Utils.homeDir));
 							}
 						} else {
-							fileList.add(new Shareable(f, homeDir));
+							fileList.add(new Shareable(f, Utils.homeDir));
 						}
 					}
 				}
@@ -89,7 +87,7 @@ public class DirectoryController {
 		String keyword = (String)payload.get("keyword");
 		if (keyword == null) return new FileSearchResult("The request is not complete");
 		
-		File dir = dirStr == null ? new File(homeDir) : new File(homeDir + dirStr);
+		File dir = dirStr == null ? new File(Utils.homeDir) : new File(Utils.homeDir + dirStr);
 		
 		if (keyword.trim().equals("")) {
 			return new FileSearchResult("Please enter a keyword.");
@@ -108,7 +106,7 @@ public class DirectoryController {
 						.map(Path::toFile)
 						.parallel()
 						.filter(p -> p.getName().toLowerCase().matches(regex))
-						.map(f -> new Shareable(f, homeDir))
+						.map(f -> new Shareable(f, Utils.homeDir))
 						.collect(Collectors.toList());
 				
 				return new FileSearchResult(resultList);
@@ -124,7 +122,7 @@ public class DirectoryController {
 			return new DriveStatus("Not autorized.");
 		}
 		
-		File baseDir = new File(homeDir);
+		File baseDir = new File(Utils.homeDir);
 		return new DriveStatus(baseDir.getTotalSpace(), baseDir.getUsableSpace());
 	}
 	
@@ -137,7 +135,7 @@ public class DirectoryController {
 		String dirStr = (String)payload.get("dir");
 		if (dirStr == null) return new DirSize("The request is not complete");
 		
-		File dir = new File(homeDir + dirStr);
+		File dir = new File(Utils.homeDir + dirStr);
 		
 		if (dir.isFile()) {
 			return new DirSize("Requested path is not a directory.");
@@ -158,7 +156,7 @@ public class DirectoryController {
 		String folderName = (String)payload.get("folderName");
 		if (folderName == null) return new FileRenameResult("The request is not complete");
 		
-		File newDir = dirStr == null ? new File(homeDir + File.separator + folderName) : new File(homeDir + dirStr + File.separator + folderName);
+		File newDir = dirStr == null ? new File(Utils.homeDir + File.separator + folderName) : new File(Utils.homeDir + dirStr + File.separator + folderName);
 		
 		if (newDir.exists()) {
 			return new FileRenameResult("The folder already exits"); 
@@ -167,7 +165,7 @@ public class DirectoryController {
 		boolean result = newDir.mkdirs();
 		
 		if (result) {
-			return new FileRenameResult(newDir, homeDir);
+			return new FileRenameResult(newDir, Utils.homeDir);
 		} else {
 			return new FileRenameResult("Failed to create folder due to internal server error.");
 		}

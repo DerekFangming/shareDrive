@@ -19,18 +19,19 @@ import com.fmning.share.utils.Utils;
 @Component
 public class Initializer {
 	
-	@Value("${homeDir}")
-	private String homeDir;
-	
 	@EventListener(ApplicationReadyEvent.class)
 	public void initilizer(){
 		
 		try {
 			Properties prop = new Properties();
 			prop.load(new FileInputStream(Utils.PROPERTIES_FILE));
-			Utils.validateSettings(prop);
-			System.out.println("file exist but invalid");
+			String errors = Utils.validateSettings(prop);
+			if (errors.equals("")) {
+				Utils.guardExistRecycleBin(Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
+			}
+			//Else not needed since set up flag is already turned on
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("file missing");
 			Utils.setupNeeded = true;
 			//prop.setProperty("crapKey", "crapValue");
@@ -39,18 +40,18 @@ public class Initializer {
 		}
 		
 //		
-//	    File recycleBin = new File(homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
-//	    
-//	    if (! recycleBin.exists()){
-//	    	recycleBin.mkdir();
-//	    	
-//	    	try {
-//		    	Boolean hidden = (Boolean) Files.getAttribute(recycleBin.toPath(), "dos:hidden", LinkOption.NOFOLLOW_LINKS);
-//		    	if (hidden != null && !hidden) {
-//		    		Files.setAttribute(recycleBin.toPath(), "dos:hidden", Boolean.TRUE, LinkOption.NOFOLLOW_LINKS);
-//		    	}
-//	    	} catch (IOException ignored) {};
-//	    }
+	    File recycleBin = new File(Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
+	    
+	    if (! recycleBin.exists()){
+	    	recycleBin.mkdir();
+	    	
+	    	try {
+		    	Boolean hidden = (Boolean) Files.getAttribute(recycleBin.toPath(), "dos:hidden", LinkOption.NOFOLLOW_LINKS);
+		    	if (hidden != null && !hidden) {
+		    		Files.setAttribute(recycleBin.toPath(), "dos:hidden", Boolean.TRUE, LinkOption.NOFOLLOW_LINKS);
+		    	}
+	    	} catch (IOException ignored) {};
+	    }
 //	    Utils.test(homeDir);
 
 	}
