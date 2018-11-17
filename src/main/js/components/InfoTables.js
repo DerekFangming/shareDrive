@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {convertSize, convertDate, numberWithCommas, getFileType, keepTwoDigits, getSecretKey, getRequestJsonHeader} from '../utils/Utils';
+import {convertSize, convertDate, numberWithCommas, getFileType, keepTwoDigits, getAccessToken, getRequestJsonHeader} from '../utils/Utils';
 import Arrow from './Arrow';
 import {LoadingStatus} from '../utils/Enums';
 import MoveFileModal from './MoveFileModal'
@@ -39,7 +39,7 @@ export default class InfoTables extends Component {
 		
 		fetch(window.location.href + 'api/get_drive_status', {
 			method: "GET",
-			headers: {'Authorization': getSecretKey()}
+			headers: {'Authorization': getAccessToken()}
 			})
 		.then(function (response) {
 			if (response.status == 200) {

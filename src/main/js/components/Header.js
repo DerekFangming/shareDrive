@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {getRequestJsonHeader} from '../utils/Utils';
+import {getRequestJsonHeader, getCookie} from '../utils/Utils';
 import Popover, { ArrowContainer } from 'react-tiny-popover'
+import PreferenceModal from './PreferenceModal'
 
 export default class Header extends Component {
 	
@@ -104,9 +105,10 @@ export default class Header extends Component {
 					<ul className="navbar-nav mr-auto">
 						<li className="nav-item dropdown active">
 							<a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								Loged in as Admin
+								Loged in as {getCookie(Config.usernameCookieKey)}
 							</a>
 							<div className="dropdown-menu" aria-labelledby="navbarDropdown">
+								<a className="dropdown-item cursor-pointer" data-toggle="modal" data-target="#preferenceModal" >Preference</a>
 								<a className="dropdown-item cursor-pointer" onClick={this.logout} >Log out</a>
 							</div>
 						</li>
@@ -134,6 +136,7 @@ export default class Header extends Component {
 				
 					
 				</div>
+				<PreferenceModal />
 			</nav>
 		);
 	}

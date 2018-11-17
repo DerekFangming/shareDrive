@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {convertSize, secondsToStr, keepTwoDigits, getSecretKey} from '../utils/Utils'
+import {convertSize, secondsToStr, keepTwoDigits, getAccessToken} from '../utils/Utils'
 import Config from 'Config';
 import axios from 'axios'
 import plus from '../../resources/static/plus.png';
@@ -165,7 +165,7 @@ export default class UploadFileModal extends Component {
 		axios.post(window.location.href + 'api/upload_file', formData, {
 			headers: {
 			  'Content-Type': 'multipart/form-data',
-			  'Authorization': getSecretKey()
+			  'Authorization': getAccessToken()
 			},
 			onUploadProgress: ProgressEvent => {
 				let percent = keepTwoDigits(ProgressEvent.loaded / ProgressEvent.total * 100)

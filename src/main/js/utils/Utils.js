@@ -89,7 +89,7 @@ export const getCookie = (name) => {
 	return '';
 }
 
-export const getSecretKey = () => {
+export const getAccessToken = () => {
 	return getCookie(Config.passwordCookieKey)
 }
 
@@ -97,6 +97,6 @@ export const getRequestJsonHeader = () => {
 	return  {
     	'Accept': 'application/json',
     	'Content-Type': 'application/json',
-    	'Authorization': getSecretKey()
+    	'Authorization': getAccessToken()
     }
 }

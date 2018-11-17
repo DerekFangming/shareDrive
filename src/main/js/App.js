@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {getSecretKey} from './utils/Utils';
+import {getAccessToken} from './utils/Utils';
 import Config from 'Config';
 import ReactDOM from 'react-dom';
 import Header from './components/Header';
@@ -11,7 +11,7 @@ class App extends Component {
 	
 	constructor() {
 		super();
-		let token = getSecretKey()
+		let token = getAccessToken()
 		this.state= {
 			accessToken: token
 		}
@@ -28,7 +28,7 @@ class App extends Component {
 	}
 	
 	loginSuccessHanlder = () => {
-		let token = getSecretKey()
+		let token = getAccessToken()
 		if (token != '') {
 			this.setState({accessToken: token})
 		}
@@ -39,7 +39,7 @@ class App extends Component {
 		document.cookie = Config.passwordCookieKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 		document.cookie = Config.adminCookieKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 		
-		let token = getSecretKey()
+		let token = getAccessToken()
 		if (token == '') {
 			this.setState({accessToken: ''})
 		}
