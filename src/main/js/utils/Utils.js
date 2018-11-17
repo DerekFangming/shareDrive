@@ -90,7 +90,7 @@ export const getCookie = (name) => {
 }
 
 export const getSecretKey = () => {
-	return getCookie(Config.secretKey)
+	return getCookie(Config.passwordCookieKey)
 }
 
 export const getRequestJsonHeader = () => {

@@ -35,7 +35,9 @@ class App extends Component {
 	}
 	
 	logoutHandler = () => {
-		document.cookie = Config.secretKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+		document.cookie = Config.usernameCookieKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+		document.cookie = Config.passwordCookieKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+		document.cookie = Config.adminCookieKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 		
 		let token = getSecretKey()
 		if (token == '') {

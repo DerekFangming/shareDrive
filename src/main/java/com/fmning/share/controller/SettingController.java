@@ -2,9 +2,6 @@ package com.fmning.share.controller;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.util.Map;
 import java.util.Properties;
 
@@ -24,7 +21,8 @@ import com.fmning.share.utils.Utils;
 public class SettingController {
 	
 	@PostMapping("/initial_setup")
-	public GenericResponse login(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
+	public GenericResponse login(@RequestBody Map<String, Object> payload, HttpServletResponse response) throws InterruptedException {
+		Thread.sleep(2000);
 		String username = (String)payload.get("username");
 		String password = (String)payload.get("password");
 		String homeDir = (String)payload.get("homeDir");

@@ -1,9 +1,6 @@
 package com.fmning.share.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -20,18 +17,14 @@ public class Utils {
 	public static final String ADMIN_PASSWORD = "adminPassword";
 	public static final String HOME_DIRECTORY = "homeDir";
 	
-	public static final String USERNAME_COOKIE_KEY = "sd_username";
-	public static final String PASSWORD_COOKIE_KEY = "sd_token";
-	public static final String ADMIN_COOKIE_KEY = "sd_admin";
+	public static String USERNAME_COOKIE_KEY = "";
+	public static String PASSWORD_COOKIE_KEY = "";
+	public static String ADMIN_COOKIE_KEY = "";
 	
 	public static String homeDir;
 	private static List<User> userList = new ArrayList<>();;
 	
 	public static boolean setupNeeded = false;
-	
-	public static void test(String a) {
-		//DigestUtils.sha256Hex(stringText);
-	}
 	
 	public static String validateSettings(Properties prop) {
 		setupNeeded = true;

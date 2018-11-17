@@ -45,10 +45,6 @@
 			        	<p class="font-weight-light mb-0">The path on your hard drive that you want to share. For example, D:/share/</p>
 			        	<input id="path" type="text" class="form-control" placeholder="Root path">
 			        </div>
-			        
-					<button type="button" class="btn btn-primary mt-4 btn-block disabled d-none">
-						<span class="fa fa-refresh fa-spin fa-1x fa-fw"></span>
-					</button>
 
 					<button type="button" id="btnSubmit" class="btn btn-primary mt-4 btn-block">Submit</button>
 			        
@@ -82,6 +78,9 @@
 		        } else {
 		        	homeDir = homeDir.replace(/\\/g,"/");
 		    		password = sha256(password).then(function (hashedPassword) {
+		    			$("#btnSubmit").toggleClass("disabled");
+		    			$("#btnSubmit").html('<span class="fa fa-refresh fa-spin fa-1x fa-fw"></span>');
+		    			
 		    			fetch(window.location.href + 'api/initial_setup', {
 			    			method: 'POST',
 			    		    headers: {
@@ -91,10 +90,12 @@
 			    		    body: JSON.stringify({username : username, password: hashedPassword.toUpperCase(), homeDir: homeDir})
 			    		})
 			    		.then(function (response) {
+			    			$("#btnSubmit").toggleClass("disabled");
+			    			$("#btnSubmit").html('Submit');
 			    			if (response.status == 200) {
 			    				response.json().then(function(json) {
 			    					if (json.error == '') {
-			    						//
+			    						location.reload();
 			    					} else {
 			    						$("#errMsg").html(json.error);
 			    			        	$("#errMsg").show();

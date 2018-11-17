@@ -14,7 +14,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,9 +34,6 @@ import com.fmning.share.utils.Utils;
 @RestController
 @RequestMapping("/api")
 public class FileController {
-	
-	@Value("${secretValue}")
-	private String secretValue;
 	
 	@GetMapping("/download_file")
 	public FileDownloadResult getFile(@RequestParam("file") String filename, HttpServletResponse response) throws IOException {
@@ -68,7 +64,7 @@ public class FileController {
 	
 	@PostMapping("/rename_file")
 	public FileRenameResult renameFile(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
-		if (!auth.equals(secretValue)) {
+		if (Utils.findUser(auth) == null) {
 			return new FileRenameResult("Not autorized.");
 		}
 		
@@ -113,7 +109,7 @@ public class FileController {
 	
 	@PostMapping("/move_file")
 	public FileRenameResult moveFile(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
-		if (!auth.equals(secretValue)) {
+		if (Utils.findUser(auth) == null) {
 			return new FileRenameResult("Not autorized.");
 		}
 		
@@ -151,7 +147,7 @@ public class FileController {
 	
 	@PostMapping("/upload_file")
 	public FileRetrieveResult uploadFiles(@RequestHeader("Authorization") String auth, @RequestParam("files") List<MultipartFile> files, @RequestParam(value = "dir", required=false) String dir, MultipartRequest request) {
-		if (!auth.equals(secretValue)) {
+		if (Utils.findUser(auth) == null) {
 			return new FileRetrieveResult("Not autorized.");
 		}
 		

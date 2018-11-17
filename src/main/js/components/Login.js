@@ -9,6 +9,7 @@ export default class Login extends Component {
 	    this.state = {
 	    	loginErrMsg: '',
 	    	loginPwd: '',
+	    	loginUsr: '',
 	    	loggingIn: false
 	    };
 	}
@@ -27,7 +28,7 @@ export default class Login extends Component {
 		    	'Accept': 'application/json',
 		    	'Content-Type': 'application/json'
 		    },
-		    body: JSON.stringify({passcode : this.state.loginPwd})
+		    body: JSON.stringify({username: this.state.loginUsr, hashcode : this.state.loginPwd})
 		})
 		.then(function (response) {
 			if (response.status == 200) {
@@ -65,7 +66,7 @@ export default class Login extends Component {
 						<form>
 					    	<p className="lead mt-5 mb-4">Please login</p>
 					        <div className="form-group">
-					            <input type="text" className="form-control" value="Who is cute?" placeholder="Username" readOnly></input>
+					            <input type="text" className="form-control" placeholder="Username" onChange={(e) => this.setState({loginUsr: e.target.value, loginErrMsg: ''})}></input>
 					        </div>
 			
 					        <div className="form-group">

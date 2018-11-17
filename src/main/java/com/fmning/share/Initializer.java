@@ -1,12 +1,6 @@
 package com.fmning.share;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -18,9 +12,23 @@ import com.fmning.share.utils.Utils;
 
 @Component
 public class Initializer {
+			
+	@Value("${usernameCookieKey}")
+	private String usernameCookieKey;
+	
+	@Value("${passwordCookieKey}")
+	private String passwordCookieKey;
+	
+	@Value("${adminCookieKey}")
+	private String adminCookieKey;
+
 	
 	@EventListener(ApplicationReadyEvent.class)
 	public void initilizer(){
+
+		Utils.USERNAME_COOKIE_KEY = usernameCookieKey;
+		Utils.PASSWORD_COOKIE_KEY = passwordCookieKey;
+		Utils.ADMIN_COOKIE_KEY = adminCookieKey;
 		
 		try {
 			Properties prop = new Properties();
@@ -30,29 +38,15 @@ public class Initializer {
 				Utils.guardExistRecycleBin(Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
 			}
 			//Else not needed since set up flag is already turned on
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("file missing");
+		} catch (Exception ignored) {
 			Utils.setupNeeded = true;
-			//prop.setProperty("crapKey", "crapValue");
-			
-			//prop.store(new FileOutputStream(PROPERTIES_FILE), "");
 		}
 		
-//		
-	    File recycleBin = new File(Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
-	    
-	    if (! recycleBin.exists()){
-	    	recycleBin.mkdir();
-	    	
-	    	try {
-		    	Boolean hidden = (Boolean) Files.getAttribute(recycleBin.toPath(), "dos:hidden", LinkOption.NOFOLLOW_LINKS);
-		    	if (hidden != null && !hidden) {
-		    		Files.setAttribute(recycleBin.toPath(), "dos:hidden", Boolean.TRUE, LinkOption.NOFOLLOW_LINKS);
-		    	}
-	    	} catch (IOException ignored) {};
-	    }
-//	    Utils.test(homeDir);
+		try {
+			Utils.guardExistRecycleBin(Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
+		} catch (Exception ignored) {
+			Utils.setupNeeded = true;
+		}
 
 	}
 

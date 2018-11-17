@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,12 +29,9 @@ import com.fmning.share.utils.Utils;
 @RequestMapping("/api")
 public class DirectoryController {
 	
-	@Value("${secretValue}")
-	private String secretValue;
-	
 	@PostMapping("/get_files_in_directory")
 	public FileRetrieveResult getFiles(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
-		if (!auth.equals(secretValue)) {
+		if (Utils.findUser(auth) == null) {
 			return new FileRetrieveResult("Not autorized.");
 		}
 		
@@ -79,7 +75,7 @@ public class DirectoryController {
 	
 	@PostMapping("/search_files_in_directory")
 	public FileSearchResult searchFiles(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
-		if (!auth.equals(secretValue)) {
+		if (Utils.findUser(auth) == null) {
 			return new FileSearchResult("Not autorized.");
 		}
 		
@@ -118,7 +114,7 @@ public class DirectoryController {
 	
 	@GetMapping("/get_drive_status")
 	public DriveStatus getDriveStatus(@RequestHeader("Authorization") String auth) {
-		if (!auth.equals(secretValue)) {
+		if (Utils.findUser(auth) == null) {
 			return new DriveStatus("Not autorized.");
 		}
 		
@@ -128,7 +124,7 @@ public class DirectoryController {
 	
 	@PostMapping("/get_directory_size")
 	public DirSize getDirSize(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
-		if (!auth.equals(secretValue)) {
+		if (Utils.findUser(auth) == null) {
 			return new DirSize("Not autorized.");
 		}
 		
@@ -148,7 +144,7 @@ public class DirectoryController {
 	
 	@PostMapping("/create_folder")
 	public FileRenameResult createFoler(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> payload) {
-		if (!auth.equals(secretValue)) {
+		if (Utils.findUser(auth) == null) {
 			return new FileRenameResult("Not autorized.");
 		}
 		
