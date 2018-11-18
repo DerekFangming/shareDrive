@@ -5,7 +5,7 @@ const appProperties = PropertiesReader('./src/main/resources/application.propert
 
 module.exports = {
 	mode: 'development',
-    entry: './src/main/js/app.js',
+    entry: ['@babel/polyfill','./src/main/js/app.js'],
     devtool: 'source-map',
     output: {
         path: __dirname,

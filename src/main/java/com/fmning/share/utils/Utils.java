@@ -1,12 +1,17 @@
 package com.fmning.share.utils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Utils {
 
@@ -16,6 +21,7 @@ public class Utils {
 	public static final String ADMIN_USERNAME = "adminUsername";
 	public static final String ADMIN_PASSWORD = "adminPassword";
 	public static final String HOME_DIRECTORY = "homeDir";
+	public static final String USER_LIST = "users";
 	
 	public static String USERNAME_COOKIE_KEY = "";
 	public static String PASSWORD_COOKIE_KEY = "";
@@ -48,6 +54,22 @@ public class Utils {
 		
 		userList.add(new User(username, password, true));
 		
+		
+		try {
+			String usersJson = prop.getProperty(USER_LIST);
+			ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			List<User> users = mapper.readValue(usersJson, new TypeReference<List<User>>(){});
+			
+			userList.addAll(users);
+		} catch (Exception e) {
+			try {
+				prop.remove(USER_LIST);
+				prop.store(new FileOutputStream(PROPERTIES_FILE), "");
+			} catch (Exception ex) {
+				return "User list corrupted but failed to remove from config file";
+			}
+		}
+		
 		setupNeeded = false;
 		return "";
 	}
@@ -70,6 +92,10 @@ public class Utils {
 	
 	public static User findUser(String password) {
 		return userList.parallelStream().filter(user -> user.password.equals(password)).findAny().orElse(null);
+	}
+	
+	public static User findUser(String username, String password) {
+		return userList.parallelStream().filter(user -> user.username.equals(username)).filter(user -> user.password.equals(password)).findAny().orElse(null);
 	}
 	
 	public static boolean isNullOrEmpty(String string) {

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Config from 'Config';
 import Popover, { ArrowContainer } from 'react-tiny-popover'
+import {sha256} from '../utils/Utils';
 
 export default class Login extends Component {
 
@@ -22,36 +23,38 @@ export default class Login extends Component {
 		
 		const that = this
 		
-		fetch(window.location.href + 'api/login', {
-			method: 'POST',
-		    headers: {
-		    	'Accept': 'application/json',
-		    	'Content-Type': 'application/json'
-		    },
-		    body: JSON.stringify({username: this.state.loginUsr, hashcode : this.state.loginPwd})
-		})
-		.then(function (response) {
-			if (response.status == 200) {
-				response.json().then(function(json) {
-					if (json.error == '') {
-						that.setState({
-							loggingIn: false
-						});
-						that.props.loginSuccessHanlder();
-					} else {
-						that.setState({
-							loggingIn: false,
-							loginErrMsg: json.error
-						});
-					}
-				})
-				
-			} else {
-				that.setState({
-					loginErrMsg: 'Internal server error. Please try again later',
-			    	loggingIn: false
-				});
-			}
+		sha256(this.state.loginPwd).then(function (hashedPassword) {
+			fetch(window.location.href + 'api/login', {
+				method: 'POST',
+			    headers: {
+			    	'Accept': 'application/json',
+			    	'Content-Type': 'application/json'
+			    },
+			    body: JSON.stringify({username: that.state.loginUsr, hashcode : hashedPassword.toUpperCase()})
+			})
+			.then(function (response) {
+				if (response.status == 200) {
+					response.json().then(function(json) {
+						if (json.error == '') {
+							that.setState({
+								loggingIn: false
+							});
+							that.props.loginSuccessHanlder();
+						} else {
+							that.setState({
+								loggingIn: false,
+								loginErrMsg: json.error
+							});
+						}
+					})
+					
+				} else {
+					that.setState({
+						loginErrMsg: 'Internal server error. Please try again later',
+				    	loggingIn: false
+					});
+				}
+			});
 		});
 		
 	}

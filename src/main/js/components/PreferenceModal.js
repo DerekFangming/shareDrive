@@ -22,7 +22,35 @@ export default class PreferenceModal extends Component {
 						</div>
 						
 						<div className="modal-body">
-							
+							<div className="row">
+								<div className="col-12">
+									<p>Change Password</p>
+								</div>
+								<div className="col-12">
+									<div className="input-group mb-3">
+										<div className="input-group-prepend">
+											<span className="input-group-text pr-5" id="inputGroup-sizing-default">Current Password</span>
+										</div>
+										<input type="password" className="form-control"></input>
+									</div>
+								</div>
+								<div className="col-12">
+								<div className="input-group mb-3">
+									<div className="input-group-prepend">
+										<span className="input-group-text pr-5" id="inputGroup-sizing-default">New Password <span className="pr-4"></span></span>
+									</div>
+									<input type="password" className="form-control" ></input>
+								</div>
+							</div>
+							<div className="col-12">
+							<div className="input-group mb-3">
+								<div className="input-group-prepend">
+									<span className="input-group-text" id="inputGroup-sizing-default">Confirm New Password</span>
+								</div>
+								<input type="password" className="form-control" ></input>
+							</div>
+						</div>
+							</div>
 						</div>
 						
 						<div className="modal-footer">
