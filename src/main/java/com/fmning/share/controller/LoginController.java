@@ -1,6 +1,7 @@
 package com.fmning.share.controller;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.share.response.GenericResponse;
+import com.fmning.share.response.UserListResult;
 import com.fmning.share.utils.User;
 import com.fmning.share.utils.Utils;
 
@@ -52,8 +55,7 @@ public class LoginController {
 	}
 	
 	@PostMapping("/change_password")
-	public GenericResponse changePassword(@RequestBody Map<String, Object> payload, HttpServletResponse response) throws Exception {
-		Thread.sleep(1000);
+	public GenericResponse changePassword(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
 		String username = (String)payload.get("username");
 		String previousPassword = (String)payload.get("previousHashcode");
 		String newPassword = (String)payload.get("newHashcode");
@@ -67,6 +69,15 @@ public class LoginController {
 		}
 		
 		return new GenericResponse(result);
+	}
+	
+	@PostMapping("/get_user_list")
+	public UserListResult getUserList(@RequestHeader("Authorization") String auth, @RequestHeader("Identity") String identity, @RequestBody Map<String, Object> payload) {
+		if (Utils.admin.username.equals(identity) && Utils.admin.password.equals(auth)) {
+			return new UserListResult(Utils.getStrippedUserList());
+		} else {
+			return new UserListResult("Not autorized.");
+		}
 	}
 	
 	@GetMapping("/test")

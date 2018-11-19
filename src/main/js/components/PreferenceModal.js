@@ -13,11 +13,9 @@ export default class PreferenceModal extends Component {
 			confirmPassword: '',
 			changingPwd: false
 	    };
-		
 	}
 	
 	updatePassword = () => {
-
 		let newPwd = this.state.newPassword.trim()
 		let confirmPwd = this.state.confirmPassword.trim()
 		const that = this
@@ -49,7 +47,6 @@ export default class PreferenceModal extends Component {
 									that.setState({ changingPwd: false, errMsg: json.error });
 								}
 							})
-							
 						} else {
 							that.setState({ changingPwd: false, errMsg: 'Internal server error. Please try again later' });
 						}
@@ -57,6 +54,10 @@ export default class PreferenceModal extends Component {
 				})
 			})
 		}
+	}
+	
+	loadUserList = () => {
+		console.log(1)
 	}
 	
 	cancelBtnHandler = () => {
@@ -128,15 +129,11 @@ export default class PreferenceModal extends Component {
 							</div>
 							
 							<hr></hr>
-							
 							<div className="row">
 								<div className="col-12">
-									<button type="button" className="btn btn-secondary float-right" onClick={this.cancelBtnHandler}>Cancel</button>
-									<button type="button" className="btn btn-success float-right mr-2" onClick={this.updatePassword} >Save</button>
+									<p>Manage Users</p>
 								</div>
-							</div>
-							<div className="row">
-								<div className="col-12">
+								<div className="col-12 my-1">
 									<div className="input-group">
 									  <input type="text" className="form-control" placeholder="Username"></input>
 									  <input type="password" className="form-control " placeholder="Password"></input>
@@ -147,9 +144,8 @@ export default class PreferenceModal extends Component {
 								</div>
 							</div>
 							
+							
 						</div>
-						
-						
 					</div>
 				</div>
 			</div>

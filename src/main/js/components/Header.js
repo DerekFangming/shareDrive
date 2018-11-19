@@ -16,6 +16,7 @@ export default class Header extends Component {
 	    	searchKeyWord: '',
 	    	searching: false
 	    };
+	    this.preferenceModal = React.createRef();
 	}
 	
 	componentDidMount() {
@@ -108,7 +109,8 @@ export default class Header extends Component {
 								Loged in as {getCookie(Config.usernameCookieKey)}
 							</a>
 							<div className="dropdown-menu" aria-labelledby="navbarDropdown">
-								<a className="dropdown-item cursor-pointer" data-toggle="modal" data-target="#preferenceModal" >Preference</a>
+								<a className="dropdown-item cursor-pointer" data-toggle="modal" data-target="#preferenceModal"
+									onClick={() => this.preferenceModal.current.loadUserList()} >Preference</a>
 								<a className="dropdown-item cursor-pointer" onClick={this.logout} >Log out</a>
 							</div>
 						</li>
@@ -136,7 +138,7 @@ export default class Header extends Component {
 				
 					
 				</div>
-				<PreferenceModal />
+				<PreferenceModal ref={this.preferenceModal} />
 			</nav>
 		);
 	}

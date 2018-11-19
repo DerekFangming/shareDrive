@@ -130,6 +130,14 @@ public class Utils {
 		return "";
 	}
 	
+	public static List<User> getStrippedUserList() {
+		List<User> strippedList = new ArrayList<>();
+		for (User u : userList) {
+			strippedList.add(new User(u.getUsername(), ""));
+		}
+		return strippedList;
+	}
+	
 	public static void saveSettings () throws Exception{
 		ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		StringWriter sw =new StringWriter();
