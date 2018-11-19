@@ -1,6 +1,5 @@
 package com.fmning.share.controller;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fmning.share.response.GenericResponse;
 import com.fmning.share.utils.User;
@@ -52,6 +49,24 @@ public class LoginController {
 			}
 		}
 		return new GenericResponse("Incorrect passcode. Please try again");
+	}
+	
+	@PostMapping("/change_password")
+	public GenericResponse changePassword(@RequestBody Map<String, Object> payload, HttpServletResponse response) throws Exception {
+		Thread.sleep(1000);
+		String username = (String)payload.get("username");
+		String previousPassword = (String)payload.get("previousHashcode");
+		String newPassword = (String)payload.get("newHashcode");
+		
+		String result = Utils.changePassword(username, previousPassword, newPassword);
+		
+		if (result.endsWith("")) {
+			Cookie passwordCookie = new Cookie(Utils.PASSWORD_COOKIE_KEY, newPassword);
+			passwordCookie.setPath("/");
+			response.addCookie(passwordCookie);
+		}
+		
+		return new GenericResponse(result);
 	}
 	
 	@GetMapping("/test")

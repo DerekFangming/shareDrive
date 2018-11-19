@@ -3,6 +3,7 @@ package com.fmning.share.utils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class Utils {
 	public static String PASSWORD_COOKIE_KEY = "";
 	public static String ADMIN_COOKIE_KEY = "";
 	
+	public static User admin;
 	public static String homeDir;
 	private static List<User> userList = new ArrayList<>();;
 	
@@ -52,8 +54,7 @@ public class Utils {
 			return "Home directory is missing";
 		}
 		
-		userList.add(new User(username, password, true));
-		
+		admin = new User(username, password, true);
 		
 		try {
 			String usersJson = prop.getProperty(USER_LIST);
@@ -91,11 +92,58 @@ public class Utils {
 	}
 	
 	public static User findUser(String password) {
+		if (admin.password.equals(password)) return admin;
 		return userList.parallelStream().filter(user -> user.password.equals(password)).findAny().orElse(null);
 	}
 	
 	public static User findUser(String username, String password) {
+		if (admin.username.equals(username) && admin.password.equals(password)) return admin;
 		return userList.parallelStream().filter(user -> user.username.equals(username)).filter(user -> user.password.equals(password)).findAny().orElse(null);
+	}
+	
+	public static String changePassword(String username, String previousPassword, String newPassword) {
+		if (admin.username.equals(username) && admin.password.equals(previousPassword)) {
+			admin.password = newPassword;
+			try {
+				saveSettings();
+			} catch (Exception e) {
+				admin.password = previousPassword;
+				return e.getMessage();
+			}
+		} else {
+			User user = findUser(username, previousPassword);
+			if (user == null) return "The current password does not match what's on the record.";
+			userList.remove(user);
+			String rollBackPwd = user.password;
+			user.password = newPassword;
+			userList.add(user);
+			try {
+				saveSettings();
+			} catch (Exception e) {
+				userList.remove(user);
+				user.password = rollBackPwd;
+				userList.add(user);
+				return e.getMessage();
+			}
+		}
+		
+		return "";
+	}
+	
+	public static void saveSettings () throws Exception{
+		ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		StringWriter sw =new StringWriter();
+		
+		Properties prop = new Properties();
+		prop.setProperty(Utils.ADMIN_USERNAME, admin.username);
+		prop.setProperty(Utils.ADMIN_PASSWORD, admin.password);
+		prop.setProperty(Utils.HOME_DIRECTORY, homeDir);
+		if (userList.size() > 0) {
+			mapper.writeValue(sw, userList);
+			prop.setProperty(USER_LIST, sw.toString());
+		}
+		
+		prop.store(new FileOutputStream(Utils.PROPERTIES_FILE), "");
 	}
 	
 	public static boolean isNullOrEmpty(String string) {

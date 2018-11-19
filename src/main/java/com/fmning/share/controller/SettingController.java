@@ -50,8 +50,6 @@ public class SettingController {
 			}
 		}
 		
-		System.out.println(username + password + homeDir);
-		
 		Properties prop = new Properties();
 		prop.setProperty(Utils.ADMIN_USERNAME, username);
 		prop.setProperty(Utils.ADMIN_PASSWORD, password);
