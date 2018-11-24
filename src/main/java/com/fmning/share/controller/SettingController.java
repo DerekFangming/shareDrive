@@ -21,8 +21,7 @@ import com.fmning.share.utils.Utils;
 public class SettingController {
 	
 	@PostMapping("/initial_setup")
-	public GenericResponse login(@RequestBody Map<String, Object> payload, HttpServletResponse response) throws InterruptedException {
-		Thread.sleep(2000);
+	public GenericResponse login(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
 		String username = (String)payload.get("username");
 		String password = (String)payload.get("password");
 		String homeDir = (String)payload.get("homeDir");

@@ -80,6 +80,24 @@ public class LoginController {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	@PostMapping("/update_user_list")
+	public GenericResponse updateUserList(@RequestHeader("Authorization") String auth, @RequestHeader("Identity") String identity, @RequestBody Map<String, Object> payload) {
+		if (Utils.admin.username.equals(identity) && Utils.admin.password.equals(auth)) {
+			List<Map<String, String>> existingUsers = (List<Map<String, String>>)payload.get("existingUsers");
+			List<Map<String, String>> newUsers = (List<Map<String, String>>)payload.get("newUsers");
+			
+			List<User> existingUserList = new ArrayList<>();
+			for (Map<String, String> map : existingUsers) existingUserList.add(new User(map.get("username"), map.get("password"), false));
+			
+			
+			
+			return new GenericResponse("");
+		} else {
+			return new GenericResponse("Not autorized.");
+		}
+	}
+	
 	@GetMapping("/test")
 	public void login() throws Exception {
 		String a = "[{\"username\":\"test\", \"password\":\"rand\"}, {\"username\":\"test2\", \"password\":\"rand haha\"}]";

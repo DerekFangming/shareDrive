@@ -138,6 +138,17 @@ public class Utils {
 		return strippedList;
 	}
 	
+	public static void mergeUserList(List<User> existingUserList) {
+		for (User user : existingUserList) {
+			if (user.password.equals("")) {
+				User existingUser = userList.parallelStream().filter(u -> u.username.equals(user.username)).findFirst().orElse(null);
+				if (existingUser != null) {
+					user.password = existingUser.password;
+				}
+			}
+		}
+	}
+	
 	public static void saveSettings () throws Exception{
 		ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		StringWriter sw =new StringWriter();

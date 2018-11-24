@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {getCookie, sha256} from '../utils/Utils';
+import {getCookie, sha256, getAccessToken, getUUID} from '../utils/Utils';
 
 export default class PreferenceModal extends Component {
 	
@@ -11,7 +11,11 @@ export default class PreferenceModal extends Component {
 			curPassword: '',
 			newPassword: '',
 			confirmPassword: '',
-			changingPwd: false
+			changingPwd: false,
+			manageErrMsg: '',
+			managingUser: false,
+			userList: [],
+			newUserList: []
 	    };
 	}
 	
@@ -57,12 +61,172 @@ export default class PreferenceModal extends Component {
 	}
 	
 	loadUserList = () => {
-		console.log(1)
+		if (getCookie(Config.adminCookieKey) == "true") {
+			const that = this
+			this.setState({managingUser: true, manageErrMsg: '', userList: [], newUserList: []})
+			fetch(window.location.href + 'api/get_user_list', {
+				method: 'POST',
+				headers: {
+			    	'Accept': 'application/json',
+			    	'Content-Type': 'application/json',
+			    	'Authorization': getAccessToken(),
+			    	'Identity': getCookie(Config.usernameCookieKey)
+			    },
+			    body: JSON.stringify({})
+			})
+			.then(function (response) {
+				if (response.status == 200) {
+					response.json().then(function(json) {
+						if (json.error == '') {
+							that.setState({ managingUser: false, manageErrMsg: '', userList: json.userList});
+						} else {
+							that.setState({ managingUser: false, manageErrMsg: json.error });
+						}
+					})
+				} else {
+					that.setState({ managingUser: false, manageErrMsg: 'Internal server error. Please try again later' });
+				}
+			});
+		}
 	}
 	
 	cancelBtnHandler = () => {
-		this.setState({errMsg: ''});
+		this.setState({errMsg: '', manageErrMsg: '', userList: [], newUserList: []});
 		$('#preferenceModal').modal('hide');
+	}
+	
+	updateUsername = (user, newUsername) => {
+		let index = this.state.newUserList.findIndex((u) => {
+			return u.key == user.key
+		});
+		
+		if (index != -1) {
+			user.username = newUsername
+			let newNewUserList = this.state.newUserList.slice()
+			newNewUserList[index] = user
+			
+			this.setState({
+				newUserList: newNewUserList
+			});
+		}
+	}
+	
+	updatePassword = (user, newPassword) => {
+		if (typeof user.key != "undefined") {
+			let index = this.state.newUserList.findIndex((u) => {
+				return u.key == user.key
+			});
+			
+			if (index != -1) {
+				user.password = newPassword
+				let newNewUserList = this.state.newUserList.slice()
+				newNewUserList[index] = user
+				
+				this.setState({ newUserList: newNewUserList });
+			}
+		} else {
+			let index = this.state.userList.findIndex((u) => {
+				return u.username == user.username
+			});
+			
+			if (index != -1) {
+				user.password = newPassword
+				let newUserList = this.state.userList.slice()
+				newUserList[index] = user
+				
+				this.setState({ userList: newUserList });
+			}
+		}
+	}
+	
+	deleteUser = (user) => {
+		if (typeof user.key != "undefined") {
+			let index = this.state.newUserList.findIndex((u) => {
+				return u.key == user.key
+			});
+			
+			if (index != -1) {
+				let newNewUserList = this.state.newUserList.slice()
+				newNewUserList.splice(index, 1);
+				this.setState({ newUserList: newNewUserList });
+			}
+		} else {
+			let index = this.state.userList.findIndex((u) => {
+				return u.username == user.username
+			});
+			
+			if (index != -1) {
+				let newUserList = this.state.userList.slice()
+				newUserList.splice(index, 1);
+				this.setState({ userList: newUserList });
+			}
+		}
+	}
+	
+	addUser = () => {
+		this.setState({manageErrMsg: ''})
+		let index = this.state.newUserList.findIndex((u) => {
+			return u.username.trim() == ''
+		});
+		
+		if (index == -1) {
+			let newNewUserList = this.state.newUserList.slice()
+			newNewUserList.push({username: '', password: '', key: getUUID() })
+			this.setState({
+				newUserList: newNewUserList
+			});
+		} else {
+			this.setState({manageErrMsg: 'Please fill in the empty user first before adding a new one'})
+		}
+	}
+	
+	saveUserChanges = () => {
+		this.setState({manageErrMsg: ''})
+		
+		let newUsernames = []
+		for (let user of this.state.newUserList) {
+			if (user.username.trim() == '' || user.password.trim() == '') {
+				this.setState({manageErrMsg: 'Username and password for new users must not be empty.'})
+				return
+			}
+			let existingIndex = this.state.userList.findIndex((u) => { return u.username == user.username });
+			let newIndex = newUsernames.indexOf(user.username)
+			console.log('' + existingIndex + ' ' + newIndex)
+			if (existingIndex != -1 || newIndex != -1) {
+				this.setState({manageErrMsg: 'Username has to be unique. User with username "' + user.username + '" appears more than once'})
+				return
+			}
+			newUsernames.push(user.username)
+			console.log(newUsernames)
+		}
+		
+		this.setState({managingUser: true})
+		const that = this
+		fetch(window.location.href + 'api/update_user_list', {
+			method: 'POST',
+			headers: {
+		    	'Accept': 'application/json',
+		    	'Content-Type': 'application/json',
+		    	'Authorization': getAccessToken(),
+		    	'Identity': getCookie(Config.usernameCookieKey)
+		    },
+		    body: JSON.stringify({existingUsers: this.state.userList, newUsers: this.state.newUserList})
+		})
+		.then(function (response) {
+			if (response.status == 200) {
+				response.json().then(function(json) {
+					if (json.error == '') {
+						that.setState({ managingUser: false, manageErrMsg: ''});
+					} else {
+						that.setState({ managingUser: false, manageErrMsg: json.error });
+					}
+				})
+			} else {
+				that.setState({ managingUser: false, manageErrMsg: 'Internal server error. Please try again later' });
+			}
+		});
+		//console.log(this.state.userList)
+		//console.log(this.state.newUserList)
 	}
 	
 	render () {
@@ -120,9 +284,9 @@ export default class PreferenceModal extends Component {
 								<div className="col-12">
 									<button type="button" className={this.state.changingPwd? "btn btn-secondary float-right disabled" : "btn btn-secondary float-right"} onClick={this.cancelBtnHandler}>Cancel</button>
 									{this.state.changingPwd ? (
-											<button type="button" className="btn btn-secondary float-right mr-2 disabled"> <span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
+										<button type="button" className="btn btn-secondary float-right mr-2 disabled"> <span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
 									): (
-											<button type="button" className="btn btn-success float-right mr-2" onClick={this.updatePassword} >Save</button>
+										<button type="button" className="btn btn-success float-right mr-2" onClick={this.updatePassword} >Save</button>
 									)}
 									
 								</div>
@@ -133,17 +297,54 @@ export default class PreferenceModal extends Component {
 								<div className="col-12">
 									<p>Manage Users</p>
 								</div>
-								<div className="col-12 my-1">
-									<div className="input-group">
-									  <input type="text" className="form-control" placeholder="Username"></input>
-									  <input type="password" className="form-control " placeholder="Password"></input>
-									    <div className="input-group-append">
-									    	<button className="btn btn-outline-danger" type="button">Delete</button>
-									    </div>
+								
+								<div className={this.state.manageErrMsg == "" ? "d-none" : "col-12"}>
+									<div className="alert alert-danger" role="alert">
+										{this.state.manageErrMsg}
 									</div>
 								</div>
+								
+								{this.state.userList.map(user =>
+									<div className="col-12 my-1" key={user.username}>
+										<div className="input-group">
+										  <input type="text" className="form-control" placeholder="Username" value={user.username} readOnly></input>
+										  <input type="password" className="form-control " placeholder="Password" value={user.password}
+											  onChange={(e) => this.updatePassword(user, e.target.value)}></input>
+										    <div className="input-group-append">
+										    	<button className="btn btn-outline-danger" type="button" onClick={() => this.deleteUser(user) }>Delete</button>
+										    </div>
+										</div>
+									</div>
+								)}
+								
+								{this.state.newUserList.map(user =>
+									<div className="col-12 my-1" key={user.key}>
+										<div className="input-group">
+										  <input type="text" className="form-control" placeholder="Username" onChange={(e) => this.updateUsername(user, e.target.value)}></input>
+										  <input type="password" className="form-control " placeholder="Password" onChange={(e) => this.updatePassword(user, e.target.value)}></input>
+										    <div className="input-group-append">
+										    	<button className="btn btn-outline-danger" type="button" onClick={() => this.deleteUser(user) }>Delete</button>
+										    </div>
+										</div>
+									</div>
+								)}
+								
+								
 							</div>
 							
+							<hr></hr>
+							<div className="row">
+								<div className="col-12">
+									<button type="button" className={this.state.managingUser? "btn btn-secondary float-right disabled" : "btn btn-secondary float-right"} onClick={this.cancelBtnHandler}>Cancel</button>
+									{this.state.managingUser ? (
+										<button type="button" className="btn btn-secondary float-right mr-2 disabled"> <span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
+									): (
+										<button type="button" className="btn btn-success float-right mr-2" onClick={this.saveUserChanges} >Save</button>
+									)}
+									<button type="button" className={this.state.managingUser? "btn btn-success float-right mr-2 disabled" : "btn btn-success float-right mr-2"}
+										onClick={this.addUser }>Add User</button>
+								</div>
+							</div>
 							
 						</div>
 					</div>
