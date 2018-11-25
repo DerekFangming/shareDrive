@@ -46,10 +46,12 @@ public class Initializer {
 			Utils.setupNeeded = true;
 		}
 		
-		try {
-			Utils.guardExistRecycleBin(Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
-		} catch (Exception ignored) {
-			Utils.setupNeeded = true;
+		if (!Utils.isNullOrEmpty(Utils.homeDir)) {
+			try {
+				Utils.guardExistRecycleBin(Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
+			} catch (Exception ignored) {
+				Utils.setupNeeded = true;
+			}
 		}
 
 	}

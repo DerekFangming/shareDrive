@@ -165,6 +165,13 @@ public class SettingController {
 				
 				if (error.equals("")) {
 					try {
+						Utils.guardExistRecycleBin(Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
+					} catch (IllegalStateException e) {
+						Utils.clearSettings();
+						return new FileRetrieveResult(e.getMessage());
+					}
+					
+					try {
 						Utils.saveSettings();
 						return new FileRetrieveResult("");
 					} catch (Exception ignored) {
@@ -204,6 +211,12 @@ public class SettingController {
 			String error = Utils.validateSettings(prop, true);
 			
 			if (error.equals("")) {
+				try {
+					Utils.guardExistRecycleBin(Utils.homeDir + Utils.RECYCLE_BIN_FOLDER_NAME);
+				} catch (IllegalStateException e) {
+					Utils.clearSettings();
+					return new FileRetrieveResult(e.getMessage());
+				}
 				try {
 					Utils.saveSettings();
 					return new FileRetrieveResult("");

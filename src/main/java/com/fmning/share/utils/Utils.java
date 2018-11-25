@@ -31,7 +31,7 @@ public class Utils {
 	
 	public static User admin;
 	public static String homeDir;
-	private static List<User> userList = new ArrayList<>();;
+	private static List<User> userList = new ArrayList<>();
 	
 	public static boolean setupNeeded = false;
 	
@@ -186,6 +186,12 @@ public class Utils {
 			return "Cannot save settings. Make sure hosting software has read and write access to the path";
 		}
 		return "";
+	}
+	
+	public static void clearSettings (){
+		admin = null;
+		homeDir = "";
+		userList = new ArrayList<>();
 	}
 	
 	public static void saveSettings () throws Exception{
