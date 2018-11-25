@@ -27,6 +27,7 @@ public class Utils {
 	public static String USERNAME_COOKIE_KEY = "";
 	public static String PASSWORD_COOKIE_KEY = "";
 	public static String ADMIN_COOKIE_KEY = "";
+	public static String SETUP_COOKIE_KEY = "";
 	
 	public static User admin;
 	public static String homeDir;

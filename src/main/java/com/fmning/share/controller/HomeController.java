@@ -1,5 +1,8 @@
 package com.fmning.share.controller;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -10,12 +13,13 @@ import com.fmning.share.utils.Utils;
 public class HomeController {
 
 	@RequestMapping(value = "/")
-	public String index() {
+	public String index(HttpServletResponse response) {
 		if (Utils.setupNeeded) {
-			return "setup";
-		} else {
-			return "index";
+			Cookie passwordCookie = new Cookie(Utils.SETUP_COOKIE_KEY, "true");
+			passwordCookie.setPath("/");
+			response.addCookie(passwordCookie);
 		}
+		return "index";
 	}
 
 }

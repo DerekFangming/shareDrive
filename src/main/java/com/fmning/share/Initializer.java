@@ -21,6 +21,9 @@ public class Initializer {
 	
 	@Value("${adminCookieKey}")
 	private String adminCookieKey;
+	
+	@Value("${setupCookieKey}")
+	private String setupCookieKey;
 
 	
 	@EventListener(ApplicationReadyEvent.class)
@@ -29,6 +32,7 @@ public class Initializer {
 		Utils.USERNAME_COOKIE_KEY = usernameCookieKey;
 		Utils.PASSWORD_COOKIE_KEY = passwordCookieKey;
 		Utils.ADMIN_COOKIE_KEY = adminCookieKey;
+		Utils.SETUP_COOKIE_KEY = setupCookieKey;
 		
 		try {
 			Properties prop = new Properties();

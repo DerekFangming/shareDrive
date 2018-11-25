@@ -1,19 +1,23 @@
 import React, {Component} from 'react';
-import {getAccessToken} from './utils/Utils';
+import {getAccessToken, getCookie} from './utils/Utils';
 import Config from 'Config';
 import ReactDOM from 'react-dom';
 import Header from './components/Header';
 import Container from './components/Container';
 import BlankHeader from './components/BlankHeader'
 import Login from './components/Login'
+import Setup from './components/Setup'
 
 class App extends Component {
 	
 	constructor() {
 		super();
 		let token = getAccessToken()
+		let needSetup = getCookie(Config.setupCookieKey)
+		console.log(needSetup)
 		this.state= {
-			accessToken: token
+			accessToken: token,
+			needSetup: needSetup
 		}
 		this.header = React.createRef();
 		this.container = React.createRef();
@@ -47,19 +51,25 @@ class App extends Component {
 	
 	render () {
 		return (
-			<div>
-				{ this.state.accessToken == '' ? (
-					<div>
+			<>
+				{ this.state.needSetup == 'true' ? (
+					<>
 						<BlankHeader />
+						<Setup />
+					</>
+				) : this.state.accessToken == '' ? (
+					<>
+						<BlankHeader />
+						<Setup />
 						<Login loginSuccessHanlder={this.loginSuccessHanlder} />
-					</div>
+					</>
 				) : (
-					<div>
+					<>
 						<Header ref={this.header} updateSearchResultHandler={this.updateSearchResultHandler} logoutHandler={this.logoutHandler} />
 						<Container ref={this.container} updateSearchPathHandler={this.updateSearchPathHandler} />
-					</div>
+					</>
 				)}
-			</div>
+			</>
 		);
 	}
 }
