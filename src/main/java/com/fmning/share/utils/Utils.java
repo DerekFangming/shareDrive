@@ -36,6 +36,10 @@ public class Utils {
 	public static boolean setupNeeded = false;
 	
 	public static String validateSettings(Properties prop) {
+		return validateSettings(prop, false);
+	}
+	
+	public static String validateSettings(Properties prop, boolean overwriteUsers) {
 		setupNeeded = true;
 		if (prop == null) {
 			return "Properties file cannot be read.";
@@ -50,19 +54,26 @@ public class Utils {
 			return "Admin password is missing";
 		}
 		
-		homeDir = prop.getProperty(HOME_DIRECTORY);
-		if (isNullOrEmpty(homeDir)) {
+		String homeDirFromProp = prop.getProperty(HOME_DIRECTORY); 
+		if (isNullOrEmpty(homeDirFromProp)) {
 			return "Home directory is missing";
 		}
+		homeDirFromProp = homeDirFromProp.replace("\\", "/");
+		if (!homeDirFromProp.endsWith("/")) homeDirFromProp += "/";
 		
 		admin = new User(username, password, true);
+		homeDir = homeDirFromProp;
 		
 		try {
 			String usersJson = prop.getProperty(USER_LIST);
 			ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			List<User> users = mapper.readValue(usersJson, new TypeReference<List<User>>(){});
 			
-			userList.addAll(users);
+			if (overwriteUsers) {
+				userList = users;
+			} else {
+				userList.addAll(users);
+			}
 		} catch (Exception e) {
 			try {
 				prop.remove(USER_LIST);

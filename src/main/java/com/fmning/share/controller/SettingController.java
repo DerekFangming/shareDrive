@@ -1,7 +1,13 @@
 package com.fmning.share.controller;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,12 +16,19 @@ import java.util.Properties;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
+import com.fmning.share.response.FileDownloadResult;
+import com.fmning.share.response.FileRetrieveResult;
 import com.fmning.share.response.GenericResponse;
 import com.fmning.share.response.UserListResult;
 import com.fmning.share.utils.User;
@@ -111,6 +124,99 @@ public class SettingController {
 			return new GenericResponse();
 		} else {
 			return new GenericResponse("Not autorized.");
+		}
+	}
+	
+	@GetMapping("/export_settings")
+	public FileDownloadResult exportSettings(@RequestParam("auth") String auth, @RequestParam("identity") String identity, HttpServletResponse response) throws IOException {
+		if (Utils.admin.username.equals(identity) && Utils.admin.password.equals(auth)) {
+			File file = new File(Utils.PROPERTIES_FILE);
+			
+			if (!file.exists() || !file.isFile()) {
+				return new FileDownloadResult("Internal Server Error");
+			}
+			
+			String mimeType= URLConnection.guessContentTypeFromName(file.getName());
+	        if (mimeType == null) mimeType = "application/octet-stream";
+	         
+	        response.setContentType(mimeType);
+	        response.setCharacterEncoding("UTF-8");
+	        response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+	        response.setContentLength((int)file.length());
+	 
+	        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+	        FileCopyUtils.copy(inputStream, response.getOutputStream());
+	        
+			return null;
+		} else {
+			return new FileDownloadResult("Not autorized.");
+		}
+	}
+	
+	@PostMapping("/import_settings")
+	public FileRetrieveResult importSettings(@RequestHeader("Authorization") String auth, @RequestHeader("Identity") String identity, @RequestParam("file") MultipartFile file, MultipartRequest request) {
+		if (Utils.admin.username.equals(identity) && Utils.admin.password.equals(auth)) {
+			try {
+				String content = new String(file.getBytes(), "UTF-8");
+				content = content.replace("\\:", ":").replace("\\", "\\\\");
+				Properties prop = new Properties();
+				prop.load(new StringReader(content));
+				String error = Utils.validateSettings(prop, true);
+				
+				if (error.equals("")) {
+					try {
+						Utils.saveSettings();
+						return new FileRetrieveResult("");
+					} catch (Exception ignored) {
+						return new FileRetrieveResult("Cannot save settings. Make sure hosting software has read and write access to the path");
+					}
+				} else {
+					Utils.setupNeeded = false;
+					return new FileRetrieveResult(error);
+				}
+				
+			} catch (Exception ignored) {
+				return new FileRetrieveResult("Internal server error");
+			}
+			
+		} else {
+			return new FileRetrieveResult("Not autorized.");
+		}
+	}
+	
+	@PostMapping("/init_import_settings")
+	public FileRetrieveResult initImportSettings(@RequestParam("file") MultipartFile file, MultipartRequest request) {
+
+		try {
+			Properties prop = new Properties();
+			prop.load(new FileInputStream(Utils.PROPERTIES_FILE));
+			String errors = Utils.validateSettings(prop);
+			if (errors.equals("")) {
+				return new FileRetrieveResult("Not autorized.");
+			}
+		} catch (Exception ignored) {}
+		
+		try {
+			String content = new String(file.getBytes(), "UTF-8");
+			content = content.replace("\\:", ":").replace("\\", "\\\\");
+			Properties prop = new Properties();
+			prop.load(new StringReader(content));
+			String error = Utils.validateSettings(prop, true);
+			
+			if (error.equals("")) {
+				try {
+					Utils.saveSettings();
+					return new FileRetrieveResult("");
+				} catch (Exception ignored) {
+					return new FileRetrieveResult("Cannot save settings. Make sure hosting software has read and write access to the path");
+				}
+			} else {
+				Utils.setupNeeded = false;
+				return new FileRetrieveResult(error);
+			}
+			
+		} catch (Exception ignored) {
+			return new FileRetrieveResult("Internal server error");
 		}
 	}
 

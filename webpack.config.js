@@ -4,7 +4,7 @@ const PropertiesReader = require('properties-reader');
 const appProperties = PropertiesReader('./src/main/resources/application.properties')._properties;
 
 module.exports = {
-	mode: 'development',
+	mode: 'production',
     entry: ['@babel/polyfill','./src/main/js/app.js'],
     devtool: 'source-map',
     output: {

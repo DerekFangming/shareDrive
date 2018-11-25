@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Config from 'Config';
+import axios from 'axios'
 import {getCookie, sha256, getAccessToken, getUUID} from '../utils/Utils';
 
 export default class PreferenceModal extends Component {
@@ -16,8 +17,18 @@ export default class PreferenceModal extends Component {
 			managingUser: false,
 			userList: [],
 			newUserList: [],
-			showNoUserMsg: false
+			showNoUserMsg: false,
+			importingSettings: false,
+			importErrMsg: ''
 	    };
+	}
+	
+	componentDidMount() {
+		document.getElementById('importSettingsInput').addEventListener('change', this.importSettings);
+	}
+	  
+	componentWillUnmount() {
+		document.getElementById('importSettingsInput').removeEventListener('change', this.importSettings);
 	}
 	
 	changePassword = () => {
@@ -235,6 +246,43 @@ export default class PreferenceModal extends Component {
 	    }
 	}
 	
+	exportSettings = () => {
+		this.setState({importErrMsg: ''})
+		window.open(window.location.href + 'api/export_settings?auth=' + getAccessToken() + '&identity=' + getCookie(Config.usernameCookieKey))
+	}
+	
+	importSettings = (e) => {
+		
+		var formData = new FormData();
+		formData.append("file", e.target.files[0]);
+		this.setState({importingSettings: true, importErrMsg: ''})
+		
+		axios.post(window.location.href + 'api/import_settings', formData, {
+			headers: {
+			  'Content-Type': 'multipart/form-data',
+			  'Authorization': getAccessToken(),
+			  'Identity': getCookie(Config.usernameCookieKey)
+			}
+		})
+		.then(res => {
+			if(res.data.error == '') {
+				this.setState({ importingSettings: false});
+				document.cookie = Config.usernameCookieKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+				document.cookie = Config.passwordCookieKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+				document.cookie = Config.adminCookieKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+				location.reload();
+			} else {
+				$("#importSettingsInput").val("");
+				this.setState({ importingSettings: false, importErrMsg: res.data.error});
+			}
+			
+		})
+		.then(null, res => {
+			$("#importSettingsInput").val("");
+			this.setState({importingSettings: false, importErrMsg: 'Failed to upload files due to internal error. Please try again later. '})
+		})
+	}
+	
 	render () {
 		return (
 			<div className="modal fade" id="preferenceModal" tabIndex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
@@ -359,6 +407,42 @@ export default class PreferenceModal extends Component {
 													)}
 													<button type="button" className={this.state.managingUser? "btn btn-success float-right mr-2 disabled" : "btn btn-success float-right mr-2"}
 														onClick={this.addUser }>Add User</button>
+												</div>
+											</div>
+											
+											<hr></hr>
+											<div className="row">
+												<div className="col-12">
+													<p>Import & Export Overall Settings</p>
+												</div>
+												
+												<div className="col-12">
+													<div className="alert alert-warning" role="alert">
+														This will export all users and Share Drive root path into a file. You can import the setting file to another Share Drive instance.
+														Note that you need to manually update the homeDir value from the setting file before importing it if there is any change.
+														Also note that you will be logged out after importing due to potential change to the admin account.
+													</div>
+												</div>
+												
+												<div className={this.state.importErrMsg == "" ? "d-none" : "col-12"}>
+													<div className="alert alert-danger" role="alert">
+														{this.state.importErrMsg}
+													</div>
+												</div>
+											</div>
+											<div className="row">
+												<div className="col-12">
+													<div className="input-group float-right mr-2">
+														<div className="custom-file">
+															<input id="importSettingsInput" type="file" className="custom-file-input" style={{width:'1px'}}></input>
+														</div>
+														<div className="input-group-append">
+															<button type="button" className={this.state.importingSettings ? "btn btn-warning mr-2 disabled" : "btn btn-warning mr-2"} onClick={() => $('#importSettingsInput').click()}>
+																{this.state.importingSettings ? (<span className="fa fa-refresh fa-spin fa-1x fa-fw"></span>) : (<>Import Settings</>)}
+															</button>
+															<button type="button" className={this.state.importingSettings ? "btn btn-success mr-2 disabled" : "btn btn-success mr-2"} onClick={this.exportSettings} >Export Settings</button>
+														</div>
+													</div>
 												</div>
 											</div>
 										</>
