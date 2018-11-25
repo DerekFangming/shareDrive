@@ -23,38 +23,36 @@ export default class Login extends Component {
 		
 		const that = this
 		
-		sha256(this.state.loginPwd).then(function (hashedPassword) {
-			fetch(window.location.href + 'api/login', {
-				method: 'POST',
-			    headers: {
-			    	'Accept': 'application/json',
-			    	'Content-Type': 'application/json'
-			    },
-			    body: JSON.stringify({username: that.state.loginUsr, hashcode : hashedPassword.toUpperCase()})
-			})
-			.then(function (response) {
-				if (response.status == 200) {
-					response.json().then(function(json) {
-						if (json.error == '') {
-							that.setState({
-								loggingIn: false
-							});
-							that.props.loginSuccessHanlder();
-						} else {
-							that.setState({
-								loggingIn: false,
-								loginErrMsg: json.error
-							});
-						}
-					})
-					
-				} else {
-					that.setState({
-						loginErrMsg: 'Internal server error. Please try again later',
-				    	loggingIn: false
-					});
-				}
-			});
+		fetch(window.location.href + 'api/login', {
+			method: 'POST',
+		    headers: {
+		    	'Accept': 'application/json',
+		    	'Content-Type': 'application/json'
+		    },
+		    body: JSON.stringify({username: that.state.loginUsr, hashcode : sha256(this.state.loginPwd)})
+		})
+		.then(function (response) {
+			if (response.status == 200) {
+				response.json().then(function(json) {
+					if (json.error == '') {
+						that.setState({
+							loggingIn: false
+						});
+						that.props.loginSuccessHanlder();
+					} else {
+						that.setState({
+							loggingIn: false,
+							loginErrMsg: json.error
+						});
+					}
+				})
+				
+			} else {
+				that.setState({
+					loginErrMsg: 'Internal server error. Please try again later',
+			    	loggingIn: false
+				});
+			}
 		});
 		
 	}

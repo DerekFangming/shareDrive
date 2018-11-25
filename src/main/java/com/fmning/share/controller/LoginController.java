@@ -96,7 +96,7 @@ public class LoginController {
 			error = Utils.addUserList(newUserList);
 			if (!error.equals("")) return new GenericResponse(error);
 			
-			return new GenericResponse("");
+			return new GenericResponse();
 		} else {
 			return new GenericResponse("Not autorized.");
 		}

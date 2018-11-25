@@ -1,19 +1,60 @@
 import React, {Component} from 'react';
 import Config from 'Config';
-import {sha256, sha} from '../utils/Utils';
+import {sha256} from '../utils/Utils';
 
 export default class Setup extends Component {
 	
 	constructor() {
 	    super();
 	    this.state = {
+    		username: '',
+    		pwd: '',
+    		pwdConfirm: '',
+    		path: '',
 	    	errMsg: '',
 	    	sendingSetup: false
 	    };
-	    alert(sha("xie"))
-//	    sha256("xie").then(function (hashedPassword) {
-//	    	alert(hashedPassword)
-//	    })
+	}
+	
+	submitSetup = () => {
+		if (this.state.username.trim() != this.state.username || this.state.pwd.trim() != this.state.pwd) {
+    		this.setState({errMsg: "Username and password cannot start or end with space"})
+    	} else if (this.state.username.trim() == "" || this.state.pwd.trim() == "") {
+        	this.setState({errMsg: "Username and password cannot be empty"})
+    	} else if (this.state.pwd != this.state.pwdConfirm) {
+        	this.setState({errMsg: "The two passwords are not matching"})
+        } else if (this.state.path.trim() == "") {
+        	this.setState({errMsg: "Path cannot be empty"})
+        } else {
+        	this.setState({ errMsg: '', sendingSetup: true })
+        	let homeDir = this.state.path.replace(/\\/g,"/");
+        	const that = this
+        	
+        	fetch(window.location.href + 'api/initial_setup', {
+    			method: 'POST',
+    		    headers: {
+    		    	'Accept': 'application/json',
+    		    	'Content-Type': 'application/json'
+    		    },
+    		    body: JSON.stringify({username : this.state.username, password: sha256(this.state.pwd), homeDir: homeDir})
+    		})
+    		.then(function (response) {
+    			if (response.status == 200) {
+    				response.json().then(function(json) {
+    					if (json.error == '') {
+    						document.cookie = Config.setupCookieKey + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    						location.reload();
+    					} else {
+    						that.setState({errMsg: json.error, sendingSetup: false})
+    					}
+    				})
+    				
+    			} else {
+    				that.setState({errMsg: "Internal server error. Please try again later", sendingSetup: false})
+    			}
+    		});
+        }
+		
 	}
 	
 	render () {
@@ -31,28 +72,32 @@ export default class Setup extends Component {
 							
 					        <div className="form-group mb-4">
 					        	<p className="font-weight-light mb-0">The username of the admin account.</p>
-					            <input id="usrname" type="text" className="form-control" placeholder="Admin's username"></input>
+					            <input type="text" className="form-control" placeholder="Admin's username"
+					            	onChange={(e) => this.setState({username: e.target.value})}></input>
 					        </div>
 			
 					        <div className="form-group mb-4">
 					        	<p className="font-weight-light mb-0">The password of the admin account.</p>
-					        	<input id="pwd" type="password" className="form-control" placeholder="Admin's password"></input>
+					        	<input type="password" className="form-control" placeholder="Admin's password"
+					            	onChange={(e) => this.setState({pwd: e.target.value})}></input>
 					        </div>
 					        
 					        <div className="form-group mb-4">
 					        	<p className="font-weight-light mb-0">Confirm password.</p>
-					        	<input id="pwdConfirm" type="password" className="form-control" placeholder="Confirm admin's password"></input>
+					        	<input type="password" className="form-control" placeholder="Confirm admin's password"
+					            	onChange={(e) => this.setState({pwdConfirm: e.target.value})}></input>
 					        </div>
 					        
 					        <div className="form-group mb-4">
 					        	<p className="font-weight-light mb-0">The path on your hard drive that you want to share. For example, D:/share/</p>
-					        	<input id="path" type="text" className="form-control" placeholder="Root path"></input>
+					        	<input type="text" className="form-control" placeholder="Root path"
+					            	onChange={(e) => this.setState({path: e.target.value})}></input>
 					        </div>
 
 					        {this.state.sendingSetup ? (
 					        	<button type="button" className="btn btn-primary mt-4 btn-block disabled"><span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
 					        ) : (
-					        	<button type="button" className="btn btn-primary mt-4 btn-block">Submit</button>
+					        	<button type="button" className="btn btn-primary mt-4 btn-block" onClick={this.submitSetup} >Submit</button>
 					        )}
 							
 					    </form>

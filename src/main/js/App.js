@@ -60,7 +60,6 @@ class App extends Component {
 				) : this.state.accessToken == '' ? (
 					<>
 						<BlankHeader />
-						<Setup />
 						<Login loginSuccessHanlder={this.loginSuccessHanlder} />
 					</>
 				) : (

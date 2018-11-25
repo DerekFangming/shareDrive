@@ -20,7 +20,7 @@ export default class PreferenceModal extends Component {
 	    };
 	}
 	
-	updatePassword = () => {
+	changePassword = () => {
 		let newPwd = this.state.newPassword.trim()
 		let confirmPwd = this.state.confirmPassword.trim()
 		const that = this
@@ -32,32 +32,28 @@ export default class PreferenceModal extends Component {
 		} else {
 			this.setState({errMsg: '', changingPwd: true})
 			
-			sha256(this.state.curPassword).then(function (hashedCurPassword) {
-				sha256(newPwd).then(function (hashedNewPassword) {
-					fetch(window.location.href + 'api/change_password', {
-						method: 'POST',
-						headers: {
-					    	'Accept': 'application/json',
-					    	'Content-Type': 'application/json'
-					    },
-					    body: JSON.stringify({username : getCookie(Config.usernameCookieKey), previousHashcode: hashedCurPassword.toUpperCase(), newHashcode: hashedNewPassword.toUpperCase()})
-					})
-					.then(function (response) {
-						if (response.status == 200) {
-							response.json().then(function(json) {
-								if (json.error == '') {
-									that.setState({ changingPwd: false, errMsg: '' });
-									$('#preferenceModal').modal('hide');
-								} else {
-									that.setState({ changingPwd: false, errMsg: json.error });
-								}
-							})
-						} else {
-							that.setState({ changingPwd: false, errMsg: 'Internal server error. Please try again later' });
-						}
-					});
-				})
+			fetch(window.location.href + 'api/change_password', {
+				method: 'POST',
+				headers: {
+			    	'Accept': 'application/json',
+			    	'Content-Type': 'application/json'
+			    },
+			    body: JSON.stringify({username : getCookie(Config.usernameCookieKey), previousHashcode: sha256(this.state.curPassword), newHashcode: sha256(newPwd)})
 			})
+			.then(function (response) {
+				if (response.status == 200) {
+					response.json().then(function(json) {
+						if (json.error == '') {
+							that.setState({ changingPwd: false, errMsg: '' });
+							$('#preferenceModal').modal('hide');
+						} else {
+							that.setState({ changingPwd: false, errMsg: json.error });
+						}
+					})
+				} else {
+					that.setState({ changingPwd: false, errMsg: 'Internal server error. Please try again later' });
+				}
+			});
 		}
 	}
 	
@@ -202,41 +198,39 @@ export default class PreferenceModal extends Component {
 		this.setState({managingUser: true})
 		const that = this
 		
-		this.encodePasswords(this.state.userList).then(function (){
-			that.encodePasswords(that.state.newUserList).then(function (){
-				fetch(window.location.href + 'api/update_user_list', {
-					method: 'POST',
-					headers: {
-				    	'Accept': 'application/json',
-				    	'Content-Type': 'application/json',
-				    	'Authorization': getAccessToken(),
-				    	'Identity': getCookie(Config.usernameCookieKey)
-				    },
-				    body: JSON.stringify({existingUsers: that.state.userList, newUsers: that.state.newUserList})
-				})
-				.then(function (response) {
-					if (response.status == 200) {
-						response.json().then(function(json) {
-							if (json.error == '') {
-								that.setState({ managingUser: false, manageErrMsg: ''});
-								$('#preferenceModal').modal('hide');
-							} else {
-								that.setState({ managingUser: false, manageErrMsg: json.error });
-							}
-						})
-					} else {
-						that.setState({ managingUser: false, manageErrMsg: 'Internal server error. Please try again later' });
-					}
-				});
-			})
+		this.encodePasswords(this.state.userList)
+		this.encodePasswords(this.state.newUserList)
+		
+		fetch(window.location.href + 'api/update_user_list', {
+			method: 'POST',
+			headers: {
+		    	'Accept': 'application/json',
+		    	'Content-Type': 'application/json',
+		    	'Authorization': getAccessToken(),
+		    	'Identity': getCookie(Config.usernameCookieKey)
+		    },
+		    body: JSON.stringify({existingUsers: that.state.userList, newUsers: that.state.newUserList})
 		})
+		.then(function (response) {
+			if (response.status == 200) {
+				response.json().then(function(json) {
+					if (json.error == '') {
+						that.setState({ managingUser: false, manageErrMsg: ''});
+						$('#preferenceModal').modal('hide');
+					} else {
+						that.setState({ managingUser: false, manageErrMsg: json.error });
+					}
+				})
+			} else {
+				that.setState({ managingUser: false, manageErrMsg: 'Internal server error. Please try again later' });
+			}
+		});
 	}
 	
-	encodePasswords = async (userList) => {
+	encodePasswords = (userList) => {
 	    for (let user of userList) {
 	    	if (user.password != '') {
-		    	user.password = (await sha256(user.password)).toUpperCase()
-		    	console.log(user.password)
+		    	user.password = sha256(user.password)
 	    	}
 	    }
 	}
@@ -298,7 +292,7 @@ export default class PreferenceModal extends Component {
 									{this.state.changingPwd ? (
 										<button type="button" className="btn btn-secondary float-right mr-2 disabled"> <span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
 									): (
-										<button type="button" className="btn btn-success float-right mr-2" onClick={this.updatePassword} >Save</button>
+										<button type="button" className="btn btn-success float-right mr-2" onClick={this.changePassword} >Save</button>
 									)}
 									
 								</div>
