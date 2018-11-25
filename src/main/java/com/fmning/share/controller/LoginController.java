@@ -85,12 +85,16 @@ public class LoginController {
 	public GenericResponse updateUserList(@RequestHeader("Authorization") String auth, @RequestHeader("Identity") String identity, @RequestBody Map<String, Object> payload) {
 		if (Utils.admin.username.equals(identity) && Utils.admin.password.equals(auth)) {
 			List<Map<String, String>> existingUsers = (List<Map<String, String>>)payload.get("existingUsers");
-			List<Map<String, String>> newUsers = (List<Map<String, String>>)payload.get("newUsers");
-			
 			List<User> existingUserList = new ArrayList<>();
 			for (Map<String, String> map : existingUsers) existingUserList.add(new User(map.get("username"), map.get("password"), false));
+			String error = Utils.mergeUserList(existingUserList);
+			if (!error.equals("")) return new GenericResponse(error);
 			
-			
+			List<Map<String, String>> newUsers = (List<Map<String, String>>)payload.get("newUsers");
+			List<User> newUserList = new ArrayList<>();
+			for (Map<String, String> map : newUsers) newUserList.add(new User(map.get("username"), map.get("password"), false));
+			error = Utils.addUserList(newUserList);
+			if (!error.equals("")) return new GenericResponse(error);
 			
 			return new GenericResponse("");
 		} else {

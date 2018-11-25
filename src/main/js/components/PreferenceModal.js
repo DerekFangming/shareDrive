@@ -15,7 +15,8 @@ export default class PreferenceModal extends Component {
 			manageErrMsg: '',
 			managingUser: false,
 			userList: [],
-			newUserList: []
+			newUserList: [],
+			showNoUserMsg: false
 	    };
 	}
 	
@@ -191,42 +192,53 @@ export default class PreferenceModal extends Component {
 			}
 			let existingIndex = this.state.userList.findIndex((u) => { return u.username == user.username });
 			let newIndex = newUsernames.indexOf(user.username)
-			console.log('' + existingIndex + ' ' + newIndex)
 			if (existingIndex != -1 || newIndex != -1) {
 				this.setState({manageErrMsg: 'Username has to be unique. User with username "' + user.username + '" appears more than once'})
 				return
 			}
 			newUsernames.push(user.username)
-			console.log(newUsernames)
 		}
 		
 		this.setState({managingUser: true})
 		const that = this
-		fetch(window.location.href + 'api/update_user_list', {
-			method: 'POST',
-			headers: {
-		    	'Accept': 'application/json',
-		    	'Content-Type': 'application/json',
-		    	'Authorization': getAccessToken(),
-		    	'Identity': getCookie(Config.usernameCookieKey)
-		    },
-		    body: JSON.stringify({existingUsers: this.state.userList, newUsers: this.state.newUserList})
-		})
-		.then(function (response) {
-			if (response.status == 200) {
-				response.json().then(function(json) {
-					if (json.error == '') {
-						that.setState({ managingUser: false, manageErrMsg: ''});
-					} else {
-						that.setState({ managingUser: false, manageErrMsg: json.error });
-					}
+		
+		this.encodePasswords(this.state.userList).then(function (){
+			that.encodePasswords(that.state.newUserList).then(function (){
+				fetch(window.location.href + 'api/update_user_list', {
+					method: 'POST',
+					headers: {
+				    	'Accept': 'application/json',
+				    	'Content-Type': 'application/json',
+				    	'Authorization': getAccessToken(),
+				    	'Identity': getCookie(Config.usernameCookieKey)
+				    },
+				    body: JSON.stringify({existingUsers: that.state.userList, newUsers: that.state.newUserList})
 				})
-			} else {
-				that.setState({ managingUser: false, manageErrMsg: 'Internal server error. Please try again later' });
-			}
-		});
-		//console.log(this.state.userList)
-		//console.log(this.state.newUserList)
+				.then(function (response) {
+					if (response.status == 200) {
+						response.json().then(function(json) {
+							if (json.error == '') {
+								that.setState({ managingUser: false, manageErrMsg: ''});
+								$('#preferenceModal').modal('hide');
+							} else {
+								that.setState({ managingUser: false, manageErrMsg: json.error });
+							}
+						})
+					} else {
+						that.setState({ managingUser: false, manageErrMsg: 'Internal server error. Please try again later' });
+					}
+				});
+			})
+		})
+	}
+	
+	encodePasswords = async (userList) => {
+	    for (let user of userList) {
+	    	if (user.password != '') {
+		    	user.password = (await sha256(user.password)).toUpperCase()
+		    	console.log(user.password)
+	    	}
+	    }
 	}
 	
 	render () {
@@ -292,59 +304,75 @@ export default class PreferenceModal extends Component {
 								</div>
 							</div>
 							
-							<hr></hr>
-							<div className="row">
-								<div className="col-12">
-									<p>Manage Users</p>
-								</div>
-								
-								<div className={this.state.manageErrMsg == "" ? "d-none" : "col-12"}>
-									<div className="alert alert-danger" role="alert">
-										{this.state.manageErrMsg}
-									</div>
-								</div>
-								
-								{this.state.userList.map(user =>
-									<div className="col-12 my-1" key={user.username}>
-										<div className="input-group">
-										  <input type="text" className="form-control" placeholder="Username" value={user.username} readOnly></input>
-										  <input type="password" className="form-control " placeholder="Password" value={user.password}
-											  onChange={(e) => this.updatePassword(user, e.target.value)}></input>
-										    <div className="input-group-append">
-										    	<button className="btn btn-outline-danger" type="button" onClick={() => this.deleteUser(user) }>Delete</button>
-										    </div>
-										</div>
-									</div>
-								)}
-								
-								{this.state.newUserList.map(user =>
-									<div className="col-12 my-1" key={user.key}>
-										<div className="input-group">
-										  <input type="text" className="form-control" placeholder="Username" onChange={(e) => this.updateUsername(user, e.target.value)}></input>
-										  <input type="password" className="form-control " placeholder="Password" onChange={(e) => this.updatePassword(user, e.target.value)}></input>
-										    <div className="input-group-append">
-										    	<button className="btn btn-outline-danger" type="button" onClick={() => this.deleteUser(user) }>Delete</button>
-										    </div>
-										</div>
-									</div>
-								)}
-								
-								
-							</div>
+							{(() => {
+								if (getCookie(Config.adminCookieKey) == "true") {
+									return(
+										<>
+											<hr></hr>
+											<div className="row">
+												<div className="col-12">
+													<p>Manage Users</p>
+												</div>
+												
+												<div className={this.state.manageErrMsg == "" ? "d-none" : "col-12"}>
+													<div className="alert alert-danger" role="alert">
+														{this.state.manageErrMsg}
+													</div>
+												</div>
+												
+												<div className={this.state.userList.length == 0 && this.state.newUserList.length == 0 ? "col-12" : "d-none"}>
+													<div className="alert alert-success" role="alert">
+														No users found other than the master user. Click on the Add User button below to create new user accounts.
+													</div>
+												</div>
+												
+												{this.state.userList.map(user =>
+													<div className="col-12 my-1" key={user.username}>
+														<div className="input-group">
+														  <input type="text" className="form-control" placeholder="Username" value={user.username} readOnly></input>
+														  <input type="password" className="form-control " placeholder="Password" value={user.password}
+															  onChange={(e) => this.updatePassword(user, e.target.value)}></input>
+														    <div className="input-group-append">
+														    	<button className="btn btn-outline-danger" type="button" onClick={() => this.deleteUser(user) }>Delete</button>
+														    </div>
+														</div>
+													</div>
+												)}
+												
+												{this.state.newUserList.map(user =>
+													<div className="col-12 my-1" key={user.key}>
+														<div className="input-group">
+														  <input type="text" className="form-control" placeholder="Username" onChange={(e) => this.updateUsername(user, e.target.value)}></input>
+														  <input type="password" className="form-control " placeholder="Password" onChange={(e) => this.updatePassword(user, e.target.value)}></input>
+														    <div className="input-group-append">
+														    	<button className="btn btn-outline-danger" type="button" onClick={() => this.deleteUser(user) }>Delete</button>
+														    </div>
+														</div>
+													</div>
+												)}
+												
+												
+											</div>
+											
+											<hr></hr>
+											<div className="row">
+												<div className="col-12">
+													<button type="button" className={this.state.managingUser? "btn btn-secondary float-right disabled" : "btn btn-secondary float-right"} onClick={this.cancelBtnHandler}>Cancel</button>
+													{this.state.managingUser ? (
+														<button type="button" className="btn btn-secondary float-right mr-2 disabled"> <span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
+													): (
+														<button type="button" className="btn btn-success float-right mr-2" onClick={this.saveUserChanges} >Save</button>
+													)}
+													<button type="button" className={this.state.managingUser? "btn btn-success float-right mr-2 disabled" : "btn btn-success float-right mr-2"}
+														onClick={this.addUser }>Add User</button>
+												</div>
+											</div>
+										</>
+									)
+								}
+							})()}
 							
-							<hr></hr>
-							<div className="row">
-								<div className="col-12">
-									<button type="button" className={this.state.managingUser? "btn btn-secondary float-right disabled" : "btn btn-secondary float-right"} onClick={this.cancelBtnHandler}>Cancel</button>
-									{this.state.managingUser ? (
-										<button type="button" className="btn btn-secondary float-right mr-2 disabled"> <span className="fa fa-refresh fa-spin fa-1x fa-fw"></span></button>
-									): (
-										<button type="button" className="btn btn-success float-right mr-2" onClick={this.saveUserChanges} >Save</button>
-									)}
-									<button type="button" className={this.state.managingUser? "btn btn-success float-right mr-2 disabled" : "btn btn-success float-right mr-2"}
-										onClick={this.addUser }>Add User</button>
-								</div>
-							</div>
+							
 							
 						</div>
 					</div>
