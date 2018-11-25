@@ -249,7 +249,6 @@ export default class FileTable extends Component {
 	}
 	
 	moveSelectedFilePasser = (destPath, deleteFile) => {
-		console.log(1)
 		this.moveSelectedFile(this.state.moveSelectedFile, destPath, deleteFile)
 	}
 	

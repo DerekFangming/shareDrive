@@ -14,7 +14,7 @@ class App extends Component {
 		super();
 		let token = getAccessToken()
 		let needSetup = getCookie(Config.setupCookieKey)
-		console.log(needSetup)
+		
 		this.state= {
 			accessToken: token,
 			needSetup: needSetup
