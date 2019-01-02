@@ -99,7 +99,7 @@ public class Utils {
 		    	if (hidden != null && !hidden) {
 		    		Files.setAttribute(recycleBin.toPath(), "dos:hidden", Boolean.TRUE, LinkOption.NOFOLLOW_LINKS);
 		    	}
-	    	} catch (IOException ignored) {};
+	    	} catch (IOException | UnsupportedOperationException ignored) {};
 	    }
 	}
 	
