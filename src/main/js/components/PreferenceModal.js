@@ -24,11 +24,15 @@ export default class PreferenceModal extends Component {
 	}
 	
 	componentDidMount() {
-		document.getElementById('importSettingsInput').addEventListener('change', this.importSettings);
+		if (getCookie(Config.adminCookieKey) == "true") {
+			document.getElementById('importSettingsInput').addEventListener('change', this.importSettings);
+		}
 	}
 	  
 	componentWillUnmount() {
-		document.getElementById('importSettingsInput').removeEventListener('change', this.importSettings);
+		if (getCookie(Config.adminCookieKey) == "true") {
+			document.getElementById('importSettingsInput').removeEventListener('change', this.importSettings);
+		}
 	}
 	
 	changePassword = () => {
