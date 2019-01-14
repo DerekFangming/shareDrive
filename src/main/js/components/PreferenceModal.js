@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import axios from 'axios'
 import {getCookie, sha256, getAccessToken, getUUID} from '../utils/Utils';
+import "isomorphic-fetch";
 
 export default class PreferenceModal extends Component {
 	
@@ -49,6 +50,7 @@ export default class PreferenceModal extends Component {
 			
 			fetch(window.location.href + 'api/change_password', {
 				method: 'POST',
+				credentials: 'same-origin',
 				headers: {
 			    	'Accept': 'application/json',
 			    	'Content-Type': 'application/json'

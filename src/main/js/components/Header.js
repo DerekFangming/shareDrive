@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import Config from 'Config';
 import {getRequestJsonHeader, getCookie} from '../utils/Utils';
-import Popover, { ArrowContainer } from 'react-tiny-popover'
-import PreferenceModal from './PreferenceModal'
+import Popover, { ArrowContainer } from 'react-tiny-popover';
+import PreferenceModal from './PreferenceModal';
+import "isomorphic-fetch";
 
 export default class Header extends Component {
 	

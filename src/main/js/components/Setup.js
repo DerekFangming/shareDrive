@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import axios from 'axios'
 import {sha256} from '../utils/Utils';
+import "isomorphic-fetch";
 
 export default class Setup extends Component {
 	
@@ -42,6 +43,7 @@ export default class Setup extends Component {
         	
         	fetch(window.location.href + 'api/initial_setup', {
     			method: 'POST',
+    			credentials: 'same-origin',
     		    headers: {
     		    	'Accept': 'application/json',
     		    	'Content-Type': 'application/json'

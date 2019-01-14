@@ -2,8 +2,9 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import {convertSize, convertDate, getFileType, getRequestJsonHeader} from '../utils/Utils'
 import {LoadingStatus} from '../utils/Enums';
-import UploadFileModal from './UploadFileModal'
-import Popover, { ArrowContainer } from 'react-tiny-popover'
+import UploadFileModal from './UploadFileModal';
+import Popover, { ArrowContainer } from 'react-tiny-popover';
+import "isomorphic-fetch";
 
 import archive from '../../resources/static/archive.png';
 import audio from '../../resources/static/audio.png';

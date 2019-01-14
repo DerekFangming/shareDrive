@@ -3,7 +3,8 @@ import Config from 'Config';
 import {convertSize, convertDate, numberWithCommas, getFileType, keepTwoDigits, getAccessToken, getRequestJsonHeader} from '../utils/Utils';
 import Arrow from './Arrow';
 import {LoadingStatus} from '../utils/Enums';
-import MoveFileModal from './MoveFileModal'
+import MoveFileModal from './MoveFileModal';
+import "isomorphic-fetch";
 
 export default class InfoTables extends Component {
 	

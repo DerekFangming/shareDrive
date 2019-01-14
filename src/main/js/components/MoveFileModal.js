@@ -4,6 +4,7 @@ import {getRequestJsonHeader} from '../utils/Utils'
 import {LoadingStatus} from '../utils/Enums';
 import folder from '../../resources/static/folder.png';
 import ret from '../../resources/static/return.png';
+import "isomorphic-fetch";
 
 export default class MoveFileModal extends Component {
 	

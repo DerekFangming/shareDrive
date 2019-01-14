@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import Popover, { ArrowContainer } from 'react-tiny-popover'
 import {sha256} from '../utils/Utils';
-import "isomorphic-fetch"
+import "isomorphic-fetch";
 
 export default class Login extends Component {
 
