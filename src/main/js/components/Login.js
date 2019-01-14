@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Config from 'Config';
 import Popover, { ArrowContainer } from 'react-tiny-popover'
 import {sha256} from '../utils/Utils';
+import "isomorphic-fetch"
 
 export default class Login extends Component {
 
@@ -25,6 +26,7 @@ export default class Login extends Component {
 		
 		fetch(window.location.href + 'api/login', {
 			method: 'POST',
+			credentials: 'same-origin',
 		    headers: {
 		    	'Accept': 'application/json',
 		    	'Content-Type': 'application/json'
