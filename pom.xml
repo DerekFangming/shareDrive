@@ -6,7 +6,7 @@
 
 	<groupId>com.fmning</groupId>
 	<artifactId>shareDrive</artifactId>
-	<version>1.2</version>
+	<version>1.3</version>
 	<packaging>war</packaging>
 
 	<parent>
