@@ -56,7 +56,7 @@ public class DirectoryController {
 			} else {
 				List<Shareable> fileList = new ArrayList<>();
 				for(File f : childFileList) {
-					if (!f.isHidden() && !f.getName().startsWith(".")) {
+					if (!f.isHidden() && !f.getName().startsWith(".") && !f.getName().startsWith("$")) {
 						if (dirOnly) {
 							if (f.isDirectory()) {
 								fileList.add(new Shareable(f, Utils.homeDir));

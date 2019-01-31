@@ -45,6 +45,16 @@ public class LoginController {
 		return new GenericResponse("Incorrect passcode. Please try again");
 	}
 	
+	@PostMapping("/verify_token")
+	public GenericResponse login(@RequestBody Map<String, String> payload) {
+		String token = (String)payload.get("token");
+		if (Utils.findUser(token) == null) {
+			return new GenericResponse("Incorrect passcode. Please try again");
+		} else {
+			return new GenericResponse();
+		}
+	}
+	
 	@PostMapping("/change_password")
 	public GenericResponse changePassword(@RequestBody Map<String, Object> payload, HttpServletResponse response) {
 		String username = (String)payload.get("username");
