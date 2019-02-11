@@ -54,7 +54,7 @@ public class FileController {
         response.setContentType(mimeType);
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"");
-        response.setContentLength((int)file.length());
+        response.setContentLengthLong(file.length());
  
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         FileCopyUtils.copy(inputStream, response.getOutputStream());
