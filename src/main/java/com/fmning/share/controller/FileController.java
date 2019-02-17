@@ -5,16 +5,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +33,7 @@ import com.fmning.share.response.FileDownloadResult;
 import com.fmning.share.response.FileRenameResult;
 import com.fmning.share.response.FileRetrieveResult;
 import com.fmning.share.response.Shareable;
+import com.fmning.share.utils.Range;
 import com.fmning.share.utils.Utils;
 
 @RestController
@@ -36,7 +41,7 @@ import com.fmning.share.utils.Utils;
 public class FileController {
 	
 	@GetMapping("/download_file")
-	public FileDownloadResult getFile(@RequestParam("file") String filename, HttpServletResponse response) throws IOException {
+	public FileDownloadResult getFile(@RequestParam("file") String filename, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		File file = new File(Utils.homeDir + filename);
 		
 		if (file.isDirectory()) {
@@ -45,19 +50,99 @@ public class FileController {
 			return new FileDownloadResult("The file does not exist");
 		}
 		
-		String mimeType= URLConnection.guessContentTypeFromName(file.getName());
-        if (mimeType == null) mimeType = "application/octet-stream";
+		String contentType= URLConnection.guessContentTypeFromName(file.getName());
+        if (contentType == null) contentType = "application/octet-stream";
         
         String encodedFileName = URLEncoder.encode(file.getName(), "UTF-8").replace("+", "%20").replace("%28", "(").replace("%29", ")")
         		.replace("%5B", "[").replace("%5D", "]");
-         
-        response.setContentType(mimeType);
+        
+        // File range for resume function
+        long length = file.length();
+        Range full = new Range(0, length - 1, length);
+        List<Range> ranges = new ArrayList<>();
+        
+        // Validate and process Range and If-Range headers.
+        String range = request.getHeader("Range");
+        if (range != null) {
+
+            // Range header should match format "bytes=n-n,n-n,n-n...". If not, then return 416.
+            if (!range.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*$")) {
+                response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
+                response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+                return new FileDownloadResult("Requested range is not in correct format.");
+            }
+
+            // If any valid If-Range header, then process each part of byte range.
+            if (ranges.isEmpty()) {
+                for (String part : range.substring(6).split(",")) {
+                    // Assuming a file with length of 100, the following examples returns bytes at:
+                    // 50-80 (50 to 80), 40- (40 to length=100), -20 (length-20=80 to length=100).
+                    long start = Utils.sublong(part, 0, part.indexOf("-"));
+                    long end = Utils.sublong(part, part.indexOf("-") + 1, part.length());
+
+                    if (start == -1) {
+                        start = length - end;
+                        end = length - 1;
+                    } else if (end == -1 || end > length - 1) {
+                        end = length - 1;
+                    }
+
+                    // Check if Range is syntactically valid. If not, then return 416.
+                    if (start > end) {
+                        response.setHeader("Content-Range", "bytes */" + length); // Required in 416.
+                        response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+                        new FileDownloadResult("Requested range is not valid.");
+                    }
+
+                    // Add range.                    
+                    ranges.add(new Range(start, end, length));
+                }
+            }
+        }
+        
+
         response.setCharacterEncoding("UTF-8");
+        response.setBufferSize(Utils.DEFAULT_BUFFER_SIZE);
+        response.setContentType(contentType);
         response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"");
-        response.setContentLengthLong(file.length());
- 
-        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-        FileCopyUtils.copy(inputStream, response.getOutputStream());
+        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader("ETag", "\"" + filename + "\"");
+        
+        try (InputStream input = new BufferedInputStream(new FileInputStream(file));
+                OutputStream output = response.getOutputStream()) {
+        	if (ranges.isEmpty() || ranges.get(0) == full) {
+
+                // Return full file.
+                response.setHeader("Content-Range", "bytes " + full.start + "-" + full.end + "/" + full.total);
+                response.setHeader("Content-Length", String.valueOf(full.length));
+                Utils.copy(input, output, length, full.start, full.length);
+
+            } else if (ranges.size() == 1) {
+
+                // Return single part of file.
+                Range r = ranges.get(0);
+                response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
+                response.setHeader("Content-Length", String.valueOf(r.length));
+                response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
+
+                // Copy single part range.
+                Utils.copy(input, output, length, r.start, r.length);
+
+            } else {
+
+                // Return multiple parts of file.
+                response.setContentType("multipart/byteranges; boundary=MULTIPART_BYTERANGES");
+                response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
+
+                // Copy multi part range.
+                for (Range r : ranges) {
+
+                    // Copy single part range of multi part range.
+                	Utils.copy(input, output, length, r.start, r.length);
+                }
+
+            }
+        }
         
 		return null;
 	}

@@ -3,6 +3,8 @@ package com.fmning.share.utils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -18,6 +20,7 @@ public class Utils {
 
 	public static final String PROPERTIES_FILE = "settings.properties";
 	public static final String RECYCLE_BIN_FOLDER_NAME = ".sharedrive_deleted";
+	public static final int DEFAULT_BUFFER_SIZE = 20480; // ..bytes = 20KB.
 	
 	public static final String ADMIN_USERNAME = "adminUsername";
 	public static final String ADMIN_PASSWORD = "adminPassword";
@@ -213,4 +216,47 @@ public class Utils {
 	public static boolean isNullOrEmpty(String string) {
 		return string == null ? true : (string.trim() == "");
 	}
+	
+
+
+    public static long sublong(String value, int beginIndex, int endIndex) {
+        String substring = value.substring(beginIndex, endIndex);
+        return (substring.length() > 0) ? Long.parseLong(substring) : -1;
+    }
+
+    /**
+     * Code to send bytes to output stream with range
+     * @param input the input stream
+     * @param output the output stream
+     * @param inputSize the input file size
+     * @param start the start byte to send
+     * @param length the length to send
+     * @throws IOException if errors happened during file transfer process
+     */
+    public static void copy(InputStream input, OutputStream output, long inputSize, long start, long length) throws IOException {
+        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+        int read;
+
+        if (inputSize == length) {
+            // Write full range.
+            while ((read = input.read(buffer)) > 0) {
+                output.write(buffer, 0, read);
+                output.flush();
+            }
+        } else {
+            input.skip(start);
+            long toRead = length;
+
+            while ((read = input.read(buffer)) > 0) {
+                if ((toRead -= read) > 0) {
+                    output.write(buffer, 0, read);
+                    output.flush();
+                } else {
+                    output.write(buffer, 0, (int) toRead + read);
+                    output.flush();
+                    break;
+                }
+            }
+        }
+    }
 }
