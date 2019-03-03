@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartRequest;
 
 import com.fmning.share.response.FileDownloadResult;
 import com.fmning.share.response.FileRenameResult;
@@ -228,7 +229,13 @@ public class FileController {
 	}
 	
 	@PostMapping("/upload_file")
-	public FileRetrieveResult uploadFiles(@RequestHeader("Authorization") String auth, @RequestParam("files") List<MultipartFile> files, @RequestParam(value = "dir", required=false) String dir, MultipartRequest request) {
+	public FileRetrieveResult uploadFiles(@RequestHeader("Authorization") String auth,
+			@RequestParam(value = "files", required=false) List<MultipartFile> files,
+			@RequestParam(value = "dir", required=false) String dir,
+			@RequestHeader(value = "fileName", required=false) String fileName,
+			HttpServletRequest request,
+			HttpServletResponse response) {
+		
 		if (Utils.findUser(auth) == null) {
 			return new FileRetrieveResult("Not autorized.");
 		}
@@ -236,21 +243,37 @@ public class FileController {
 		String errorMessage = "";
 		List<Shareable> fileList = new ArrayList<>();
 		
-		for (MultipartFile file : files) {
-			File uploadedFile = dir == null ? new File(Utils.homeDir + file.getOriginalFilename()): new File(Utils.homeDir + dir + File.separator + file.getOriginalFilename());
-			
-			try {
-				file.transferTo(uploadedFile);
-				fileList.add(new Shareable(uploadedFile, Utils.homeDir));
-			} catch (Exception e) {
-				errorMessage = "Some files are not uploaded successfully.";
+		if (files == null) {
+			if (fileName == null) {
+				errorMessage = "Invalid request";
+			} else {
+				String fullFileName = dir == null ? Utils.homeDir + fileName: Utils.homeDir + dir + File.separator + fileName;
+				try {
+					Files.copy(request.getInputStream(), Paths.get(fullFileName));
+					File uploadedFile = new File(fullFileName);
+					fileList.add(new Shareable(uploadedFile, Utils.homeDir));
+				} catch (IOException e) {
+					errorMessage = "Failed to save the file. Internal server error.";
+				}
+			}
+		} else {
+			for (MultipartFile file : files) {
+				File uploadedFile = dir == null ? new File(Utils.homeDir + file.getOriginalFilename()): new File(Utils.homeDir + dir + File.separator + file.getOriginalFilename());
+				
+				try {
+					file.transferTo(uploadedFile);
+					fileList.add(new Shareable(uploadedFile, Utils.homeDir));
+				} catch (Exception e) {
+					errorMessage = "Some files are not uploaded successfully.";
+				}
 			}
 		}
 		
-		FileRetrieveResult response = new FileRetrieveResult(errorMessage);
-		response.setFileList(fileList);
+		response.setHeader("error", errorMessage);
+		FileRetrieveResult fileRetrieveResponse = new FileRetrieveResult(errorMessage);
+		fileRetrieveResponse.setFileList(fileList);
 		
-		return response;
+		return fileRetrieveResponse;
 		
 	}
 
