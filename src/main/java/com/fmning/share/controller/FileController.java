@@ -233,6 +233,7 @@ public class FileController {
 			@RequestParam(value = "files", required=false) List<MultipartFile> files,
 			@RequestParam(value = "dir", required=false) String dir,
 			@RequestHeader(value = "fileName", required=false) String fileName,
+			@RequestHeader(value = "directory", required=false) String directory,
 			HttpServletRequest request,
 			HttpServletResponse response) {
 		
@@ -247,7 +248,7 @@ public class FileController {
 			if (fileName == null) {
 				errorMessage = "Invalid request";
 			} else {
-				String fullFileName = dir == null ? Utils.homeDir + fileName: Utils.homeDir + dir + File.separator + fileName;
+				String fullFileName = directory == null ? Utils.homeDir + fileName: Utils.homeDir + directory + File.separator + fileName;
 				try {
 					Files.copy(request.getInputStream(), Paths.get(fullFileName));
 					File uploadedFile = new File(fullFileName);
