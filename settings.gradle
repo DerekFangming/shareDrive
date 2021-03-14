@@ -1,3 +1,4 @@
 rootProject.name = 'drive'
 include 'drive-server'
+include 'drive-ui'
 
