@@ -50,7 +50,7 @@ public class DirectoryController {
 			return new FileRetrieveResult("Internal server error.");
 		} else {
 			File[] childFileList = dir.listFiles();
-			
+
 			if (childFileList == null) {
 				return new FileRetrieveResult("Internal server error.");
 			} else {
@@ -69,7 +69,7 @@ public class DirectoryController {
 
 				return new FileRetrieveResult(fileList);
 			}
-			
+
 		}
 	}
 	

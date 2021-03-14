@@ -11,11 +11,13 @@ import java.io.File;
 import java.sql.Connection;
 import java.util.UUID;
 
+import static com.fmning.drive.FileUtil.getInnerFolder;
+
 @Configuration
 public class DriveConfiguration {
 
     public static DriveStatus driveStatus = DriveStatus.UNKNOWN;
-    private static final String INTERNAL_FOLDER_NAME = "sd_internal";// TODO
+    private static final String INTERNAL_FOLDER_NAME = ".sd_internal";
 
     @Bean
     public File rootDir(DriveProperties driveProperties) {
@@ -27,9 +29,9 @@ public class DriveConfiguration {
             if (rootDir.isFile()) {
                 driveStatus = DriveStatus.INVALID_ROOT_DIR;
             } else if (rootDir.isDirectory()) {
-                File internalFolder = new File(rootDir.getAbsolutePath() + File.separator + INTERNAL_FOLDER_NAME);
+                File internalFolder = getInnerFolder(rootDir, INTERNAL_FOLDER_NAME);
                 if (internalFolder.exists()) {
-                    File testFolder = new File(internalFolder.getAbsolutePath() + File.separator + UUID.randomUUID().toString());
+                    File testFolder = getInnerFolder(internalFolder, UUID.randomUUID().toString());
                     if (testFolder.mkdir()) {
                         if (testFolder.delete()) {
                             driveStatus = DriveStatus.OK;
