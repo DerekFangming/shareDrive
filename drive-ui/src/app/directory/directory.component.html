@@ -1,0 +1,56 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <a class="navbar-brand" href="./">Share drive</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <!-- <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown active">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Loged in as {getCookie(Config.usernameCookieKey)}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item cursor-pointer" data-toggle="modal" data-target="#preferenceModal"
+                      onClick={() => this.preferenceModal.current.loadUserList()} >Preference</a>
+                  <a class="dropdown-item cursor-pointer" onClick={this.logout} >Log out</a>
+              </div>
+          </li>
+      </ul> -->
+      
+      <!-- <div class={this.state.mobile ? "form-inline input-group d-md-none" : "form-inline d-none d-md-block"} >
+      
+          <Popover isOpen={this.state.searchError} position={'bottom'} onClickOutside={this.alertCloseHandler} content={({ position, targetRect, popoverRect }) => (
+              <ArrowContainer position={position} targetRect={targetRect} popoverRect={popoverRect}
+                  arrowColor={'#F8D7DA'} arrowSize={10}>
+                  <div class="alert alert-danger py-2" role="alert">
+                      {this.state.searchErrMsg}
+                  </div>
+              </ArrowContainer>
+          )} >
+              <input class="form-control mr-2" type="text" placeholder="Search" disabled={this.state.searching ? "disabled" : ""}
+                  onChange={(e) => this.setState({searchKeyWord: e.target.value})} onKeyPress={(e) => { if (e.key === 'Enter') this.searchFiles() } }>
+              </input>
+          </Popover>
+          <button class={this.state.searching? "btn btn-outline-light disabled" : "btn btn-outline-light"}
+              type="button" onClick={this.searchFiles} >
+              {this.state.searching ? <span class="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span> : "Search"}
+          </button>
+      </div> -->
+  
+      
+  </div>
+</nav>
+
+<div class="container-fluid">
+  <div class="row mt-2">
+    <DirectoryPath ref={this.dirPath} dirPathClickHandler={this.dirPathClickHandler} />
+  </div>
+  
+  <div class="row">
+    <FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler} createFilePathHandler={this.createFilePathHandler}
+    getAvailableDriveSize={this.getAvailableDriveSize} refreshStorageInfoHandler={this.refreshStorageInfoHandler}
+    initiateMoveModal={this.initiateMoveModal}/>
+    <InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler} fileMoveHandler={this.fileMoveHandler}
+    moveSelectedFile={this.moveSelectedFile}/>
+  </div>
+</div>
