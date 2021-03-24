@@ -7,6 +7,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.Arrays;
@@ -22,11 +23,12 @@ import static com.fmning.drive.FileUtil.*;
 public class DirectoryController {
 
     private final File rootDir;
+    private final ServletContext servletContext;
 
     @GetMapping("/directory/**")
     public List<Shareable> getFiles(HttpServletRequest request, @RequestParam(value = "dirOnly", required=false) boolean dirOnly) {
         String path = new AntPathMatcher().extractPathWithinPattern((String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE), request.getRequestURI());
-        File directory = getInnerFolder(rootDir, path);
+        File directory = getInnerFolder(rootDir, path.replaceFirst("directory", ""));
 
         if (directory.isFile()) {
             throw new IllegalArgumentException("Requested path is not a directory.");

@@ -43,14 +43,22 @@
 
 <div class="container-fluid">
   <div class="row mt-2">
-    <DirectoryPath ref={this.dirPath} dirPathClickHandler={this.dirPathClickHandler} />
+    <div class="col">
+      <nav class="nav nav-pills align-items-center">
+        <button type="button" class="btn btn-link">Home</button>
+        <div *ngFor="let dir of splitDirectory();">
+          <img src="https://i.imgur.com/KVTiR3P.png" height="15px" width="15px">
+          <button type="button" class="btn btn-link">Steam</button>
+        </div>
+      </nav>
+    </div>
   </div>
   
   <div class="row">
-    <FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler} createFilePathHandler={this.createFilePathHandler}
+    <!-- <FileTable ref={this.fileTable} showFileDetailsHandler={this.showFileDetailsHandler} createFilePathHandler={this.createFilePathHandler}
     getAvailableDriveSize={this.getAvailableDriveSize} refreshStorageInfoHandler={this.refreshStorageInfoHandler}
     initiateMoveModal={this.initiateMoveModal}/>
     <InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler} fileMoveHandler={this.fileMoveHandler}
-    moveSelectedFile={this.moveSelectedFile}/>
+    moveSelectedFile={this.moveSelectedFile}/> -->
   </div>
 </div>
