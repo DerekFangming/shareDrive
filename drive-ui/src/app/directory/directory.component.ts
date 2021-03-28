@@ -11,9 +11,18 @@ import { UtilsService } from '../utils.service';
 })
 export class DirectoryComponent implements OnInit {
 
-  loadingDirectory = false;
   directory = '';
   shareables: Shareable[] = [];
+
+  sortColumn = '';
+  sortAsc = true;
+  
+  createFolder = false;
+  loadingDirectory = false;
+
+
+  loadDirectoryError = '';
+
 
   constructor(private http: HttpClient, public utils: UtilsService) { }
 
@@ -27,6 +36,8 @@ export class DirectoryComponent implements OnInit {
     this.http.get<Shareable[]>(environment.urlPrefix + 'api/directory/' + this.directory).subscribe(res => {
       this.loadingDirectory = false;
       this.shareables = res;
+      this.shareables.forEach(s => this.utils.parseFileType(s));
+      console.log(this.shareables);
     }, error => {
       this.loadingDirectory = false;
       console.log(error.error);
@@ -44,6 +55,17 @@ export class DirectoryComponent implements OnInit {
     }
 
     return res;
+  }
+
+  
+  sortShareables(sortColumn: string) {
+    if (this.sortColumn == sortColumn) {
+      this.sortAsc = !this.sortAsc;
+    } else {
+      this.sortColumn = sortColumn;
+      this.sortAsc = true;
+    }
+    
   }
 
 }

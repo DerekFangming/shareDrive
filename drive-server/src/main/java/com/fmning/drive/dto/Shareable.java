@@ -8,7 +8,7 @@ import lombok.Data;
 public class Shareable {
     private String name;
     private String path;
-    private boolean isFile;
+    private Boolean isFile;
     private long created;
     private long lastModified;
     private long size;

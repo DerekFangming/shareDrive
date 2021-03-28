@@ -6,6 +6,9 @@ export class Shareable {
   lastModified: Number;
   size: Number;
 
+  type: string;
+  icon: string;
+
   public constructor(init?:Partial<Shareable>) {
     Object.assign(this, init);
   }
