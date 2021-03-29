@@ -61,7 +61,7 @@
           </tr>
         </tbody>
         <tbody *ngIf="!loadingDirectory && loadDirectoryError == ''">
-          <tr class="pointer" *ngFor="let shareable of shareables;">
+          <tr class="pointer" *ngFor="let shareable of shareables;" (click)="selectFile()" (dblclick)="loadFolderContent()">
             <td class="fix-text"><img src="{{shareable.icon}}" class='mr-2' width='30' height='30'/> {{shareable.name}}</td>
             <td>{{utils.getCreatedTimeFromSeconds(shareable.lastModified)}}</td>
             <td>{{shareable.isFile ? utils.getFileSize(shareable.size) : '-'}}</td>

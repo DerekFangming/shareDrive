@@ -2,9 +2,9 @@ export class Shareable {
   name: string;
   path: string;
   isFile: boolean;
-  created: Number;
-  lastModified: Number;
-  size: Number;
+  created: number;
+  lastModified: number;
+  size: number;
 
   type: string;
   icon: string;

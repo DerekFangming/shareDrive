@@ -39,8 +39,7 @@ export class DirectoryComponent implements OnInit {
     this.loadingDirectory = true;
     this.http.get<Shareable[]>(environment.urlPrefix + 'api/directory/' + this.directory).subscribe(res => {
       this.loadingDirectory = false;
-      this.shareables = res;
-      this.shareables.forEach(s => this.utils.parseFileType(s));
+      this.shareables = res.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
     }, error => {
       this.loadingDirectory = false;
       console.log(error.error);
@@ -80,7 +79,21 @@ export class DirectoryComponent implements OnInit {
       this.sortColumn = sortColumn;
       this.sortAsc = true;
     }
-    
+    if (this.sortColumn == 'name') {
+      this.shareables.sort((a, b) => this.sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name))
+    } else if (this.sortColumn == 'mod') {
+      this.shareables.sort((a, b) => this.sortAsc ? a.lastModified - b.lastModified : b.lastModified - a.lastModified)
+    } else if (this.sortColumn == 'size') {
+      this.shareables.sort((a, b) => this.sortAsc ? a.size - b.size : b.size - a.size)
+    }
+  }
+
+  selectFile() {
+    console.log(1);
+  }
+
+  loadFolderContent() {
+    console.log(2);
   }
 
 }

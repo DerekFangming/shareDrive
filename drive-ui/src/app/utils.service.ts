@@ -53,7 +53,7 @@ export class UtilsService {
     if (!file.isFile) {
       file.type = 'Folder';
       file.icon = this.getImage('folder.png');
-      return;
+      return file;
     }
     let names = file.name.split('.');
     
@@ -83,6 +83,7 @@ export class UtilsService {
         file.icon = this.getImage('file.png');
       }
     }
+    return file;
   }
   
 }
