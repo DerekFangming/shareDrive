@@ -24,6 +24,10 @@ export class UtilsService {
     return secs == 0 ? ' - ' : (new Date(secs)).toLocaleString();
   }
 
+  keepTwoDigits = (num) => {
+    return Number(num).toFixed(2)
+  }
+
   getType(input: string) {
     if (input == null) return '';
 

@@ -54,8 +54,7 @@
             <td colSpan="3">
               <div class="alert alert-warning cursor-pointer" role="alert">
                 <h4 class="alert-heading">Error</h4>
-                <p>Something went wrong while loading the directory. {{loadDirectoryError}}</p>
-                <hr/>
+                <p>Something went wrong while loading the directory. {{loadDirectoryError}}</p><hr/>
                 <p><span class="fa fa-refresh fa-1x fa-fw pr-4"></span> Click here to refresh</p>
               </div>
             </td>
@@ -73,21 +72,21 @@
 
     <div class="col-md-3">
       <div class="card my-4">
-        <h5 class="card-header">Storage</h5>
-        <div class="card-body">
-          <p class="card-text">
-            {convertSize(this.state.availableSize)} free of {convertSize(this.state.totalSize)}
-          </p>
+        <h5 class="card-header">Storage Capacity</h5>
+        <div *ngIf="loadingCapacity" class="card-body">
+          <div class="row">
+            <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
+            <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
+          </div>
+        </div>
+        <div *ngIf="!loadingCapacity" class="card-body">
+          <p class="card-text">{{utils.getFileSize(capacity.availableSpace)}} free of {{utils.getFileSize(capacity.totalSpace)}}</p>
           <div class="progress">
-            <div class="progress-bar" role="progressbar" style={{width:`${this.state.ratio + '%'}`}} aria-valuenow={this.state.ratio} aria-valuemin="0" aria-valuemax="100">{this.state.ratio} %</div>
+            <div class="progress-bar" role="progressbar" [ngStyle]="{'width': capacity.ratio + '%'}" [attr.aria-valuenow]="capacity.ratio" aria-valuemin="0" aria-valuemax="100">{{capacity.ratio}} %</div>
           </div>
         </div>
       </div>
-
     </div>
 
-
-    <!-- <InfoTables ref={this.infoTable} fileRenameHandler={this.fileRenameHandler} fileMoveHandler={this.fileMoveHandler}
-    moveSelectedFile={this.moveSelectedFile}/> -->
   </div>
 </div>

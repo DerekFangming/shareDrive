@@ -1,5 +1,6 @@
 package com.fmning.drive.controller;
 
+import com.fmning.drive.dto.Capacity;
 import com.fmning.drive.dto.Shareable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,4 +51,10 @@ public class DirectoryController {
                     .build()).collect(Collectors.toList());
         }
     }
+
+    @GetMapping("/capacity")
+    public Capacity getCapacity() {
+        return Capacity.builder().totalSpace(rootDir.getTotalSpace()).availableSpace(rootDir.getUsableSpace()).build();
+    }
+
 }
