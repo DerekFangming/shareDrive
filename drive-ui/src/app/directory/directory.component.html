@@ -12,10 +12,10 @@
     <div class="col">
       <nav class="nav nav-pills align-items-center">
         <button type="button" class="btn btn-link" (click)="loadDirectory('')">Home</button>
-        <div *ngFor="let dir of splitDirectory();">
+        <ng-container *ngFor="let dir of splitDirectory(directory);">
           <img src="{{utils.getImage('arrow.png')}}" height="15px" width="15px">
           <button type="button" class="btn btn-link" (click)="loadDirectory(dir.path)">{{dir.name}}</button>
-        </div>
+        </ng-container>
       </nav>
     </div>
   </div>
@@ -61,7 +61,8 @@
           </tr>
         </tbody>
         <tbody *ngIf="!loadingDirectory && loadDirectoryError == ''">
-          <tr class="pointer" *ngFor="let shareable of shareables;" (click)="selectFile()" (dblclick)="loadFolderContent()">
+          <tr class="pointer" *ngFor="let shareable of shareables;" (click)="selectFile(shareable)" (dblclick)="loadFolderContent()"
+          [ngClass]="shareable == selectedFile ? 'table-primary' : ''">
             <td class="fix-text"><img src="{{shareable.icon}}" class='mr-2' width='30' height='30'/> {{shareable.name}}</td>
             <td>{{utils.getCreatedTimeFromSeconds(shareable.lastModified)}}</td>
             <td>{{shareable.isFile ? utils.getFileSize(shareable.size) : '-'}}</td>
@@ -71,21 +72,75 @@
     </div>
 
     <div class="col-md-3">
-      <div class="card my-4">
-        <h5 class="card-header">Storage Capacity</h5>
-        <div *ngIf="loadingCapacity" class="card-body">
-          <div class="row">
-            <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
-            <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
+      <div class="sticky-top">
+        <div class="card my-4">
+          <h5 class="card-header">Storage Capacity</h5>
+          <div *ngIf="loadingCapacity" class="card-body">
+            <div class="row">
+              <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
+              <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
+            </div>
+          </div>
+          <div *ngIf="!loadingCapacity" class="card-body">
+            <p class="card-text">{{utils.getFileSize(capacity.availableSpace)}} free of {{utils.getFileSize(capacity.totalSpace)}}</p>
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" [ngStyle]="{'width': capacity.ratio + '%'}" [attr.aria-valuenow]="capacity.ratio" aria-valuemin="0" aria-valuemax="100">{{capacity.ratio}} %</div>
+            </div>
           </div>
         </div>
-        <div *ngIf="!loadingCapacity" class="card-body">
-          <p class="card-text">{{utils.getFileSize(capacity.availableSpace)}} free of {{utils.getFileSize(capacity.totalSpace)}}</p>
-          <div class="progress">
-            <div class="progress-bar" role="progressbar" [ngStyle]="{'width': capacity.ratio + '%'}" [attr.aria-valuenow]="capacity.ratio" aria-valuemin="0" aria-valuemax="100">{{capacity.ratio}} %</div>
+  
+        <div class="card my-4 d-none d-md-block">
+          <h5 class="card-header">File Details</h5>
+          <div *ngIf="selectedFile == null" class="card-body">
+            <div class="row"><div class="col"><p class="card-text">Select a file to see details.</p></div></div>
+          </div>
+          <div *ngIf="selectedFile != null" class="card-body">
+            <div class="row mb-1">
+              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Name</p></div>
+              <div class="col-lg-9"><p class="card-text">{{selectedFile.name}}</p></div>
+            </div>
+            <div class="row my-1">
+              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Type</p></div>
+              <div class="col-lg-9"><p class="card-text">{{selectedFile.type}}</p></div>
+            </div>
+            <!-- <div class="row my-1">
+              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Size</p></div>
+              <div class="col-lg-9">
+                { (!this.state.file.isFile && this.state.loadingFolderSize) ? (
+                    <p class="card-text"> <span class="fa fa-refresh fa-spin fa-1x fa-fw"></span> Loading ...</p>
+                ) : (
+                    <p class="card-text">{convertSize(this.state.file.size) + '  (' + numberWithCommas(this.state.file.size) + ' Bytes)'}</p>
+                )}{}
+              </div>
+            </div> -->
+
+            <div class="row my-1">
+              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Location</p></div>
+              <div class="col-lg-9">
+                <div>
+                  <span>Home</span>
+                  <ng-container *ngFor="let dir of splitDirectory(selectedFile.path);">
+                    <img src="{{utils.getImage('arrow.png')}}" height="15px" width="15px"><span>{{dir.name}}</span>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+
+            <div class="row my-1">
+              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Modified</p></div>
+              <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.lastModified)}}</p></div>
+            </div>
+
+            <div class="row my-1">
+              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Created</p></div>
+              <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.created)}}</p></div>
+            </div>
+            
+            <hr>
           </div>
         </div>
       </div>
+      
     </div>
 
   </div>

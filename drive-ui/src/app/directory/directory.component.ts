@@ -18,6 +18,7 @@ export class DirectoryComponent implements OnInit {
 
   sortColumn = '';
   sortAsc = true;
+  selectedFile: Shareable;
   
   createFolder = false;
   loadingDirectory = false;
@@ -58,8 +59,8 @@ export class DirectoryComponent implements OnInit {
     });
   }
 
-  splitDirectory() {
-    let dirs = this.directory == '' ? [] : this.directory.split('/');
+  splitDirectory(directory: string) {
+    let dirs = directory == '' ? [] : directory.split('/');
     let res: Shareable[] = [];
     let parentDir = '';
 
@@ -88,8 +89,11 @@ export class DirectoryComponent implements OnInit {
     }
   }
 
-  selectFile() {
-    console.log(1);
+  selectFile(shareable: Shareable) {
+    if (shareable != this.selectedFile) {
+      this.selectedFile = shareable;
+      console.log(1);
+    }
   }
 
   loadFolderContent() {

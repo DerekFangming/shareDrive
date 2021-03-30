@@ -1,6 +1,7 @@
 package com.fmning.drive.controller;
 
 import com.fmning.drive.dto.Capacity;
+import com.fmning.drive.dto.DirectorySize;
 import com.fmning.drive.dto.Shareable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,26 @@ public class DirectoryController {
                     .lastModified(f.lastModified())
                     .size(f.isFile() ? f.length() : 0)
                     .build()).collect(Collectors.toList());
+        }
+    }
+
+    @PostMapping("/directory-size/**")
+    public DirectorySize getDirectorySize(HttpServletRequest request) {
+        if (Utils.findUser(auth) == null) {
+            return new DirSize("Not autorized.");
+        }
+
+        String dirStr = (String)payload.get("dir");
+        if (dirStr == null) return new DirSize("The request is not complete");
+
+        File dir = new File(Utils.homeDir + dirStr);
+
+        if (dir.isFile()) {
+            return new DirSize("Requested path is not a directory.");
+        } else if (!dir.isDirectory()) {
+            return new DirSize("Requested path does not exist.");
+        } else {
+            return new DirSize(FileUtils.sizeOfDirectory(dir));
         }
     }
 
