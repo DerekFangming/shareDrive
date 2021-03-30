@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Shareable } from '../model/Shareable';
+import { Shareable } from '../model/shareable';
 import { UtilsService } from '../utils.service';
-import { Capacity } from '../model/Capacity';
+import { Capacity } from '../model/capacity';
+import { DirectorySize } from '../model/directory-size';
 
 @Component({
   selector: 'app-directory',
@@ -23,7 +24,7 @@ export class DirectoryComponent implements OnInit {
   createFolder = false;
   loadingDirectory = false;
   loadingCapacity = false;
-
+  loadingDirectorySize = false;
 
   loadDirectoryError = '';
 
@@ -92,12 +93,21 @@ export class DirectoryComponent implements OnInit {
   selectFile(shareable: Shareable) {
     if (shareable != this.selectedFile) {
       this.selectedFile = shareable;
-      console.log(1);
+      this.loadingDirectorySize = true;
+      this.http.get<DirectorySize>(environment.urlPrefix + 'api/directory-size/' + shareable.path).subscribe(res => {
+        this.loadingDirectorySize = false;
+        this.selectedFile.size = res.size;
+      }, error => {
+        this.loadingDirectorySize = false;
+        console.log(error.error);
+      });
     }
   }
 
-  loadFolderContent() {
-    console.log(2);
+  loadFolderContent(shareable: Shareable) {
+    if (!shareable.isFile) {
+      this.loadDirectory(shareable.path)
+    }
   }
 
 }

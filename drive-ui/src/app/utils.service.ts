@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { environment } from "../environments/environment";
-import { Shareable } from "./model/Shareable";
+import { Shareable } from "./model/shareable";
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +22,10 @@ export class UtilsService {
 
   getCreatedTimeFromSeconds(secs: number) {
     return secs == 0 ? ' - ' : (new Date(secs)).toLocaleString();
+  }
+
+  getReadableNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
   keepTwoDigits = (num) => {

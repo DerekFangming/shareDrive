@@ -4,12 +4,12 @@ import com.fmning.drive.dto.Capacity;
 import com.fmning.drive.dto.DirectorySize;
 import com.fmning.drive.dto.Shareable;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.HandlerMapping;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.Arrays;
@@ -25,7 +25,6 @@ import static com.fmning.drive.FileUtil.*;
 public class DirectoryController {
 
     private final File rootDir;
-    private final ServletContext servletContext;
 
     @GetMapping("/directory/**")
     public List<Shareable> getFiles(HttpServletRequest request, @RequestParam(value = "dirOnly", required=false) boolean dirOnly) {
@@ -53,23 +52,17 @@ public class DirectoryController {
         }
     }
 
-    @PostMapping("/directory-size/**")
+    @GetMapping("/directory-size/**")
     public DirectorySize getDirectorySize(HttpServletRequest request) {
-        if (Utils.findUser(auth) == null) {
-            return new DirSize("Not autorized.");
-        }
+        String path = new AntPathMatcher().extractPathWithinPattern((String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE), request.getRequestURI());
+        File directory = getInnerFolder(rootDir, path.replaceFirst("directory-size", ""));
 
-        String dirStr = (String)payload.get("dir");
-        if (dirStr == null) return new DirSize("The request is not complete");
-
-        File dir = new File(Utils.homeDir + dirStr);
-
-        if (dir.isFile()) {
-            return new DirSize("Requested path is not a directory.");
-        } else if (!dir.isDirectory()) {
-            return new DirSize("Requested path does not exist.");
+        if (directory.isFile()) {
+            throw new IllegalArgumentException("Requested path is not a directory.");
+        } else if (!directory.isDirectory()) {
+            throw new IllegalArgumentException("Requested path does not exist.");
         } else {
-            return new DirSize(FileUtils.sizeOfDirectory(dir));
+            return DirectorySize.builder().size(FileUtils.sizeOfDirectory(directory)).build();
         }
     }
 

@@ -18,6 +18,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'commons-io:commons-io:2.8.0'
 
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
     providedRuntime 'com.h2database:h2'

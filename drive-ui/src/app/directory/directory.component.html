@@ -61,7 +61,7 @@
           </tr>
         </tbody>
         <tbody *ngIf="!loadingDirectory && loadDirectoryError == ''">
-          <tr class="pointer" *ngFor="let shareable of shareables;" (click)="selectFile(shareable)" (dblclick)="loadFolderContent()"
+          <tr class="pointer" *ngFor="let shareable of shareables;" (click)="selectFile(shareable)" (dblclick)="loadFolderContent(shareable)"
           [ngClass]="shareable == selectedFile ? 'table-primary' : ''">
             <td class="fix-text"><img src="{{shareable.icon}}" class='mr-2' width='30' height='30'/> {{shareable.name}}</td>
             <td>{{utils.getCreatedTimeFromSeconds(shareable.lastModified)}}</td>
@@ -103,17 +103,13 @@
               <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Type</p></div>
               <div class="col-lg-9"><p class="card-text">{{selectedFile.type}}</p></div>
             </div>
-            <!-- <div class="row my-1">
+            <div class="row my-1">
               <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Size</p></div>
               <div class="col-lg-9">
-                { (!this.state.file.isFile && this.state.loadingFolderSize) ? (
-                    <p class="card-text"> <span class="fa fa-refresh fa-spin fa-1x fa-fw"></span> Loading ...</p>
-                ) : (
-                    <p class="card-text">{convertSize(this.state.file.size) + '  (' + numberWithCommas(this.state.file.size) + ' Bytes)'}</p>
-                )}{}
+                <p *ngIf="!selectedFile.isFile && loadingDirectorySize" class="card-text"> <span class="fa fa-refresh fa-spin fa-1x fa-fw"></span> Loading ...</p>
+                <p *ngIf="selectedFile.isFile || !loadingDirectorySize" class="card-text">{{ utils.getFileSize(selectedFile.size) + '  (' + utils.getReadableNumber(selectedFile.size) + ' Bytes)'}}</p>
               </div>
-            </div> -->
-
+            </div>
             <div class="row my-1">
               <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Location</p></div>
               <div class="col-lg-9">
