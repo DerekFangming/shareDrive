@@ -4,7 +4,12 @@ import { DirectoryComponent } from './directory/directory.component';
 
 
 const routes: Routes = [
-  { path: 'directory', component: DirectoryComponent },
+  { path: 'directory', children: [
+    {
+      path: '**',
+      component: DirectoryComponent
+    }
+  ]},
   { path: '**', redirectTo: '/directory', pathMatch: 'full' }
 ];
 

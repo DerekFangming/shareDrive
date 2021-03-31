@@ -1,15 +1,24 @@
 plugins {
-    id 'java'
+  id 'java'
+  id 'war'
+  id "com.github.node-gradle.node" version "2.2.0"
 }
 
-version 'unspecified'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
+node {
+  version = '10.16.3'
+  npmVersion = '6.9.0'
+  download = true
 }
 
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+task npmBuild(type: NpmTask, dependsOn: 'npmInstall') {
+  args = ['run', 'buildProd']
+  doLast {
+    copy {
+      from 'build/ui'
+      into "../drive-server/${project.staticFolder}"
+    }
+  }
+
 }
+
+war.dependsOn(npmBuild)

@@ -50,7 +50,7 @@ export class UtilsService {
   }
 
   getImage(name: String) {
-    return environment.production ? '/tools/assets/' + name : '/assets/' + name;
+    return environment.contextPath + '/assets/' + name;
   }
 
   parseFileType(file: Shareable) {

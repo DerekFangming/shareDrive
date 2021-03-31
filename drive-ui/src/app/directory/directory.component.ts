@@ -5,6 +5,8 @@ import { Shareable } from '../model/shareable';
 import { UtilsService } from '../utils.service';
 import { Capacity } from '../model/capacity';
 import { DirectorySize } from '../model/directory-size';
+import { Router } from '@angular/router';
+import { PlatformLocation } from '@angular/common';
 
 @Component({
   selector: 'app-directory',
@@ -29,14 +31,29 @@ export class DirectoryComponent implements OnInit {
   loadDirectoryError = '';
 
 
-  constructor(private http: HttpClient, public utils: UtilsService) { }
+  constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation) { }
 
   ngOnInit() {
-    this.loadDirectory('');
+    this.loadDirectory(this.getDirectoryFromUrl());
     this.loadCapacity();
+
+    this.location.onPopState(() => {
+      this.loadDirectory(this.getDirectoryFromUrl());
+    });
+  }
+
+  getDirectoryFromUrl() {
+    let path = this.location.pathname.replace(environment.contextPath + '/directory', '');
+    if (path.startsWith('/')) path = path.substring(1);
+    return path;
   }
 
   loadDirectory(directory: string) {
+    this.sortColumn = '';
+    this.sortAsc = true;
+    this.selectedFile = null;
+    
+    this.router.navigateByUrl('/directory/' + directory);
     this.directory = directory;
     this.loadingDirectory = true;
     this.http.get<Shareable[]>(environment.urlPrefix + 'api/directory/' + this.directory).subscribe(res => {
@@ -93,14 +110,16 @@ export class DirectoryComponent implements OnInit {
   selectFile(shareable: Shareable) {
     if (shareable != this.selectedFile) {
       this.selectedFile = shareable;
-      this.loadingDirectorySize = true;
-      this.http.get<DirectorySize>(environment.urlPrefix + 'api/directory-size/' + shareable.path).subscribe(res => {
-        this.loadingDirectorySize = false;
-        this.selectedFile.size = res.size;
-      }, error => {
-        this.loadingDirectorySize = false;
-        console.log(error.error);
-      });
+      if (!shareable.isFile) {
+        this.loadingDirectorySize = true;
+        this.http.get<DirectorySize>(environment.urlPrefix + 'api/directory-size/' + shareable.path).subscribe(res => {
+          this.loadingDirectorySize = false;
+          this.selectedFile.size = res.size;
+        }, error => {
+          this.loadingDirectorySize = false;
+          console.log(error.error);
+        });
+      }
     }
   }
 

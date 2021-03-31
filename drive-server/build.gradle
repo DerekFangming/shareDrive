@@ -12,6 +12,7 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -27,4 +28,15 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+clean.doFirst {
+    delete "${project.staticFolder}"
+}
+
+war {
+    dependsOn(':drive-ui:war')
+    mustRunAfter(':drive-ui:war')
+    enabled=true
+    archiveFileName = 'drive.war'
 }

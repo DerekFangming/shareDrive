@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  urlPrefix: ''
+  urlPrefix: '',
+  contextPath: '/drive'
 };
