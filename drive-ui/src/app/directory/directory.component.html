@@ -26,6 +26,22 @@
         <div class="col-12 col-md-3">
           <h2 class="mb-4 ml-2"><small>Files</small></h2>
         </div>
+        <div *ngIf="!createFolder" class="col-12 col-md-9">
+          <button class="btn btn-primary float-right" type="button" ><span class="fa fa-plus mr-2"></span>Upload</button>
+          <button class="btn btn-primary float-right mr-2" type="button" (click)="createFolder = true"><span class="fa fa-folder-o mr-2"></span>New folder</button>
+        </div>
+        <div *ngIf="createFolder" class="col-12 col-md-9">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Enter new folder name" [disabled]="creatingFolder" [(ngModel)]="newFolderName" (keyup.enter)="createNewFolder()">
+            <div *ngIf="creatingFolder" class="input-group-append">
+              <button class="btn btn-success disabled" type="button"><span class="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span></button>
+            </div>
+            <div *ngIf="!creatingFolder" class="input-group-append">
+              <button class="btn btn-success" type="button" (click)="createNewFolder()">Create</button>
+              <button class="btn btn-secondary" type="button" (click)="createFolder = false; newFolderName='';">Cancel</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <table class="table mt-3" [ngClass]="(!loadingDirectory && loadDirectoryError == '') ? 'table-hover' : ''">
@@ -121,12 +137,10 @@
                 </div>
               </div>
             </div>
-
             <div class="row my-1">
               <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Modified</p></div>
               <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.lastModified)}}</p></div>
             </div>
-
             <div class="row my-1">
               <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Created</p></div>
               <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.created)}}</p></div>

@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { IndexComponent } from './index/index.component';
 import { DirectoryComponent } from './directory/directory.component';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import { NotifierModule } from 'angular-notifier';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,18 @@ import { HttpClientModule } from '@angular/common/http';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule,
+    NotifierModule.withConfig({
+      behaviour: {
+        autoHide: 10000
+      },
+      position: {
+        horizontal: {
+          position: 'right'
+        }
+      }
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]

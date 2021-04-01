@@ -7,6 +7,7 @@ import { Capacity } from '../model/capacity';
 import { DirectorySize } from '../model/directory-size';
 import { Router } from '@angular/router';
 import { PlatformLocation } from '@angular/common';
+import { NotifierService } from 'angular-notifier';
 
 @Component({
   selector: 'app-directory',
@@ -24,14 +25,17 @@ export class DirectoryComponent implements OnInit {
   selectedFile: Shareable;
   
   createFolder = false;
+  creatingFolder = false;
   loadingDirectory = false;
   loadingCapacity = false;
   loadingDirectorySize = false;
 
+  newFolderName = '';
   loadDirectoryError = '';
+  creatingFolderError = '';
 
-
-  constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation) { }
+  constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation,
+    private notifierService: NotifierService) { }
 
   ngOnInit() {
     this.loadDirectory(this.getDirectoryFromUrl());
@@ -52,13 +56,15 @@ export class DirectoryComponent implements OnInit {
     this.sortColumn = '';
     this.sortAsc = true;
     this.selectedFile = null;
-    
+
     this.router.navigateByUrl('/directory/' + directory);
+    this.shareables = [];
     this.directory = directory;
     this.loadingDirectory = true;
     this.http.get<Shareable[]>(environment.urlPrefix + 'api/directory/' + this.directory).subscribe(res => {
       this.loadingDirectory = false;
       this.shareables = res.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
+      console.log(this.shareables);
     }, error => {
       this.loadingDirectory = false;
       console.log(error.error);
@@ -127,6 +133,21 @@ export class DirectoryComponent implements OnInit {
     if (!shareable.isFile) {
       this.loadDirectory(shareable.path)
     }
+  }
+
+  createNewFolder() {
+    this.creatingFolder = true;
+    let newDir = new Shareable({path: this.directory + '/' + this.newFolderName});
+    this.http.post<Shareable>(environment.urlPrefix + 'api/directory', newDir).subscribe(res => {
+      this.creatingFolder = false;
+      this.createFolder = false;
+      this.newFolderName = '';
+      this.shareables.unshift(this.utils.parseFileType(res));
+      this.notifierService.notify('success', 'Folder created');
+    }, error => {
+      this.creatingFolder = false;
+      this.notifierService.notify('error', error.error.message);
+    });
   }
 
 }
