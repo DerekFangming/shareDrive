@@ -26,11 +26,15 @@ export class DirectoryComponent implements OnInit {
   
   createFolder = false;
   creatingFolder = false;
+  renameFile = false;
+  renamingFile = false;
+  deleteFile = false;
   loadingDirectory = false;
   loadingCapacity = false;
   loadingDirectorySize = false;
 
   newFolderName = '';
+  renameFileName = '';
   loadDirectoryError = '';
   creatingFolderError = '';
 
@@ -64,7 +68,7 @@ export class DirectoryComponent implements OnInit {
     this.http.get<Shareable[]>(environment.urlPrefix + 'api/directory/' + this.directory).subscribe(res => {
       this.loadingDirectory = false;
       this.shareables = res.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
-      console.log(this.shareables);
+      // console.log(this.shareables);
     }, error => {
       this.loadingDirectory = false;
       console.log(error.error);
@@ -137,7 +141,7 @@ export class DirectoryComponent implements OnInit {
 
   createNewFolder() {
     this.creatingFolder = true;
-    let newDir = new Shareable({path: this.directory + '/' + this.newFolderName});
+    let newDir = new Shareable({name: this.newFolderName, path: this.directory + '/' + this.newFolderName});
     this.http.post<Shareable>(environment.urlPrefix + 'api/directory', newDir).subscribe(res => {
       this.creatingFolder = false;
       this.createFolder = false;
@@ -146,6 +150,30 @@ export class DirectoryComponent implements OnInit {
       this.notifierService.notify('success', 'Folder created');
     }, error => {
       this.creatingFolder = false;
+      this.notifierService.notify('error', error.error.message);
+    });
+  }
+
+  downloadSelectedFile() {
+    console.log(1);
+  }
+
+  deleteSelectedFile() {
+    console.log(2);
+  }
+
+  renameSelectedFile() {
+    this.renamingFile = true;
+    let renamedFile = new Shareable({name: this.renameFileName, path: this.selectedFile.path});
+    this.http.put<Shareable>(environment.urlPrefix + 'api/rename-file', renamedFile).subscribe(res => {
+      this.renamingFile = false;
+      this.renameFile = false;
+      this.renameFileName = '';
+      this.selectedFile.name = res.name;
+      this.selectedFile.path = res.path;
+      this.notifierService.notify('success', 'Folder renamed');
+    }, error => {
+      this.renamingFile = false;
       this.notifierService.notify('error', error.error.message);
     });
   }

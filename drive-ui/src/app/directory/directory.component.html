@@ -145,8 +145,40 @@
               <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Created</p></div>
               <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.created)}}</p></div>
             </div>
-            
             <hr>
+            <div *ngIf="!renameFile && !deleteFile" class="row my-1 text-center">
+              <div class="col-6 col-xl-3 px-1 py-1">
+                <button type="button" class="btn btn-outline-primary btn-block px-0" [disabled]="!selectedFile.isFile" (click)="downloadSelectedFile()">Download</button>
+              </div>
+              <div class="col-6 col-xl-3 px-1 py-1">
+                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="renameFile = true">Rename</button>
+              </div>
+              <div class="col-6 col-xl-3 px-1 py-1">
+                <button type="button" class="btn btn-outline-primary btn-block px-0">Move</button>
+              </div>
+              <div class="col-6 col-xl-3 px-1 py-1">
+                <button type="button" class="btn btn-outline-danger btn-block px-0" (click)="deleteFile = true">Delete</button>
+              </div>
+            </div>
+            <div *ngIf="renameFile" class="row my-1 text-center">
+              <div class="col">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="Enter new file name"  [disabled]="renamingFile" [(ngModel)]="renameFileName" (keyup.enter)="renameSelectedFile()">
+                  <div *ngIf="renamingFile" class="input-group-append">
+                    <button class="btn btn-success disabled" type="button"><span class="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span></button>
+                  </div>
+                  <div *ngIf="!renamingFile" class="input-group-append">
+                    <button class="btn btn-success" type="button" (click)="renameSelectedFile()">Save</button>
+                    <button class="btn btn-secondary" type="button" (click)="renameFile = false">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="deleteFile" class="row my-1 text-center">
+              <div class="col-md-12 mb-4"><p class="card-text font-weight-bold">Are you sure about deleting this {{selectedFile.isFile ? "file" : "folder"}}?</p></div>
+              <div class="col-md-6"><button type="button" class="btn btn-danger btn-block px-0" (click)="deleteSelectedFile()">Delete</button></div>
+              <div class="col-md-6"><button type="button" class="btn btn-secondary btn-block px-0" (click)="deleteFile = false">Cancel</button></div>
+            </div>
           </div>
         </div>
       </div>

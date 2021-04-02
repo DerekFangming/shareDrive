@@ -1,5 +1,8 @@
 package com.fmning.drive;
 
+import com.fmning.drive.dto.Shareable;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,6 +27,25 @@ public class FileUtil {
         } catch (IOException e) {
             return 0;
         }
+    }
+
+    public static boolean isNameValid(String name) {
+        if (StringUtils.isBlank(name)) {
+            return false;
+        } else {
+            return !name.matches(".*[/\n\r\t\0\f`?*<>|\":].*");
+        }
+    }
+
+    public static Shareable toShareable(File rootDir, File file) {
+        return Shareable.builder()
+                .name(file.getName())
+                .path(getRelativePath(file, rootDir))
+                .isFile(file.isFile())
+                .created(getCreationTime(file))
+                .lastModified(file.lastModified())
+                .size(file.isFile() ? file.length() : 0)
+                .build();
     }
 
 }

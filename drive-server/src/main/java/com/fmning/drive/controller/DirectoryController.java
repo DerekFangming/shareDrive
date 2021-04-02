@@ -41,7 +41,7 @@ public class DirectoryController {
                     return !dirOnly || f.isDirectory();
                 }
                 return false;
-            }).map(this::toShareable).collect(Collectors.toList());
+            }).map(f -> toShareable(rootDir, f)).collect(Collectors.toList());
         }
     }
 
@@ -66,8 +66,10 @@ public class DirectoryController {
 
     @PostMapping("/directory")
     public Shareable createDirectory(@RequestBody Shareable shareable) {
-        if (shareable == null || shareable.getPath() == null) {
-            throw new IllegalArgumentException("The request is not complete");
+        if (shareable == null || shareable.getPath() == null ) {
+            throw new IllegalArgumentException("The request is invalid");
+        } else if (!isNameValid(shareable.getName())) {
+            throw new IllegalArgumentException("File name cannot contain characters like / ` ? * \\ < > | \" :");
         }
 
         File newDir = getInnerFolder(rootDir, shareable.getPath());
@@ -76,21 +78,10 @@ public class DirectoryController {
         }
 
        if (newDir.mkdirs()) {
-           return toShareable(newDir);
+           return toShareable(rootDir, newDir);
         } else {
            throw new IllegalArgumentException("Failed to create folder.");
         }
-    }
-
-    private Shareable toShareable(File file) {
-        return Shareable.builder()
-                .name(file.getName())
-                .path(getRelativePath(file, rootDir))
-                .isFile(file.isFile())
-                .created(getCreationTime(file))
-                .lastModified(file.lastModified())
-                .size(file.isFile() ? file.length() : 0)
-                .build();
     }
 
 }
