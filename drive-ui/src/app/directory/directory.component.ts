@@ -29,6 +29,7 @@ export class DirectoryComponent implements OnInit {
   renameFile = false;
   renamingFile = false;
   deleteFile = false;
+  deletingFile = false;
   loadingDirectory = false;
   loadingCapacity = false;
   loadingDirectorySize = false;
@@ -53,7 +54,7 @@ export class DirectoryComponent implements OnInit {
   getDirectoryFromUrl() {
     let path = this.location.pathname.replace(environment.contextPath + '/directory', '');
     if (path.startsWith('/')) path = path.substring(1);
-    return path;
+    return decodeURI(path);
   }
 
   loadDirectory(directory: string) {
@@ -159,7 +160,18 @@ export class DirectoryComponent implements OnInit {
   }
 
   deleteSelectedFile() {
-    console.log(2);
+    this.deletingFile = true;
+    this.http.delete(environment.urlPrefix + 'api/delete-file/' + this.selectedFile.path).subscribe(res => {
+      this.deletingFile = false;
+      this.deleteFile = false;
+      // this.renameFileName = '';
+      // this.selectedFile.name = res.name;
+      // this.selectedFile.path = res.path;
+      this.notifierService.notify('success', 'File deleted');
+    }, error => {
+      this.deletingFile = false;
+      this.notifierService.notify('error', error.error.message);
+    });
   }
 
   renameSelectedFile() {
@@ -171,7 +183,7 @@ export class DirectoryComponent implements OnInit {
       this.renameFileName = '';
       this.selectedFile.name = res.name;
       this.selectedFile.path = res.path;
-      this.notifierService.notify('success', 'Folder renamed');
+      this.notifierService.notify('success', 'File renamed');
     }, error => {
       this.renamingFile = false;
       this.notifierService.notify('error', error.error.message);

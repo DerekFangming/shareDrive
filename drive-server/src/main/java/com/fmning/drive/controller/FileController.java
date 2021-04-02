@@ -4,11 +4,11 @@ import com.fmning.drive.dto.Shareable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 
 import static com.fmning.drive.FileUtil.*;
@@ -19,6 +19,7 @@ import static com.fmning.drive.FileUtil.*;
 public class FileController {
 
     private final File rootDir;
+    private static final String DELETE_FILE = "delete-file";
 
     @PutMapping("/rename-file")
     public Shareable renameFile(@RequestBody Shareable shareable) {
@@ -56,6 +57,18 @@ public class FileController {
             return toShareable(rootDir, newFile);
         } else {
             throw new IllegalArgumentException("Failed to rename file.");
+        }
+    }
+
+    @DeleteMapping("/" + DELETE_FILE + "/**")
+    public ResponseEntity<Void> deleteFile(HttpServletRequest request) {
+        File file = getInnerFolder(rootDir, getFilePath(request, DELETE_FILE));
+        if (!file.exists()) throw new IllegalArgumentException("The file you are trying to delete does not exist");
+
+        if (file.delete()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } else {
+            throw new IllegalArgumentException("Failed to DELETE file.");
         }
     }
 }

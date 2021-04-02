@@ -2,9 +2,14 @@ package com.fmning.drive;
 
 import com.fmning.drive.dto.Shareable;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.servlet.HandlerMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 
@@ -26,6 +31,15 @@ public class FileUtil {
             return attributes.creationTime().toMillis();
         } catch (IOException e) {
             return 0;
+        }
+    }
+
+    public static String getFilePath(HttpServletRequest request, String basePath) {
+        String path = new AntPathMatcher().extractPathWithinPattern((String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE), request.getRequestURI());
+        try {
+            return URLDecoder.decode(path, StandardCharsets.UTF_8.name()).replaceFirst(basePath, "");
+        } catch (Exception e){
+            throw new IllegalArgumentException("Failed to parse request");
         }
     }
 

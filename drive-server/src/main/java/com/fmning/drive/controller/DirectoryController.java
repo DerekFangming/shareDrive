@@ -6,12 +6,11 @@ import com.fmning.drive.dto.Shareable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -25,11 +24,12 @@ import static com.fmning.drive.FileUtil.*;
 public class DirectoryController {
 
     private final File rootDir;
+    private static final String DIRECTORY = "directory";
+    private static final String DIRECTORY_SIZE = "directory-size";
 
-    @GetMapping("/directory/**")
-    public List<Shareable> getFiles(HttpServletRequest request, @RequestParam(value = "dirOnly", required=false) boolean dirOnly) {
-        String path = new AntPathMatcher().extractPathWithinPattern((String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE), request.getRequestURI());
-        File directory = getInnerFolder(rootDir, path.replaceFirst("directory", ""));
+    @GetMapping("/" + DIRECTORY + "/**")
+    public List<Shareable> getFiles(HttpServletRequest request, @RequestParam(value = "dirOnly", required=false) boolean dirOnly) throws UnsupportedEncodingException {
+        File directory = getInnerFolder(rootDir, getFilePath(request, DIRECTORY));
 
         if (directory.isFile()) {
             throw new IllegalArgumentException("Requested path is not a directory.");
@@ -45,10 +45,9 @@ public class DirectoryController {
         }
     }
 
-    @GetMapping("/directory-size/**")
+    @GetMapping("/" + DIRECTORY_SIZE + "/**")
     public DirectorySize getDirectorySize(HttpServletRequest request) {
-        String path = new AntPathMatcher().extractPathWithinPattern((String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE), request.getRequestURI());
-        File directory = getInnerFolder(rootDir, path.replaceFirst("directory-size", ""));
+        File directory = getInnerFolder(rootDir, getFilePath(request, DIRECTORY_SIZE));
 
         if (directory.isFile()) {
             throw new IllegalArgumentException("Requested path is not a directory.");

@@ -176,8 +176,9 @@
             </div>
             <div *ngIf="deleteFile" class="row my-1 text-center">
               <div class="col-md-12 mb-4"><p class="card-text font-weight-bold">Are you sure about deleting this {{selectedFile.isFile ? "file" : "folder"}}?</p></div>
-              <div class="col-md-6"><button type="button" class="btn btn-danger btn-block px-0" (click)="deleteSelectedFile()">Delete</button></div>
-              <div class="col-md-6"><button type="button" class="btn btn-secondary btn-block px-0" (click)="deleteFile = false">Cancel</button></div>
+              <div *ngIf="!deletingFile" class="col-md-6"><button type="button" class="btn btn-danger btn-block px-0" (click)="deleteSelectedFile()">Delete</button></div>
+              <div *ngIf="deletingFile" class="col-md-6"><button class="btn btn-danger btn-block disabled" type="button"><span class="fa fa-refresh fa-spin fa-1x fa-fw"></span></button></div>
+              <div class="col-md-6"><button type="button" class="btn btn-secondary btn-block px-0" [disabled]="deletingFile" (click)="deleteFile = false">Cancel</button></div>
             </div>
           </div>
         </div>
