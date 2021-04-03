@@ -49,7 +49,7 @@ public class FileController {
                 .replace("%5B", "[").replace("%5D", "]");
 
         long length = file.length();
-        Range full = Range.builder().start(0).end(length - 1).total(length).build();
+        Range full = Range.builder().start(0).end(length - 1).length(length).total(length).build();
         List<Range> ranges = new ArrayList<>();
 
         String range = request.getHeader(HttpHeaders.RANGE);
@@ -77,7 +77,7 @@ public class FileController {
                     return;
                 }
 
-                ranges.add(Range.builder().start(start).end(end).total(length).build());
+                ranges.add(Range.builder().start(start).end(end).length(end - start + 1).total(length).build());
             }
         }
 
