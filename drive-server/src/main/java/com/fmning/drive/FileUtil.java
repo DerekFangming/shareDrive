@@ -43,11 +43,16 @@ public class FileUtil {
         }
     }
 
-    public static boolean isNameValid(String name) {
+    public static long sublong(String value, int beginIndex, int endIndex) {
+        String substring = value.substring(beginIndex, endIndex);
+        return (substring.length() > 0) ? Long.parseLong(substring) : -1;
+    }
+
+    public static boolean isNameInvalid(String name) {
         if (StringUtils.isBlank(name)) {
-            return false;
+            return true;
         } else {
-            return !name.matches(".*[/\n\r\t\0\f`?*<>|\":].*");
+            return name.matches(".*[/\n\r\t\0\f`?*<>|\":].*");
         }
     }
 

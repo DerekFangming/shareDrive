@@ -67,7 +67,7 @@ public class DirectoryController {
     public Shareable createDirectory(@RequestBody Shareable shareable) {
         if (shareable == null || shareable.getPath() == null ) {
             throw new IllegalArgumentException("The request is invalid");
-        } else if (!isNameValid(shareable.getName())) {
+        } else if (isNameInvalid(shareable.getName())) {
             throw new IllegalArgumentException("File name cannot contain characters like / ` ? * \\ < > | \" :");
         }
 

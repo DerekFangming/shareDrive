@@ -156,7 +156,10 @@ export class DirectoryComponent implements OnInit {
   }
 
   downloadSelectedFile() {
-    console.log(1);
+    if (this.selectedFile.isFile) {
+      console.log(window.location.href);
+      window.open(environment.urlPrefix + environment.contextPath + "api/download-file/" + this.selectedFile.path);
+    }
   }
 
   deleteSelectedFile() {
