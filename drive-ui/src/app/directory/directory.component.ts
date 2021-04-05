@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Shareable } from '../model/shareable';
@@ -8,6 +8,7 @@ import { DirectorySize } from '../model/directory-size';
 import { Router } from '@angular/router';
 import { PlatformLocation } from '@angular/common';
 import { NotifierService } from 'angular-notifier';
+import { NgbModalRef, NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-directory',
@@ -18,6 +19,7 @@ export class DirectoryComponent implements OnInit {
 
   directory = '';
   shareables: Shareable[] = [];
+  moveDirectories: Shareable[] = [];
   capacity: Capacity;
 
   sortColumn = '';
@@ -33,14 +35,19 @@ export class DirectoryComponent implements OnInit {
   loadingDirectory = false;
   loadingCapacity = false;
   loadingDirectorySize = false;
+  loadingMoveDirectory = false;
 
   newFolderName = '';
   renameFileName = '';
+  moveFileDirectory = '';
   loadDirectoryError = '';
   creatingFolderError = '';
 
+  modalRef: NgbModalRef;
+  @ViewChild('moveFileModal', { static: true}) moveFileModal: TemplateRef<any>;
+
   constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation,
-    private notifierService: NotifierService) { }
+    private notifierService: NotifierService, private modalService: NgbModal) { }
 
   ngOnInit() {
     this.loadDirectory(this.getDirectoryFromUrl());
@@ -170,10 +177,20 @@ export class DirectoryComponent implements OnInit {
       // this.renameFileName = '';
       // this.selectedFile.name = res.name;
       // this.selectedFile.path = res.path;
+      // TODO: REMOVE============================================
       this.notifierService.notify('success', 'File deleted');
     }, error => {
       this.deletingFile = false;
       this.notifierService.notify('error', error.error.message);
+    });
+  }
+
+  moveSelectedFile() {
+    this.modalRef = this.modalService.open(this.moveFileModal, {
+      backdrop : 'static',
+      keyboard : false,
+      centered: true,
+      size: 'lg'
     });
   }
 
@@ -190,6 +207,26 @@ export class DirectoryComponent implements OnInit {
     }, error => {
       this.renamingFile = false;
       this.notifierService.notify('error', error.error.message);
+    });
+  }
+
+  getParentDirectory(directory: string) {
+    let dirs = directory == '' ? [] : directory.split('/');
+    if (dirs.length > 0) dirs.pop();
+
+    if (dirs.length == 0) return ''
+    else return dirs.join('/')
+  }
+
+  loadMoveDirectory(directory: string) {
+    this.moveFileDirectory = directory;
+    this.loadingMoveDirectory = true;
+    this.http.get<Shareable[]>(environment.urlPrefix + 'api/directory/' + this.directory).subscribe(res => {
+      this.loadingMoveDirectory = false;
+      this.moveDirectories = res.sort((a, b) => a.name.localeCompare(b.name));
+    }, error => {
+      this.loadingMoveDirectory = false;
+      console.log(error.error);
     });
   }
 

@@ -8,6 +8,7 @@ import { DirectoryComponent } from './directory/directory.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NotifierModule } from 'angular-notifier';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { NotifierModule } from 'angular-notifier';
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
+    NgbModule,
     NotifierModule.withConfig({
       behaviour: {
         autoHide: 10000
