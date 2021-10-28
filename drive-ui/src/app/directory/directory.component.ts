@@ -25,6 +25,7 @@ export class DirectoryComponent implements OnInit {
   sortColumn = '';
   sortAsc = true;
   selectedFile: Shareable;
+  selectedMoveDirectory: Shareable;
   
   createFolder = false;
   creatingFolder = false;
@@ -32,6 +33,7 @@ export class DirectoryComponent implements OnInit {
   renamingFile = false;
   deleteFile = false;
   deletingFile = false;
+  movingFile = false;
   loadingDirectory = false;
   loadingCapacity = false;
   loadingDirectorySize = false;
@@ -174,10 +176,11 @@ export class DirectoryComponent implements OnInit {
     this.http.delete(environment.urlPrefix + 'api/delete-file/' + this.selectedFile.path).subscribe(res => {
       this.deletingFile = false;
       this.deleteFile = false;
-      // this.renameFileName = '';
-      // this.selectedFile.name = res.name;
-      // this.selectedFile.path = res.path;
-      // TODO: REMOVE============================================
+      var index = this.shareables.indexOf(this.selectedFile);
+      if (index !== -1) {
+        this.shareables.splice(index, 1);
+      }
+      this.selectedFile = null;
       this.notifierService.notify('success', 'File deleted');
     }, error => {
       this.deletingFile = false;
@@ -185,7 +188,10 @@ export class DirectoryComponent implements OnInit {
     });
   }
 
-  moveSelectedFile() {
+  openMoveFileModel() {
+    this.moveFileDirectory = '';
+    this.moveDirectories = [];
+    this.loadMoveDirectory('');
     this.modalRef = this.modalService.open(this.moveFileModal, {
       backdrop : 'static',
       keyboard : false,
@@ -210,6 +216,26 @@ export class DirectoryComponent implements OnInit {
     });
   }
 
+  moveSelectedFile() {
+    if (this.selectedMoveDirectory == null) {
+      this.notifierService.notify('error', 'Please select a folder to move.')
+      return
+    }
+    this.movingFile = true
+    let moveFile = {path: this.selectedFile.path, targetPath: this.selectedMoveDirectory.path}
+    this.http.post(environment.urlPrefix + 'api/move-file', moveFile).subscribe(res => {
+      this.movingFile = false
+      this.modalRef.close();
+      var index = this.shareables.indexOf(this.selectedFile);
+      if (index !== -1) {
+        this.shareables.splice(index, 1);
+      }
+    }, error => {
+      this.movingFile = false
+      this.notifierService.notify('error', error.error.message);
+    });
+  }
+
   getParentDirectory(directory: string) {
     let dirs = directory == '' ? [] : directory.split('/');
     if (dirs.length > 0) dirs.pop();
@@ -221,12 +247,12 @@ export class DirectoryComponent implements OnInit {
   loadMoveDirectory(directory: string) {
     this.moveFileDirectory = directory;
     this.loadingMoveDirectory = true;
-    this.http.get<Shareable[]>(environment.urlPrefix + 'api/directory/' + this.directory).subscribe(res => {
+    this.http.get<Shareable[]>(environment.urlPrefix + 'api/directory/' + directory + '?dirOnly=true').subscribe(res => {
       this.loadingMoveDirectory = false;
       this.moveDirectories = res.sort((a, b) => a.name.localeCompare(b.name));
     }, error => {
       this.loadingMoveDirectory = false;
-      console.log(error.error);
+      this.notifierService.notify('error', error.error.message);
     });
   }
 

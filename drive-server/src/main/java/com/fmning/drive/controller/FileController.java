@@ -1,6 +1,7 @@
 package com.fmning.drive.controller;
 
 import com.fmning.drive.FileUtil;
+import com.fmning.drive.dto.MoveFile;
 import com.fmning.drive.dto.Shareable;
 import lombok.Builder;
 import lombok.Data;
@@ -146,6 +147,37 @@ public class FileController {
             return toShareable(rootDir, newFile);
         } else {
             throw new IllegalArgumentException("Failed to rename file.");
+        }
+    }
+
+    @PostMapping("/move-file")
+    public ResponseEntity<Void> moveFile(@RequestBody MoveFile moveFile) {
+        if (moveFile.getPath() == null) {
+            throw new IllegalArgumentException("Please provide the file.");
+        } else if (moveFile.getTargetPath() == null) {
+            throw new IllegalArgumentException("Please provide the target location.");
+        }
+
+        File file = getInnerFolder(rootDir, moveFile.getPath());
+        File targetFolder = getInnerFolder(rootDir, moveFile.getTargetPath());
+
+        if (!file.exists()) {
+            throw new IllegalArgumentException("Provided file does not exist.");
+        } else if (!targetFolder.exists()) {
+            throw new IllegalArgumentException("Provided target location does not exist.");
+        } else if (!targetFolder.isDirectory()) {
+            throw new IllegalArgumentException("Provided target location is not a folder.");
+        }
+
+        File targetFile = getInnerFolder(targetFolder, file.getName());
+        if (targetFile.exists()) {
+            throw new IllegalArgumentException("Target location already has a file called " + file.getName());
+        }
+
+        if (file.renameTo(targetFile)) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } else {
+            throw new IllegalArgumentException("Failed to move file.");
         }
     }
 

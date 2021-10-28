@@ -17,7 +17,7 @@ import static com.fmning.drive.FileUtil.getInnerFolder;
 public class DriveConfiguration {
 
     public static DriveStatus driveStatus = DriveStatus.UNKNOWN;
-    private static final String INTERNAL_FOLDER_NAME = ".sd_internal";
+    private static final String INTERNAL_FOLDER_NAME = ".dr_internal";
 
     @Bean
     public File rootDir(DriveProperties driveProperties) {

@@ -154,7 +154,7 @@
                 <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="renameFile = true">Rename</button>
               </div>
               <div class="col-6 col-xl-3 px-1 py-1">
-                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="moveSelectedFile()">Move</button>
+                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="openMoveFileModel()">Move</button>
               </div>
               <div class="col-6 col-xl-3 px-1 py-1">
                 <button type="button" class="btn btn-outline-danger btn-block px-0" (click)="deleteFile = true">Delete</button>
@@ -189,47 +189,44 @@
   </div>
 </div>
 
-<!-- <div class="modal fade" id="moveFileModal" tabIndex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
-  <div class="modal-dialog modal-lg" role="document"> -->
-    <ng-template #moveFileModal let-modal>
-      <div class="modal-header">
-        <h5 class="modal-title" id="moveFileModalLabel">Select a folder to move to</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <table class="table" [ngClass]="(!loadingMoveDirectory) ? 'table-hover' : ''">
-          <thead>
-            <tr>
-              <th>Folder name</th>
-            </tr>
-          </thead>
-          <tbody *ngIf="loadingMoveDirectory">
-            <tr>
-              <td colSpan="3">
-                <div class="row">
-                  <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
-                  <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-          <tbody *ngIf="!loadingMoveDirectory">
-            <tr *ngIf="moveFileDirectory != ''" (dblclick)="moveFileDirectory()">
-              <td><img src="{{utils.getImage('return.png')}}" class='mr-2' width='30' height='30'>Return to parent directory</td>
-            </tr>
-            <tr *ngFor="let shareable of moveDirectories;">
-              <td><img src="{{utils.getImage('folder.png')}}" class='mr-2' width='30' height='30'>{{shareable.name}}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" data-dismiss="modal" >Move</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-      </div>
-    </ng-template>
-  <!-- </div>
-</div> -->
+<ng-template #moveFileModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="moveFileModalLabel">Select a folder to move to</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <table class="table" [ngClass]="(!loadingMoveDirectory) ? 'table-hover' : ''">
+      <thead>
+        <tr>
+          <th>Folder name</th>
+        </tr>
+      </thead>
+      <tbody *ngIf="loadingMoveDirectory">
+        <tr>
+          <td colSpan="3">
+            <div class="row">
+              <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
+              <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      <tbody *ngIf="!loadingMoveDirectory">
+        <tr class="pointer" *ngIf="moveFileDirectory != ''" (dblclick)="loadMoveDirectory(getParentDirectory(moveFileDirectory))">
+          <td><img src="{{utils.getImage('return.png')}}" class='mr-2' width='30' height='30'>Return to parent directory</td>
+        </tr>
+        <tr class="pointer" *ngFor="let shareable of moveDirectories;" (click)="selectedMoveDirectory = shareable"
+          (dblclick)="loadMoveDirectory(shareable.path)" [ngClass]="shareable == selectedMoveDirectory ? 'table-primary' : ''">
+          <td><img src="{{utils.getImage('folder.png')}}" class='mr-2' width='30' height='30'>{{shareable.name}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success" data-dismiss="modal" (click)="moveSelectedFile()">Move</button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Cancel</button>
+  </div>
+</ng-template>
