@@ -1,3 +1,15 @@
 .pointer {
     cursor: pointer;
 }
+
+.dotted-border {
+	border-style: dashed;
+}
+
+.file-drop-height {
+	height: 300px;
+}
+
+.file-drop-index {
+	z-index: -1;
+}

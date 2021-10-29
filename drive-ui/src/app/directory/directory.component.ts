@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Shareable } from '../model/shareable';
@@ -34,6 +34,8 @@ export class DirectoryComponent implements OnInit {
   deleteFile = false;
   deletingFile = false;
   movingFile = false;
+  uploadingFile = false;
+  dragOver = false;
   loadingDirectory = false;
   loadingCapacity = false;
   loadingDirectorySize = false;
@@ -45,11 +47,14 @@ export class DirectoryComponent implements OnInit {
   loadDirectoryError = '';
   creatingFolderError = '';
 
+  plusImage = environment.production ? environment.contextPath + '/assets/plus.png' : '/assets/plus.png';
+
   modalRef: NgbModalRef;
   @ViewChild('moveFileModal', { static: true}) moveFileModal: TemplateRef<any>;
+  @ViewChild('uploadFileModal', { static: true}) uploadFileModal: TemplateRef<any>;
 
   constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation,
-    private notifierService: NotifierService, private modalService: NgbModal) { }
+    private notifierService: NotifierService, private modalService: NgbModal, private elementRef: ElementRef) { }
 
   ngOnInit() {
     this.loadDirectory(this.getDirectoryFromUrl());
@@ -236,6 +241,18 @@ export class DirectoryComponent implements OnInit {
     });
   }
 
+  openUploadFileModel() {
+    // this.moveFileDirectory = '';
+    // this.moveDirectories = [];
+    // this.loadMoveDirectory('');
+    this.modalRef = this.modalService.open(this.uploadFileModal, {
+      backdrop : 'static',
+      keyboard : false,
+      centered: true,
+      size: 'lg'
+    });
+  }
+
   getParentDirectory(directory: string) {
     let dirs = directory == '' ? [] : directory.split('/');
     if (dirs.length > 0) dirs.pop();
@@ -254,6 +271,35 @@ export class DirectoryComponent implements OnInit {
       this.loadingMoveDirectory = false;
       this.notifierService.notify('error', error.error.message);
     });
+  }
+
+  onDragOver(event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  onDragEnter(event) {
+    this.dragOver = true;
+    event.preventDefault();
+  }
+
+  onDragLeave(event) {
+    this.dragOver = false;
+    event.preventDefault();
+  }
+
+  onImagesDropped(event) {
+    this.dragOver = false;
+    event.preventDefault();
+    this.loadImages(event.dataTransfer.files);
+  }
+
+  onImagesSelected(event) {
+    event.preventDefault();
+    this.loadImages(event.target.files);
+  }
+
+  loadImages(files) {
   }
 
 }

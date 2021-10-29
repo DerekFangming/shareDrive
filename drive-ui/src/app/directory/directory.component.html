@@ -27,7 +27,7 @@
           <h2 class="mb-4 ml-2"><small>Files</small></h2>
         </div>
         <div *ngIf="!createFolder" class="col-12 col-md-9">
-          <button class="btn btn-primary float-right" type="button" ><span class="fa fa-plus mr-2"></span>Upload</button>
+          <button class="btn btn-primary float-right" type="button" (click)="openUploadFileModel()"><span class="fa fa-plus mr-2"></span>Upload</button>
           <button class="btn btn-primary float-right mr-2" type="button" (click)="createFolder = true"><span class="fa fa-folder-o mr-2"></span>New folder</button>
         </div>
         <div *ngIf="createFolder" class="col-12 col-md-9">
@@ -227,6 +227,35 @@
   
   <div class="modal-footer">
     <button type="button" class="btn btn-success" data-dismiss="modal" (click)="moveSelectedFile()">Move</button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #uploadFileModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="moveFileModalLabel">Upload files</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="text-center file-drop-height" [ngClass]="{'dotted-border': dragOver}" (drop)="onImagesDropped($event)" (dragover)="onDragOver($event)"
+      (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)" (click)="fileSelect.click()">
+
+      <div *ngIf="!dragOver" class="file-drop-index">
+        <img src="{{plusImage}}" style="margin-top: 70px;" height="100px" width="100px">
+        <p class="display-4" style="font-size: 2rem;">Click here or drop files here.</p>
+      </div>
+      <div *ngIf="dragOver" class="file-drop-index">
+        <p class="display-4" style="font-size: 2rem; margin-top: 130px;">Drop files within the box.</p>
+      </div>
+
+      <input type="file" class="d-none" multiple="multiple" #fileSelect>
+    </div>
+  </div>
+  
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success" data-dismiss="modal" (click)="moveSelectedFile()">Upload</button>
     <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Cancel</button>
   </div>
 </ng-template>
