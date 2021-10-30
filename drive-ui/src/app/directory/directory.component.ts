@@ -21,6 +21,7 @@ export class DirectoryComponent implements OnInit {
   shareables: Shareable[] = [];
   moveDirectories: Shareable[] = [];
   capacity: Capacity;
+  uploadFiles = [];
 
   sortColumn = '';
   sortAsc = true;
@@ -242,9 +243,7 @@ export class DirectoryComponent implements OnInit {
   }
 
   openUploadFileModel() {
-    // this.moveFileDirectory = '';
-    // this.moveDirectories = [];
-    // this.loadMoveDirectory('');
+    this.uploadFiles = [];
     this.modalRef = this.modalService.open(this.uploadFileModal, {
       backdrop : 'static',
       keyboard : false,
@@ -288,18 +287,49 @@ export class DirectoryComponent implements OnInit {
     event.preventDefault();
   }
 
-  onImagesDropped(event) {
+  onFilesDropped(event) {
     this.dragOver = false;
     event.preventDefault();
-    this.loadImages(event.dataTransfer.files);
+    this.loadFiles(event.dataTransfer.files);
   }
 
-  onImagesSelected(event) {
+  onFilesSelected(event) {
     event.preventDefault();
-    this.loadImages(event.target.files);
+    this.loadFiles(event.target.files);
   }
 
-  loadImages(files) {
+  loadFiles(files) {
+    for (let file of files) {
+      if (file.type == '') continue;
+
+      if (this.uploadFiles.some( f => f.name == file.name)) {
+        this.notifierService.notify('error',  `File with the same name has been selected: ${file.name}`);
+        continue;
+      }
+      this.uploadFiles.push(file);
+
+      let fileName = file.name.toLowerCase();
+      // console.log(fileName);
+      // console.log(file);
+      // console.log(file.type);
+      // if (fileName.endsWith('jpg') || fileName.endsWith('jpeg') || fileName.endsWith('png') || fileName.endsWith('gif')) {
+      //   var reader = new FileReader();
+      //   reader.onload = (event) =>{
+      //     var fileReader = event.target as FileReader;
+    
+      //     let image = new Image({status: ImageStatus.New, data: fileReader.result.toString()});
+      //     this.imageList.push(image);
+      //   };
+      //   reader.readAsDataURL(file);
+      // }
+    }
+  }
+
+  removeUploadFile(file) {
+    const index = this.uploadFiles.indexOf(file);
+    if (index > -1) {
+      this.uploadFiles.splice(index, 1);
+    }
   }
 
 }
