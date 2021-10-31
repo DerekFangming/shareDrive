@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Shareable } from '../model/shareable';
 import { UtilsService } from '../utils.service';
@@ -21,7 +21,7 @@ export class DirectoryComponent implements OnInit {
   shareables: Shareable[] = [];
   moveDirectories: Shareable[] = [];
   capacity: Capacity;
-  uploadFiles = [];
+  uploadFiles: File[] = [];
 
   sortColumn = '';
   sortAsc = true;
@@ -84,7 +84,6 @@ export class DirectoryComponent implements OnInit {
     this.http.get<Shareable[]>(environment.urlPrefix + 'api/directory/' + this.directory).subscribe(res => {
       this.loadingDirectory = false;
       this.shareables = res.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
-      // console.log(this.shareables);
     }, error => {
       this.loadingDirectory = false;
       console.log(error.error);
@@ -307,21 +306,6 @@ export class DirectoryComponent implements OnInit {
         continue;
       }
       this.uploadFiles.push(file);
-
-      let fileName = file.name.toLowerCase();
-      // console.log(fileName);
-      // console.log(file);
-      // console.log(file.type);
-      // if (fileName.endsWith('jpg') || fileName.endsWith('jpeg') || fileName.endsWith('png') || fileName.endsWith('gif')) {
-      //   var reader = new FileReader();
-      //   reader.onload = (event) =>{
-      //     var fileReader = event.target as FileReader;
-    
-      //     let image = new Image({status: ImageStatus.New, data: fileReader.result.toString()});
-      //     this.imageList.push(image);
-      //   };
-      //   reader.readAsDataURL(file);
-      // }
     }
   }
 
@@ -330,6 +314,64 @@ export class DirectoryComponent implements OnInit {
     if (index > -1) {
       this.uploadFiles.splice(index, 1);
     }
+  }
+
+  uploadSelectedFiles() {
+    // axios.post(window.location.href + 'api/upload_file', formData, {
+		// 	headers: {
+		// 	  'Content-Type': 'multipart/form-data',
+		// 	  'Authorization': getAccessToken()
+		// 	},
+		// 	onUploadProgress: ProgressEvent => {
+		// 		let percent = keepTwoDigits(ProgressEvent.loaded / ProgressEvent.total * 100)
+		// 		this.setState({ratio: percent })
+		// 	}
+		// })
+
+    console.log(this.directory)
+
+    console.log(this.uploadFiles)
+
+    let body = new FormData();
+    const formData: FormData = new FormData();
+    for (let f of this.uploadFiles) {
+      body.append('files', f);
+      console.log(1111);
+    }
+
+
+    this.http.post(environment.urlPrefix + 'api/upload_file/' + this.directory, body, {
+      reportProgress: true,
+      observe: 'events'
+    }).subscribe(res => {
+      if (res.type === HttpEventType.Response) {
+        console.log('Upload complete');
+      }
+      if (res.type === HttpEventType.UploadProgress) {
+          const percentDone = Math.round(100 * res.loaded / res.total);
+          console.log('Progress ' + percentDone + '%');
+      } 
+    }, error => {
+      // this.loadingCapacity = false;
+      // console.log(error.error);
+      this.notifierService.notify('error', error.error.message);
+      // console.log(error);
+    });
+
+
+  //   this.httpClient.post(url, formData, {
+  //     headers,
+  //     reportProgress: true,
+  //     observe: 'events'
+  // }).subscribe(resp => {
+  //     if (resp.type === HttpEventType.Response) {
+  //         console.log('Upload complete');
+  //     }
+  //     if (resp.type === HttpEventType.UploadProgress) {
+  //         const percentDone = Math.round(100 * resp.loaded / resp.total);
+  //         console.log('Progress ' + percentDone + '%');
+  //     } 
+  // });
   }
 
 }

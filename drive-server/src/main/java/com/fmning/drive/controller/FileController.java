@@ -3,6 +3,7 @@ package com.fmning.drive.controller;
 import com.fmning.drive.FileUtil;
 import com.fmning.drive.dto.MoveFile;
 import com.fmning.drive.dto.Shareable;
+import com.fmning.drive.dto.UploadResult;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,10 +34,11 @@ public class FileController {
     private final File rootDir;
     private static final String DOWNLOAD_FILE = "download-file";
     private static final String DELETE_FILE = "delete-file";
+    private static final String UPLOAD_FILE = "upload_file";
     private static final int DEFAULT_BUFFER_BYTE_SIZE = 20480;
 
     @GetMapping("/" + DOWNLOAD_FILE + "/**")
-    public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void downloadFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         File file = getInnerFolder(rootDir, getFilePath(request, DOWNLOAD_FILE));
 
         if (file.isDirectory()) {
@@ -109,6 +112,40 @@ public class FileController {
                 }
             }
         }
+    }
+
+    @PostMapping("/" + UPLOAD_FILE + "/**")
+    public UploadResult uploadFiles(@RequestParam(value = "files", required=false) List<MultipartFile> files, HttpServletRequest request) {
+
+        File folder = getInnerFolder(rootDir, getFilePath(request, UPLOAD_FILE));
+        if (!folder.exists()) {
+            throw new IllegalArgumentException("The folder does not exist");
+        } else if (!folder.isDirectory()) {
+            throw new IllegalArgumentException("Invalid upload path.");
+        }
+
+        String error = "";
+        List<Shareable> shareables = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            if (file.getOriginalFilename() == null) continue;
+            File targetFile = getInnerFolder(folder, file.getOriginalFilename());
+            if (targetFile.exists()) {
+                error += "File named " + file.getOriginalFilename() + " failed to upload because it already exists in the directory;";
+            } else {
+                try {
+                    file.transferTo(targetFile);
+                    shareables.add(toShareable(rootDir, targetFile));
+                } catch (Exception e) {
+                    error += "File named " + file.getOriginalFilename() + " failed to be uploaded, " + e.getMessage() + ";";
+                }
+            }
+        }
+
+        return UploadResult.builder()
+                .error(error)
+                .files(shareables)
+                .build();
     }
 
     @PutMapping("/rename-file")
