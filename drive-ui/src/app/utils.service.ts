@@ -24,6 +24,14 @@ export class UtilsService {
     return secs == 0 ? ' - ' : (new Date(secs)).toLocaleString();
   }
 
+  getMobileCreatedTimeFromSeconds(secs: number) {
+    return secs == 0 ? ' - ' : (new Date(secs)).toLocaleString('en', {
+      year: "2-digit",
+      month: "2-digit",
+      day: "numeric"
+    });
+  }
+
   getReadableNumber = (num) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }

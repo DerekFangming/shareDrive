@@ -51,8 +51,8 @@
               <i *ngIf="sortColumn == 'name'" class="fa float-right pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
               <i *ngIf="sortColumn == ''" class="fa fa-minus float-right pt-1"></i>
             </th>
-            <th class="pointer" style="width:20%" (click)="sortShareables('mod')">Last Modified <i *ngIf="sortColumn == 'mod'" class="fa float-right pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i></th>
-            <th class="pointer" style="width:10%" (click)="sortShareables('size')">Size <i *ngIf="sortColumn == 'size'" class="fa float-right pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i></th>
+            <th *ngIf="!isMobile" class="pointer" style="width:20%" (click)="sortShareables('mod')">Last Modified <i *ngIf="sortColumn == 'mod'" class="fa float-right pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i></th>
+            <th *ngIf="!isMobile" class="pointer" style="width:10%" (click)="sortShareables('size')">Size <i *ngIf="sortColumn == 'size'" class="fa float-right pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i></th>
           </tr>
         </thead>
         <tbody *ngIf="loadingDirectory">
@@ -79,9 +79,32 @@
         <tbody *ngIf="!loadingDirectory && loadDirectoryError == ''">
           <tr class="pointer" *ngFor="let shareable of shareables;" (click)="selectFile(shareable)" (dblclick)="loadFolderContent(shareable)"
           [ngClass]="shareable == selectedFile ? 'table-primary' : ''">
-            <td class="fix-text"><img src="{{shareable.icon}}" class='mr-2' width='30' height='30'/> {{shareable.name}}</td>
-            <td>{{utils.getCreatedTimeFromSeconds(shareable.lastModified)}}</td>
-            <td>{{shareable.isFile ? utils.getFileSize(shareable.size) : '-'}}</td>
+            <td class="fix-text"><img src="{{shareable.icon}}" class='mr-2' width='30' height='30'/> <span>{{shareable.name}}</span>
+              <div *ngIf="isMobile && selectedFile == shareable">					
+                <div class="row mt-3">
+                  <div class="col">
+                    <p class="font-weight-bold mobile-text">Type:</p>
+                    <p class="font-italic mobile-text ml-4 pl-2">{{ shareable.type }}</p>
+                  </div>
+                  <div class="col">
+                    <p class="font-weight-bold mobile-text">Size:</p>
+                    <p class="font-italic mobile-text ml-4 pl-2">{{ utils.getFileSize(shareable.size) }}</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <p class="font-weight-bold mobile-text">Created:</p>
+                    <p class="font-italic mobile-text">{{utils.getMobileCreatedTimeFromSeconds(selectedFile.created)}}</p>
+                  </div>
+                  <div class="col">
+                    <p class="font-weight-bold mobile-text">Modified:</p>
+                    <p class="font-italic mobile-text">{{utils.getMobileCreatedTimeFromSeconds(selectedFile.lastModified)}}</p>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td *ngIf="!isMobile">{{utils.getCreatedTimeFromSeconds(shareable.lastModified)}}</td>
+            <td *ngIf="!isMobile">{{shareable.isFile ? utils.getFileSize(shareable.size) : '-'}}</td>
           </tr>
         </tbody>
       </table>
@@ -138,12 +161,12 @@
               </div>
             </div>
             <div class="row my-1">
-              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Modified</p></div>
-              <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.lastModified)}}</p></div>
-            </div>
-            <div class="row my-1">
               <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Created</p></div>
               <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.created)}}</p></div>
+            </div>
+            <div class="row my-1">
+              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Modified</p></div>
+              <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.lastModified)}}</p></div>
             </div>
             <hr>
             <div *ngIf="!renameFile && !deleteFile" class="row my-1 text-center">

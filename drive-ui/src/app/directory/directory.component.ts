@@ -32,6 +32,7 @@ export class DirectoryComponent implements OnInit {
   uploadRatio = 0;
   uploadRemaining = '';
   
+  isMobile = false;
   createFolder = false;
   creatingFolder = false;
   renameFile = false;
@@ -62,6 +63,7 @@ export class DirectoryComponent implements OnInit {
     private notifierService: NotifierService, private modalService: NgbModal, private elementRef: ElementRef) { }
 
   ngOnInit() {
+    this.isMobile = window.innerWidth <= 768;
     this.loadDirectory(this.getDirectoryFromUrl());
     this.loadCapacity();
 
