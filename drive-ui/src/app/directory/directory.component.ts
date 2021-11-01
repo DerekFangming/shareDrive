@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { HttpClient, HttpEventType, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpEventType } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Shareable } from '../model/shareable';
 import { UtilsService } from '../utils.service';
@@ -8,7 +8,7 @@ import { DirectorySize } from '../model/directory-size';
 import { Router } from '@angular/router';
 import { PlatformLocation } from '@angular/common';
 import { NotifierService } from 'angular-notifier';
-import { NgbModalRef, NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UploadResult } from '../model/upload-result';
 
 @Component({
@@ -28,6 +28,7 @@ export class DirectoryComponent implements OnInit {
   sortAsc = true;
   selectedFile: Shareable;
   selectedMoveDirectory: Shareable;
+  uploadFilesSize = 0;
   uploadRatio = 0;
   uploadRemaining = '';
   
@@ -190,6 +191,7 @@ export class DirectoryComponent implements OnInit {
       }
       this.selectedFile = null;
       this.notifierService.notify('success', 'File deleted');
+      this.loadCapacity();
     }, error => {
       this.deletingFile = false;
       this.notifierService.notify('error', error.error.message);
@@ -247,6 +249,7 @@ export class DirectoryComponent implements OnInit {
   openUploadFileModel() {
     this.uploadFiles = [];
     this.uploadRatio = 0;
+    this.uploadFilesSize = 0;
     this.modalRef = this.modalService.open(this.uploadFileModal, {
       backdrop : 'static',
       keyboard : false,
@@ -302,12 +305,35 @@ export class DirectoryComponent implements OnInit {
 
   loadFiles(files) {
     for (let file of files) {
-      if (file.type == '') continue;
+      // TODO: Check for folders?
 
-      if (this.uploadFiles.some( f => f.name == file.name)) {
+      if (file.size == 0) {
+        this.notifierService.notify('error', `Cannot upload empty file: ${file.name}`);
+        continue;
+      }
+      // console.log(file.size);
+
+      // const reader = new FileReader()
+      // reader.onload = () => {
+      //   if (reader.error && reader.error.name === 'NotFoundError') {
+      //     console.log('Is folder' + reader.error.name)
+      //   } else {
+      //     console.log('Is file')
+      //   }
+      // }
+      // reader.readAsBinaryString(file)
+
+      if (this.uploadFiles.some(f => f.name == file.name)) {
         this.notifierService.notify('error',  `File with the same name has been selected: ${file.name}`);
         continue;
       }
+
+      if (this.uploadFilesSize + file.size > 4294967296) {
+        this.notifierService.notify('error',  `Cannot upload more than 4GB of files at a time.`);
+        return
+      }
+
+      this.uploadFilesSize += file.size;
       this.uploadFiles.push(file);
     }
   }
@@ -316,6 +342,12 @@ export class DirectoryComponent implements OnInit {
     const index = this.uploadFiles.indexOf(file);
     if (index > -1) {
       this.uploadFiles.splice(index, 1);
+
+      if (this.uploadFilesSize - file.size <= 0) {
+        this.uploadFilesSize = 0;
+      } else {
+        this.uploadFilesSize -= file.size;
+      }
     }
   }
 
@@ -361,6 +393,8 @@ export class DirectoryComponent implements OnInit {
         if (res.body.error != '') {
           this.notifierService.notify('warning', res.body.error);
         }
+
+        this.loadCapacity();
       }
       if (res.type === HttpEventType.UploadProgress) {
           this.uploadRatio = Math.round(100 * res.loaded / res.total);
