@@ -250,7 +250,7 @@
         <p class="display-4" style="font-size: 2rem; margin-top: 130px;">Drop files within the box.</p>
       </div>
 
-      <input type="file" class="d-none" multiple="multiple" #fileSelect (change)="onFilesSelected($event)">
+      <input type="file" class="d-none" multiple="multiple" #fileSelect (change)="onFilesSelected($event)" [disabled]="uploadingFile">
     </div>
   </div>
 
@@ -267,9 +267,21 @@
       </tbody>
     </table>
   </div>
+
+  <div class="modal-body" *ngIf="uploadingFile">
+    <div class="row">
+      <div class="col">
+        <p><span class="fa fa-refresh fa-spin fa-fw"></span> {{ 'Uploading ... Remaining time: ' + uploadRemaining }}</p>
+      </div>
+    </div>
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" [ngStyle]="{'width': uploadRatio + '%'}"
+      [attr.aria-valuenow]="uploadRatio" aria-valuemin="0" aria-valuemax="100">{{ uploadRatio + ' %'}}</div>
+    </div>
+  </div>
   
   <div class="modal-footer">
-    <button type="button" class="btn btn-success" data-dismiss="modal" (click)="uploadSelectedFiles()">Upload</button>
-    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Cancel</button>
+    <button type="button" class="btn btn-success" data-dismiss="modal" (click)="uploadSelectedFiles()" [disabled]="uploadingFile">Upload</button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')" [disabled]="uploadingFile">Cancel</button>
   </div>
 </ng-template>

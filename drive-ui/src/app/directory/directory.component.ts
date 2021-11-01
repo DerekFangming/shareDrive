@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { PlatformLocation } from '@angular/common';
 import { NotifierService } from 'angular-notifier';
 import { NgbModalRef, NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { UploadResult } from '../model/upload-result';
 
 @Component({
   selector: 'app-directory',
@@ -27,6 +28,8 @@ export class DirectoryComponent implements OnInit {
   sortAsc = true;
   selectedFile: Shareable;
   selectedMoveDirectory: Shareable;
+  uploadRatio = 0;
+  uploadRemaining = '';
   
   createFolder = false;
   creatingFolder = false;
@@ -243,10 +246,10 @@ export class DirectoryComponent implements OnInit {
 
   openUploadFileModel() {
     this.uploadFiles = [];
+    this.uploadRatio = 0;
     this.modalRef = this.modalService.open(this.uploadFileModal, {
       backdrop : 'static',
       keyboard : false,
-      centered: true,
       size: 'lg'
     });
   }
@@ -317,61 +320,55 @@ export class DirectoryComponent implements OnInit {
   }
 
   uploadSelectedFiles() {
-    // axios.post(window.location.href + 'api/upload_file', formData, {
-		// 	headers: {
-		// 	  'Content-Type': 'multipart/form-data',
-		// 	  'Authorization': getAccessToken()
-		// 	},
-		// 	onUploadProgress: ProgressEvent => {
-		// 		let percent = keepTwoDigits(ProgressEvent.loaded / ProgressEvent.total * 100)
-		// 		this.setState({ratio: percent })
-		// 	}
-		// })
-
-    console.log(this.directory)
-
-    console.log(this.uploadFiles)
-
-    let body = new FormData();
-    const formData: FormData = new FormData();
-    for (let f of this.uploadFiles) {
-      body.append('files', f);
-      console.log(1111);
+    if (this.uploadFiles.length == 0) {
+      this.notifierService.notify('error', 'Please select at least 1 file to upload.');
+      return;
     }
 
+    this.uploadingFile = true;
+    let body = new FormData();
+    for (let f of this.uploadFiles) {
+      body.append('files', f);
+    }
 
-    this.http.post(environment.urlPrefix + 'api/upload_file/' + this.directory, body, {
+    let previousRatio = 0;
+		let progressTimer = setInterval(() => {
+			let newProgress = this.uploadRatio - previousRatio;
+			previousRatio = this.uploadRatio
+			if (newProgress <= 0) {
+				this.uploadRemaining = '-';
+			} else {
+				let remainingSeconds = (100 - this.uploadRatio) / newProgress
+				this.uploadRemaining = this.utils.secondsToStr(remainingSeconds)
+			}
+			
+			if (this.uploadRatio == 100 || !this.uploadingFile) {
+				clearInterval(progressTimer)
+			}
+		}, 1000)
+
+    this.http.post<UploadResult>(environment.urlPrefix + 'api/upload_file/' + this.directory, body, {
       reportProgress: true,
       observe: 'events'
     }).subscribe(res => {
       if (res.type === HttpEventType.Response) {
-        console.log('Upload complete');
+        this.uploadRatio = 100;
+        this.uploadingFile = false;
+        this.modalRef.close();
+
+        this.shareables = [ ...this.shareables, ...res.body.files];
+        this.shareables = this.shareables.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
+        if (res.body.error != '') {
+          this.notifierService.notify('warning', res.body.error);
+        }
       }
       if (res.type === HttpEventType.UploadProgress) {
-          const percentDone = Math.round(100 * res.loaded / res.total);
-          console.log('Progress ' + percentDone + '%');
+          this.uploadRatio = Math.round(100 * res.loaded / res.total);
       } 
     }, error => {
-      // this.loadingCapacity = false;
-      // console.log(error.error);
+      this.uploadingFile = false;
       this.notifierService.notify('error', error.error.message);
-      // console.log(error);
     });
-
-
-  //   this.httpClient.post(url, formData, {
-  //     headers,
-  //     reportProgress: true,
-  //     observe: 'events'
-  // }).subscribe(resp => {
-  //     if (resp.type === HttpEventType.Response) {
-  //         console.log('Upload complete');
-  //     }
-  //     if (resp.type === HttpEventType.UploadProgress) {
-  //         const percentDone = Math.round(100 * resp.loaded / resp.total);
-  //         console.log('Progress ' + percentDone + '%');
-  //     } 
-  // });
   }
 
 }

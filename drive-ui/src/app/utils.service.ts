@@ -89,5 +89,31 @@ export class UtilsService {
     }
     return file;
   }
+
+  secondsToStr(sec: number) {
+
+    var years = Math.floor(sec / 31536000);
+    if (years) return years + ' year' + this.numberEnding(years);
+    
+    var days = Math.floor((sec %= 31536000) / 86400);
+    if (days) return days + ' day' + this.numberEnding(days);
+
+    var hours = Math.floor((sec %= 86400) / 3600);
+    if (hours) return hours + ' hour' + this.numberEnding(hours);
+
+    var minutes = Math.floor((sec %= 3600) / 60);
+    if (minutes) return minutes + ' minute' + this.numberEnding(minutes);
+
+    var seconds = sec % 60;
+    if (seconds >= 1) {
+        return this.keepTwoDigits(seconds) + ' second' + this.numberEnding(seconds);
+    } else {
+    	return 'less than a second';
+    }
+  }
+
+  numberEnding (num: number) {
+    return (num > 1) ? 's' : '';
+  }
   
 }
