@@ -101,13 +101,19 @@
                     <p class="font-italic mobile-text">{{utils.getMobileCreatedTimeFromSeconds(selectedFile.lastModified)}}</p>
                   </div>
                 </div>
+                <div class="row my-1">
+                  <div class="col">
+                    <button *ngIf="selectedFile.isFile" type="button" class="btn btn-outline-primary btn-block" (click)="downloadSelectedFile()">Download</button>
+                    <button *ngIf="!selectedFile.isFile" type="button" class="btn btn-outline-primary btn-block" (click)="loadFolderContent(selectedFile)">View content</button>
+                  </div>
+                </div>
               </div>
             </td>
             <td *ngIf="!isMobile">{{utils.getCreatedTimeFromSeconds(shareable.lastModified)}}</td>
             <td *ngIf="!isMobile">{{shareable.isFile ? utils.getFileSize(shareable.size) : '-'}}</td>
           </tr>
         </tbody>
-      </table>
+      </table> 
     </div>
 
     <div class="col-md-3">
