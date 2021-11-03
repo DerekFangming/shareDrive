@@ -31,6 +31,7 @@ export class DirectoryComponent implements OnInit {
   uploadFilesSize = 0;
   uploadRatio = 0;
   uploadRemaining = '';
+  searchKeyword = '';
   
   isMobile = false;
   createFolder = false;
@@ -46,6 +47,8 @@ export class DirectoryComponent implements OnInit {
   loadingCapacity = false;
   loadingDirectorySize = false;
   loadingMoveDirectory = false;
+  searching = false;
+  showingSearchResult = false;
 
   newFolderName = '';
   renameFileName = '';
@@ -82,6 +85,7 @@ export class DirectoryComponent implements OnInit {
     this.sortColumn = '';
     this.sortAsc = true;
     this.selectedFile = null;
+    this.showingSearchResult = false;
 
     this.router.navigateByUrl('/directory/' + directory);
     this.shareables = [];
@@ -381,7 +385,7 @@ export class DirectoryComponent implements OnInit {
 			}
 		}, 1000)
 
-    this.http.post<UploadResult>(environment.urlPrefix + 'api/upload_file/' + this.directory, body, {
+    this.http.post<UploadResult>(environment.urlPrefix + 'api/upload-file/' + this.directory, body, {
       reportProgress: true,
       observe: 'events'
     }).subscribe(res => {
@@ -403,6 +407,23 @@ export class DirectoryComponent implements OnInit {
       } 
     }, error => {
       this.uploadingFile = false;
+      this.notifierService.notify('error', error.error.message);
+    });
+  }
+
+  searchFiles() {
+    this.searching = true;
+
+    this.http.get<Shareable[]>(environment.urlPrefix + 'api/search-file/' + this.directory, {
+      params: {
+        keyword: this.searchKeyword
+      }
+    }).subscribe(res => {
+      this.searching = false;
+      this.showingSearchResult = true;
+      this.shareables = res.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
+    }, error => {
+      this.searching = false;
       this.notifierService.notify('error', error.error.message);
     });
   }

@@ -21,8 +21,11 @@ import java.io.*;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.fmning.drive.FileUtil.*;
 
@@ -34,7 +37,8 @@ public class FileController {
     private final File rootDir;
     private static final String DOWNLOAD_FILE = "download-file";
     private static final String DELETE_FILE = "delete-file";
-    private static final String UPLOAD_FILE = "upload_file";
+    private static final String UPLOAD_FILE = "upload-file";
+    private static final String SEARCH_FILE = "search-file";
     private static final int DEFAULT_BUFFER_BYTE_SIZE = 20480;
 
     @GetMapping("/" + DOWNLOAD_FILE + "/**")
@@ -221,12 +225,40 @@ public class FileController {
     @DeleteMapping("/" + DELETE_FILE + "/**")
     public ResponseEntity<Void> deleteFile(HttpServletRequest request) {
         File file = getInnerFolder(rootDir, getFilePath(request, DELETE_FILE));
-        if (!file.exists()) throw new IllegalArgumentException("The file you are trying to delete does not exist");
+
 
         if (file.delete()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             throw new IllegalArgumentException("Failed to DELETE file.");
+        }
+    }
+
+    @GetMapping("/" + SEARCH_FILE + "/**")
+    public List<Shareable> searchFiles(@RequestParam("keyword") String keyword, HttpServletRequest request) {
+        File folder = getInnerFolder(rootDir, getFilePath(request, SEARCH_FILE));
+        if (!folder.exists()) throw new IllegalArgumentException("Search path does not exist.");
+        else if (!folder.isDirectory()) throw new IllegalArgumentException("Search path is not a directory.");
+
+        keyword = keyword.trim();
+        if (keyword.equals("")) {
+            throw new IllegalArgumentException("Please enter a keyword.");
+        }
+
+        try {
+            String regex = ".*" + keyword.toLowerCase().replace(".", "\\.").replace("*", ".*").replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+                    .replace("/", "\\/").replace("$", "\\$").replace("^", "\\^").replace("+", "\\+").replace("[", "\\[").replace("]", "\\]").replace("|", "\\|")
+                    .replace("?", "\\?")+ ".*";
+            List<Shareable> resultList = Files.walk(folder.toPath())
+                    .map(Path::toFile)
+                    .parallel()
+                    .filter(p -> p.getName().toLowerCase().matches(regex))
+                    .map(f -> toShareable(rootDir, f))
+                    .collect(Collectors.toList());
+
+            return resultList;
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 
