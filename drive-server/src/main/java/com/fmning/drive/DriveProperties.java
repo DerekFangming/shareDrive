@@ -6,7 +6,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties(prefix = "drive")
 public class DriveProperties {
+    private String production;
     private String rootDir;
     private String dbUsername;
     private String dbPassword;
+
+    public boolean isProduction() {
+        return Boolean.parseBoolean(production);
+    }
 }
