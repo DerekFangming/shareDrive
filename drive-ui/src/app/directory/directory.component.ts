@@ -33,6 +33,7 @@ export class DirectoryComponent implements OnInit {
   uploadRatio = 0;
   uploadRemaining = '';
   searchKeyword = '';
+  me: User;
   
   isMobile = false;
   createFolder = false;
@@ -72,7 +73,7 @@ export class DirectoryComponent implements OnInit {
     this.loadingDirectory = true;
     this.loadingCapacity = true;
     this.http.get<User>(environment.urlPrefix + 'me').subscribe(res => {
-      console.log(res);
+      this.me = res;
       this.loadDirectory(this.getDirectoryFromUrl());
       this.loadCapacity();
     }, error => {
