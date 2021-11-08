@@ -22,7 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         String[] urls = driveProperties.isProduction() ? new String[]{"/login-redirect", "/api/posts/**", "/api/email"}
                 : new String[]{};
 
-        urls =  new String[]{"/login-redirect", "/api/directory/**"};
+        urls =  new String[]{"/login-redirect", "/me", "/api/directory/**"};
 
         http
                 .antMatcher("/**")

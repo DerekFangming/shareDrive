@@ -10,6 +10,7 @@ import { PlatformLocation } from '@angular/common';
 import { NotifierService } from 'angular-notifier';
 import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UploadResult } from '../model/upload-result';
+import { User } from '../model/user';
 
 @Component({
   selector: 'app-directory',
@@ -67,10 +68,19 @@ export class DirectoryComponent implements OnInit {
 
   ngOnInit() {
     this.isMobile = window.innerWidth <= 768;
-    this.loadDirectory(this.getDirectoryFromUrl());
-    this.loadCapacity();
+
+    this.loadingDirectory = true;
+    this.loadingCapacity = true;
+    this.http.get<User>(environment.urlPrefix + 'me').subscribe(res => {
+      console.log(res);
+      this.loadDirectory(this.getDirectoryFromUrl());
+      this.loadCapacity();
+    }, error => {
+      this.notifierService.notify('error', error.error.message);
+    });
 
     this.location.onPopState(() => {
+      console.log(123456)
       this.loadDirectory(this.getDirectoryFromUrl());
     });
   }
@@ -96,7 +106,7 @@ export class DirectoryComponent implements OnInit {
       this.shareables = res.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
     }, error => {
       this.loadingDirectory = false;
-      console.log(error.error);
+      this.notifierService.notify('error', error.error.message);
     });
   }
 
@@ -108,7 +118,7 @@ export class DirectoryComponent implements OnInit {
       this.capacity.ratio = this.utils.keepTwoDigits((this.capacity.totalSpace - this.capacity.availableSpace) * 100 / this.capacity.totalSpace);
     }, error => {
       this.loadingCapacity = false;
-      console.log(error.error);
+      this.notifierService.notify('error', error.error.message);
     });
   }
 
@@ -152,7 +162,7 @@ export class DirectoryComponent implements OnInit {
           this.selectedFile.size = res.size;
         }, error => {
           this.loadingDirectorySize = false;
-          console.log(error.error);
+          this.notifierService.notify('error', error.error.message);
         });
       }
     }
