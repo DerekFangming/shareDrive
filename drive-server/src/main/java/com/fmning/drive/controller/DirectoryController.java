@@ -6,11 +6,11 @@ import com.fmning.drive.dto.Shareable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -25,10 +25,11 @@ public class DirectoryController {
 
     private final File rootDir;
     private static final String DIRECTORY = "directory";
-    private static final String DIRECTORY_SIZE = "directory-size";
+    public static final String DIRECTORY_SIZE = "directory-size";
 
     @GetMapping("/" + DIRECTORY + "/**")
-    public List<Shareable> getFiles(HttpServletRequest request, @RequestParam(value = "dirOnly", required=false) boolean dirOnly) throws UnsupportedEncodingException {
+    @PreAuthorize("hasRole('DR')")
+    public List<Shareable> getFiles(HttpServletRequest request, @RequestParam(value = "dirOnly", required=false) boolean dirOnly) {
         File directory = getInnerFolder(rootDir, getFilePath(request, DIRECTORY));
 
         if (directory.isFile()) {
@@ -46,6 +47,7 @@ public class DirectoryController {
     }
 
     @GetMapping("/" + DIRECTORY_SIZE + "/**")
+    @PreAuthorize("hasRole('DR')")
     public DirectorySize getDirectorySize(HttpServletRequest request) {
         File directory = getInnerFolder(rootDir, getFilePath(request, DIRECTORY_SIZE));
 
@@ -59,11 +61,13 @@ public class DirectoryController {
     }
 
     @GetMapping("/capacity")
+    @PreAuthorize("hasRole('DR')")
     public Capacity getCapacity() {
         return Capacity.builder().totalSpace(rootDir.getTotalSpace()).availableSpace(rootDir.getUsableSpace()).build();
     }
 
     @PostMapping("/directory")
+    @PreAuthorize("hasRole('DR')")
     public Shareable createDirectory(@RequestBody Shareable shareable) {
         if (shareable == null || shareable.getPath() == null ) {
             throw new IllegalArgumentException("The request is invalid");

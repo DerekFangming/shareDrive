@@ -19,10 +19,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        String[] urls = driveProperties.isProduction() ? new String[]{"/login-redirect", "/api/posts/**", "/api/email"}
+        String[] urls = driveProperties.isProduction() ? new String[]{"/login-redirect", "/me", "/api/directory/**"}
                 : new String[]{};
-
-        urls =  new String[]{"/login-redirect", "/me", "/api/directory/**"};
 
         http
                 .antMatcher("/**")

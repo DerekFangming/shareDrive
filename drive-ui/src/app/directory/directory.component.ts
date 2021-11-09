@@ -77,11 +77,10 @@ export class DirectoryComponent implements OnInit {
       this.loadDirectory(this.getDirectoryFromUrl());
       this.loadCapacity();
     }, error => {
-      this.notifierService.notify('error', error.error.message);
+      this.notifierService.notify('error', error.message);
     });
 
     this.location.onPopState(() => {
-      console.log(123456)
       this.loadDirectory(this.getDirectoryFromUrl());
     });
   }
@@ -107,7 +106,8 @@ export class DirectoryComponent implements OnInit {
       this.shareables = res.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
     }, error => {
       this.loadingDirectory = false;
-      this.notifierService.notify('error', error.error.message);
+      this.loadDirectoryError = error.message;
+      this.notifierService.notify('error', error.message);
     });
   }
 
@@ -119,7 +119,7 @@ export class DirectoryComponent implements OnInit {
       this.capacity.ratio = this.utils.keepTwoDigits((this.capacity.totalSpace - this.capacity.availableSpace) * 100 / this.capacity.totalSpace);
     }, error => {
       this.loadingCapacity = false;
-      this.notifierService.notify('error', error.error.message);
+      this.notifierService.notify('error', error.message);
     });
   }
 
@@ -163,7 +163,7 @@ export class DirectoryComponent implements OnInit {
           this.selectedFile.size = res.size;
         }, error => {
           this.loadingDirectorySize = false;
-          this.notifierService.notify('error', error.error.message);
+          this.notifierService.notify('error', error.message);
         });
       }
     }
@@ -186,7 +186,7 @@ export class DirectoryComponent implements OnInit {
       this.notifierService.notify('success', 'Folder created');
     }, error => {
       this.creatingFolder = false;
-      this.notifierService.notify('error', error.error.message);
+      this.notifierService.notify('error', error.message);
     });
   }
 
@@ -211,7 +211,7 @@ export class DirectoryComponent implements OnInit {
       this.loadCapacity();
     }, error => {
       this.deletingFile = false;
-      this.notifierService.notify('error', error.error.message);
+      this.notifierService.notify('error', error.message);
     });
   }
 
@@ -239,7 +239,7 @@ export class DirectoryComponent implements OnInit {
       this.notifierService.notify('success', 'File renamed');
     }, error => {
       this.renamingFile = false;
-      this.notifierService.notify('error', error.error.message);
+      this.notifierService.notify('error', error.message);
     });
   }
 
@@ -259,7 +259,7 @@ export class DirectoryComponent implements OnInit {
       }
     }, error => {
       this.movingFile = false
-      this.notifierService.notify('error', error.error.message);
+      this.notifierService.notify('error', error.message);
     });
   }
 
@@ -290,7 +290,7 @@ export class DirectoryComponent implements OnInit {
       this.moveDirectories = res.sort((a, b) => a.name.localeCompare(b.name));
     }, error => {
       this.loadingMoveDirectory = false;
-      this.notifierService.notify('error', error.error.message);
+      this.notifierService.notify('error', error.message);
     });
   }
 
@@ -418,7 +418,7 @@ export class DirectoryComponent implements OnInit {
       } 
     }, error => {
       this.uploadingFile = false;
-      this.notifierService.notify('error', error.error.message);
+      this.notifierService.notify('error', error.message);
     });
   }
 
@@ -435,7 +435,7 @@ export class DirectoryComponent implements OnInit {
       this.shareables = res.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
     }, error => {
       this.searching = false;
-      this.notifierService.notify('error', error.error.message);
+      this.notifierService.notify('error', error.message);
     });
   }
 
