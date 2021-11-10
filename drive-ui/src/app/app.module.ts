@@ -21,8 +21,8 @@ import { AuthenticationInterceptor } from './authentication-interceptor';
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule,
     NgbModule,
+    FormsModule,
     NotifierModule.withConfig({
       behaviour: {
         autoHide: 10000
