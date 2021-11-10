@@ -74,6 +74,7 @@ export class DirectoryComponent implements OnInit {
     this.loadingCapacity = true;
     this.http.get<User>(environment.urlPrefix + 'me').subscribe(res => {
       this.me = res;
+      if (this.me.avatar == null) this.me.avatar ='https://i.imgur.com/lkAhvIs.png';
       this.loadDirectory(this.getDirectoryFromUrl());
       this.loadCapacity();
     }, error => {
@@ -193,7 +194,7 @@ export class DirectoryComponent implements OnInit {
   downloadSelectedFile() {
     if (this.selectedFile.isFile) {
       console.log(window.location.href);
-      window.open(environment.urlPrefix + environment.contextPath + "api/download-file/" + this.selectedFile.path);
+      window.open(environment.urlPrefix + environment.contextPath + "/api/download-file/" + this.selectedFile.path);
     }
   }
 
