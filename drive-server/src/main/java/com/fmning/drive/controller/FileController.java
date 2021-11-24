@@ -142,6 +142,9 @@ public class FileController {
             } else {
                 try {
                     file.transferTo(targetFile);
+                    targetFile.setReadable(true, false);
+                    targetFile.setExecutable(true, false);
+                    targetFile.setWritable(true, false);
                     shareables.add(toShareable(rootDir, targetFile));
                 } catch (Exception e) {
                     error += "File named " + file.getOriginalFilename() + " failed to be uploaded, " + e.getMessage() + ";";
