@@ -80,10 +80,13 @@ public class DirectoryController {
             throw new IllegalArgumentException("The folder already exits");
         }
 
-       if (newDir.mkdirs()) {
-           return toShareable(rootDir, newDir);
+        if (newDir.mkdirs()) {
+            newDir.setReadable(true, false);
+            newDir.setExecutable(true, false);
+            newDir.setWritable(true, false);
+            return toShareable(rootDir, newDir);
         } else {
-           throw new IllegalArgumentException("Failed to create folder.");
+            throw new IllegalArgumentException("Failed to create folder.");
         }
     }
 
