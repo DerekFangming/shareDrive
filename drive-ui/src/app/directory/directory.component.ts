@@ -57,12 +57,17 @@ export class DirectoryComponent implements OnInit {
   moveFileDirectory = '';
   loadDirectoryError = '';
   creatingFolderError = '';
+  shareIndefinitely = 'true';
+  shareLink = ''
+  minDate: any
+  shareToDate: any;
 
   plusImage = environment.production ? environment.contextPath + '/assets/plus.png' : '/assets/plus.png';
 
   modalRef: NgbModalRef;
   @ViewChild('moveFileModal', { static: true}) moveFileModal: TemplateRef<any>;
   @ViewChild('uploadFileModal', { static: true}) uploadFileModal: TemplateRef<any>;
+  @ViewChild('shareFileModal', { static: true}) shareFileModal: TemplateRef<any>;
 
   constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation,
     private notifierService: NotifierService, private modalService: NgbModal, private elementRef: ElementRef) { }
@@ -329,18 +334,6 @@ export class DirectoryComponent implements OnInit {
         this.notifierService.notify('error', `Cannot upload empty file: ${file.name}`);
         continue;
       }
-      // console.log(file.size);
-
-      // const reader = new FileReader()
-      // reader.onload = () => {
-      //   if (reader.error && reader.error.name === 'NotFoundError') {
-      //     console.log('Is folder' + reader.error.name)
-      //   } else {
-      //     console.log('Is file')
-      //   }
-      // }
-      // reader.readAsBinaryString(file)
-
       if (this.uploadFiles.some(f => f.name == file.name)) {
         this.notifierService.notify('error',  `File with the same name has been selected: ${file.name}`);
         continue;
@@ -438,6 +431,41 @@ export class DirectoryComponent implements OnInit {
       this.searching = false;
       this.notifierService.notify('error', error.message);
     });
+  }
+
+  openShareFileModel() {
+    this.shareIndefinitely = 'true'
+    this.shareLink = ''
+    const current = new Date()
+    this.minDate= { year: current.getFullYear(), month: current.getMonth() + 1, day: current.getDate()}
+    this.modalRef = this.modalService.open(this.shareFileModal, {
+      backdrop : 'static',
+      keyboard : false,
+      centered: true
+    });
+  }
+
+  shareFile() {
+    console.log(this.shareIndefinitely)
+    if (this.shareToDate != null) {
+      console.log(this.shareToDate.year + '-' + this.shareToDate.month + '-' + this.shareToDate.day);
+    }
+
+    this.shareLink = 'https://sadksad.com'
+  }
+
+  copyToClipboard() {
+    const selBox = document.createElement('textarea')
+    selBox.style.position = 'fixed'
+    selBox.style.left = '0'
+    selBox.style.top = '0'
+    selBox.style.opacity = '0'
+    selBox.value = this.shareLink
+    document.body.appendChild(selBox)
+    selBox.focus()
+    selBox.select()
+    document.execCommand('copy')
+    document.body.removeChild(selBox)
   }
 
 }

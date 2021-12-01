@@ -202,17 +202,26 @@
             </div>
             <hr>
             <div *ngIf="!renameFile && !deleteFile" class="row my-1 text-center">
-              <div class="col-6 col-xl-3 px-1 py-1">
-                <button type="button" class="btn btn-outline-primary btn-block px-0" [disabled]="!selectedFile.isFile" (click)="downloadSelectedFile()">Download</button>
+              <div class="col-md-2 col-md-offset-1 px-1 py-1">
+                <button type="button" class="btn btn-outline-primary btn-block px-0" [disabled]="!selectedFile.isFile" (click)="downloadSelectedFile()"
+                  data-toggle="tooltip" data-placement="bottom" title="Download" onmouseenter="$(this).tooltip('show')">
+                  <i class="fa fa-lg fa-cloud-download" aria-hidden="true"></i></button>
               </div>
-              <div class="col-6 col-xl-3 px-1 py-1">
-                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="renameFile = true">Rename</button>
+              <div class="col-md-2 px-1 py-1">
+                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="renameFile = true"
+                  data-toggle="tooltip" data-placement="bottom" title="Rename" onmouseenter="$(this).tooltip('show')"><i class="fa fa-lg fa-pencil-square-o" aria-hidden="true"></i></button>
               </div>
-              <div class="col-6 col-xl-3 px-1 py-1">
-                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="openMoveFileModel()">Move</button>
+              <div class="col-md-2 px-1 py-1">
+                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="openMoveFileModel()"
+                  data-toggle="tooltip" data-placement="bottom" title="Move" onmouseenter="$(this).tooltip('show')"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
               </div>
-              <div class="col-6 col-xl-3 px-1 py-1">
-                <button type="button" class="btn btn-outline-danger btn-block px-0" (click)="deleteFile = true">Delete</button>
+              <div class="col-md-2 px-1 py-1">
+                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="openShareFileModel()"
+                data-toggle="tooltip" data-placement="bottom" title="Share" onmouseenter="$(this).tooltip('show')"><i class="fa fa-lg fa-share-square-o" aria-hidden="true"></i></button>
+              </div>
+              <div class="col-md-2 px-1 py-1">
+                <button type="button" class="btn btn-outline-danger btn-block px-0" (click)="deleteFile = true"
+                  data-toggle="tooltip" data-placement="bottom" title="Delete" onmouseenter="$(this).tooltip('show')"><i class="fa fa-lg fa-trash-o" aria-hidden="true"></i></button>
               </div>
             </div>
             <div *ngIf="renameFile" class="row my-1 text-center">
@@ -338,5 +347,56 @@
   <div class="modal-footer">
     <button type="button" class="btn btn-success" data-dismiss="modal" (click)="uploadSelectedFiles()" [disabled]="uploadingFile">Upload</button>
     <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')" [disabled]="uploadingFile">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #shareFileModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="shareFileModalLabel">Sharing {{selectedFile.isFile ? 'file: ' : 'folder: '}}
+      <span class="lead">{{selectedFile.name}}</span></h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div *ngIf="shareLink==''" class="modal-body">
+    <div class="row">
+      <div class="col">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" id="exampleRadios1" [(ngModel)]="shareIndefinitely" value="true">
+          <label class="form-check-label" for="exampleRadios1">
+            Share indefinitely
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" id="exampleRadios2" [(ngModel)]="shareIndefinitely" value="false">
+          <label class="form-check-label" for="exampleRadios2">
+            Share until a date
+          </label>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="shareIndefinitely == 'false'" class="row mt-2">
+      <div class="col">
+        <label>Link will expire on:</label>
+        <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" [minDate]="minDate" (click)="df.toggle()" [(ngModel)]="shareToDate">
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="shareLink!=''" class="modal-body">
+    <div class="form-group">
+      <label>Here's the link for the selected {{selectedFile.isFile ? 'file.' : 'folder.'}} Anyone with the link will be able to download {{selectedFile.isFile ? 'this file.' : 'anything within the folder.'}}</label>
+      <div class="input-group">
+        <input [(ngModel)]="shareLink" type="text" class="form-control" disabled>
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" (click)="copyToClipboard()"><i class="fa fa-clone" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal-footer">
+    <button *ngIf="shareLink==''" type="button" class="btn btn-success" data-dismiss="modal" (click)="shareFile()">Share</button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">{{shareLink == '' ? 'Cancel' : 'Close'}}</button>
   </div>
 </ng-template>
