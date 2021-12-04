@@ -2,12 +2,15 @@
   <a class="navbar-brand" href="./">Share drive</a>
 
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+    <span class="navbar-toggler-icon"></span>
   </button>
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
         <a class="nav-link pointer">Directory</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link pointer" [routerLink]="['/share']">Share</a>
       </li>
       <li *ngIf="me" class="nav-item active dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -16,7 +19,7 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item disabled" href="#">{{me.userName}}</a>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item" (click)="utils.logout()">Log Out</a>
+          <a class="dropdown-item pointer" (click)="utils.logout()">Log Out</a>
         </div>
       </li>
     </ul>

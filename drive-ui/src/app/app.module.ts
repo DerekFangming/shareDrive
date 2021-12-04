@@ -10,12 +10,14 @@ import { FormsModule } from '@angular/forms';
 import { NotifierModule } from 'angular-notifier';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthenticationInterceptor } from './authentication-interceptor';
+import { ShareComponent } from './share/share.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     IndexComponent,
-    DirectoryComponent
+    DirectoryComponent,
+    ShareComponent
   ],
   imports: [
     BrowserModule,
