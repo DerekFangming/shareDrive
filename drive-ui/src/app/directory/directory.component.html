@@ -363,27 +363,55 @@
   </div>
   <div *ngIf="shareLink==''" class="modal-body">
     <div class="row">
-      <div class="col">
-        <div class="form-check">
-          <input class="form-check-input" type="radio" id="exampleRadios1" [(ngModel)]="shareIndefinitely" value="true">
-          <label class="form-check-label" for="exampleRadios1">
-            Share indefinitely
-          </label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" id="exampleRadios2" [(ngModel)]="shareIndefinitely" value="false">
-          <label class="form-check-label" for="exampleRadios2">
-            Share until a date
-          </label>
+      <div class="col-12">
+        <div class="form-group">
+          <label>Name</label>
+          <div class="input-group">
+            <input [(ngModel)]="shareName" type="text" class="form-control" placeholder="Optional name">
+          </div>
         </div>
       </div>
-    </div>
-    <div *ngIf="shareIndefinitely == 'false'" class="row mt-2">
-      <div class="col">
-        <label>Link will expire on:</label>
+      <div class="col-12 mt-2">
+        <div class="form-group">
+          <label>Access</label>
+          <div class="input-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="downloadCheckbox" value="true" checked="checked" onclick="return false;">
+              <label class="form-check-label" for="downloadCheckbox">Download files</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="uploadCheckbox" value="option2">
+              <label class="form-check-label" for="uploadCheckbox">Upload files</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 mt-2">
+        <div class="form-group">
+          <label>Expiration</label>
+          <div class="input-group">
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" id="exampleRadios1" [(ngModel)]="shareIndefinitely" value="true">
+              <label class="form-check-label" for="exampleRadios1">
+                Share indefinitely
+              </label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" id="exampleRadios2" [(ngModel)]="shareIndefinitely" value="false">
+              <label class="form-check-label" for="exampleRadios2">
+                Share until a date
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="shareIndefinitely == 'false'" class="col">
         <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" [minDate]="minDate" (click)="df.toggle()" [(ngModel)]="shareToDate">
       </div>
     </div>
+    <!-- <div *ngIf="shareIndefinitely == 'false'" class="row mt-2">
+      
+    </div> -->
   </div>
 
   <div *ngIf="shareLink!=''" class="modal-body">
@@ -399,7 +427,7 @@
   </div>
   
   <div class="modal-footer">
-    <button *ngIf="shareLink==''" type="button" class="btn btn-success" data-dismiss="modal" (click)="shareFile()">Share</button>
+    <button *ngIf="shareLink==''" type="button" class="btn btn-success" data-dismiss="modal" (click)="shareFile()" [disabled]="sharingFile">Share</button>
     <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">{{shareLink == '' ? 'Cancel' : 'Close'}}</button>
   </div>
 </ng-template>

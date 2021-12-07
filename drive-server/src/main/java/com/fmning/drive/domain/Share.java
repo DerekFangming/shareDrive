@@ -22,6 +22,9 @@ public class Share {
     @Column(name="id")
     private String id;
 
+    @Column(name="name", columnDefinition = "TEXT")
+    private String name;
+
     @Column(name="file", columnDefinition = "TEXT")
     private String file;
 
@@ -30,6 +33,9 @@ public class Share {
 
     @Column(name="created", columnDefinition = "TIMESTAMP")
     private Instant created;
+
+    @Column(name="write_access", columnDefinition = "BOOLEAN")
+    private boolean writeAccess;
 
     @Column(name="creator_id", columnDefinition = "TEXT")
     private String creatorId;

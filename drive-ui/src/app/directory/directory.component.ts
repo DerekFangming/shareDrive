@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Shareable } from '../model/shareable';
+import { Share } from '../model/share';
 import { UtilsService } from '../utils.service';
 import { Capacity } from '../model/capacity';
 import { DirectorySize } from '../model/directory-size';
@@ -51,6 +52,7 @@ export class DirectoryComponent implements OnInit {
   loadingMoveDirectory = false;
   searching = false;
   showingSearchResult = false;
+  sharingFile = false
 
   newFolderName = '';
   renameFileName = '';
@@ -58,6 +60,7 @@ export class DirectoryComponent implements OnInit {
   loadDirectoryError = '';
   creatingFolderError = '';
   shareIndefinitely = 'true';
+  shareName = ''
   shareLink = ''
   minDate: any
   shareToDate: any;
@@ -434,8 +437,10 @@ export class DirectoryComponent implements OnInit {
   }
 
   openShareFileModel() {
+    this.sharingFile = false
     this.shareIndefinitely = 'true'
     this.shareLink = ''
+    this.shareToDate = null
     const current = new Date()
     this.minDate= { year: current.getFullYear(), month: current.getMonth() + 1, day: current.getDate()}
     this.modalRef = this.modalService.open(this.shareFileModal, {
@@ -446,12 +451,24 @@ export class DirectoryComponent implements OnInit {
   }
 
   shareFile() {
-    console.log(this.shareIndefinitely)
+    let share = new Share({file: this.selectedFile.path})
     if (this.shareToDate != null) {
-      console.log(this.shareToDate.year + '-' + this.shareToDate.month + '-' + this.shareToDate.day);
+      share.expiration = new Date(this.shareToDate.year + '-' + this.shareToDate.month + '-' + (this.shareToDate.day + 1)).toISOString()
     }
+    // console.log(this.shareToDate)
+    // console.log(new Date())
+    // console.log(new Date(this.shareToDate.year + '-' + this.shareToDate.month + '-' + (this.shareToDate.day + 1)).toISOString())
+    //2021-12-01T03:17:44.033Z
 
-    this.shareLink = 'https://sadksad.com'
+    this.sharingFile = true
+    this.http.post<Share>(environment.urlPrefix + 'api/shares', share).subscribe(res => {
+      let baseUrl = environment.production ? 'https://fmning.com/drive/share/' : 'http://localhost:4200/share/'
+      this.shareLink = baseUrl + res.id
+      this.sharingFile = false
+    }, error => {
+      this.sharingFile = false
+      this.notifierService.notify('error', error.message);
+    });
   }
 
   copyToClipboard() {

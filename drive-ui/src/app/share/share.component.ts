@@ -58,4 +58,12 @@ export class ShareComponent implements OnInit {
     return decodeURI(path)
   }
 
+  getShareName(share: Share) {
+    if (share.name == null) {
+      let parts = share.file.split('/')
+      return parts[parts.length - 1]
+    }
+    return share.name
+  }
+
 }

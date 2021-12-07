@@ -1,5 +1,6 @@
 export class Share {
   id: string
+  name: string
   file: string
 
   expiration: string

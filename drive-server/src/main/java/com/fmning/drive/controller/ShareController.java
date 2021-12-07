@@ -1,6 +1,7 @@
 package com.fmning.drive.controller;
 
 import com.fmning.drive.DriveProperties;
+import com.fmning.drive.SsoUser;
 import com.fmning.drive.domain.Share;
 import com.fmning.drive.repository.ShareRepo;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -30,17 +32,19 @@ public class ShareController {
 
     @PostMapping()
     @PreAuthorize("hasRole('DR')")
-    public Share createShare(Share share) {
+    public Share createShare(@RequestBody Share share) {
         share.setId(RandomStringUtils.randomAlphanumeric(6));
         share.setCreated(Instant.now());
-//        shareRepo.save(Share.builder()
-//                .id(RandomStringUtils.randomAlphanumeric(6))
-//                .file("file directory")
-//                .expiration(Instant.now().plusSeconds(99999))
-//                .created(Instant.now())
-//                .creatorId("synfm@126.com")
-//                .creatorName("Derek")
-//                .build());
+
+        if (driveProperties.isProduction()) {
+            SsoUser user = (SsoUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            share.setCreatorName(user.getName());
+            share.setCreatorId(user.getUserName());
+        } else {
+            share.setCreatorName("anonymousUser");
+            share.setCreatorId("anonymousUserId");
+        }
+        shareRepo.save(share);
         return share;
     }
 
