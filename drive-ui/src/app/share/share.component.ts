@@ -22,6 +22,7 @@ export class ShareComponent implements OnInit {
 
   loadingPage = true
   editingShares = false
+  deletingShare = false
 
   modalRef: NgbModalRef;
   @ViewChild('deleteConfirmModal', { static: true}) deleteConfirmModal: TemplateRef<any>;
@@ -72,10 +73,26 @@ export class ShareComponent implements OnInit {
 
   deleteSharePrompt(share: Share) {
     this.selectedShare = share
+    this.deletingShare = false
     this.modalRef = this.modalService.open(this.deleteConfirmModal, {
       backdrop : 'static',
       keyboard : false,
       centered: true,
+    })
+  }
+
+  deleteSelectedShare() {
+    this.deletingShare = true;
+    this.http.delete(environment.urlPrefix + 'api/shares/' + this.selectedShare.id).subscribe(res => {
+      this.deletingShare = false;
+      this.modalRef.close();
+      var index = this.shares.indexOf(this.selectedShare);
+      if (index !== -1) {
+        this.shares.splice(index, 1);
+      }
+    }, error => {
+      this.deletingShare = false;
+      this.notifierService.notify('error', error.message);
     });
   }
 

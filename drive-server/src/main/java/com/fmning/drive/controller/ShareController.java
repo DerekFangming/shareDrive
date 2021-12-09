@@ -7,6 +7,7 @@ import com.fmning.drive.repository.ShareRepo;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,10 +49,19 @@ public class ShareController {
         return share;
     }
 
-//    @GetMapping("/{shareId}")
-//    public Share loginRedirect(@PathVariable(value="shareId") String id) {
-//        Optional<Share> share = shareRepo.findById(id);
-//
-//        return share.;
+    @DeleteMapping("/{shareId}")
+    @PreAuthorize("hasRole('DR')")
+    public ResponseEntity<Void> deleteShare(@PathVariable(value="shareId") String id) {
+        Optional<Share> share = shareRepo.findById(id);
+        if (share.isPresent()) {
+            shareRepo.deleteById(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        throw new IllegalArgumentException("Share not found");
+    }
+
+//    @DeleteMapping("/ping")
+//    public void deleteShare11() {
+//        System.out.println(1);
 //    }
 }

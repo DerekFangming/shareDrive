@@ -72,17 +72,17 @@
 
 <ng-template #deleteConfirmModal let-modal>
   <div class="modal-header">
-    <h5 class="modal-title" id="moveFileModalLabel">Select a folder to move to</h5>
+    <h5 class="modal-title">Deleting share: <span class="lead">{{getShareName(selectedShare)}}</span></h5>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
   <div class="modal-body" ngbAutofocus>
-    <p>123</p>
+    <p>Once deleted, anyone with the share link will immediately lose all access to files and folders shared through the link.</p>
   </div>
   
   <div class="modal-footer">
-    <button type="button" class="btn btn-success" data-dismiss="modal" (click)="moveSelectedFile()">Move</button>
+    <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="deleteSelectedShare()" [disabled]="deletingShare">Delete</button>
     <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Cancel</button>
   </div>
 </ng-template>
