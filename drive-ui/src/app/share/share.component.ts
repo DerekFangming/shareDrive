@@ -59,7 +59,7 @@ export class ShareComponent implements OnInit {
   }
 
   getShareName(share: Share) {
-    if (share.name == null) {
+    if (share.name == null || share.name == '') {
       let parts = share.file.split('/')
       return parts[parts.length - 1]
     }

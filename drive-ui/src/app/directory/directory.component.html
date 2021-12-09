@@ -376,11 +376,11 @@
           <label>Access</label>
           <div class="input-group">
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="downloadCheckbox" value="true" checked="checked" onclick="return false;">
+              <input class="form-check-input" type="checkbox" id="downloadCheckbox" checked="checked" onclick="return false;">
               <label class="form-check-label" for="downloadCheckbox">Download files</label>
             </div>
             <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="uploadCheckbox" value="option2">
+              <input class="form-check-input" type="checkbox" id="uploadCheckbox" [(ngModel)]="shareWriteAccess" value="false">
               <label class="form-check-label" for="uploadCheckbox">Upload files</label>
             </div>
           </div>
@@ -409,9 +409,6 @@
         <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" [minDate]="minDate" (click)="df.toggle()" [(ngModel)]="shareToDate">
       </div>
     </div>
-    <!-- <div *ngIf="shareIndefinitely == 'false'" class="row mt-2">
-      
-    </div> -->
   </div>
 
   <div *ngIf="shareLink!=''" class="modal-body">

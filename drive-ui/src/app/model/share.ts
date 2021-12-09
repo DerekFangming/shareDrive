@@ -3,6 +3,7 @@ export class Share {
   name: string
   file: string
 
+  writeAccess: boolean
   expiration: string
   created: string
 

@@ -40,7 +40,7 @@
             <th style="width:25%">Title</th>
             <th style="width:45%">Shared path</th>
             <th style="width:15%">Expiration</th>
-            <th style="width:10%">Created By</th>
+            <th style="width:10%">Access</th>
             <th style="width:10%">Actions</th>
           </tr>
         </thead>
@@ -50,7 +50,7 @@
             <td>{{getShareName(share)}}</td>
             <td class="fix-text">{{share.file}}</td>
             <td>{{share.expiration == null ? 'Never expire' : utils.getCreatedTimeFromSeconds(share.expiration)}}</td>
-            <td>{{share.creatorName}}</td>
+            <td>{{share.writeAccess ? 'Download & Upload' : 'Download Only'}}</td>
             <td>
               <button class="btn btn-outline-secondary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
               <button class="btn btn-outline-danger ml-2"><i class="fa fa-trash-o" aria-hidden="true"></i></button>

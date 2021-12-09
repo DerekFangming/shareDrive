@@ -60,6 +60,7 @@ export class DirectoryComponent implements OnInit {
   loadDirectoryError = '';
   creatingFolderError = '';
   shareIndefinitely = 'true';
+  shareWriteAccess = false
   shareName = ''
   shareLink = ''
   minDate: any
@@ -439,6 +440,8 @@ export class DirectoryComponent implements OnInit {
   openShareFileModel() {
     this.sharingFile = false
     this.shareIndefinitely = 'true'
+    this.shareWriteAccess = false
+    this.shareName = ''
     this.shareLink = ''
     this.shareToDate = null
     const current = new Date()
@@ -451,14 +454,10 @@ export class DirectoryComponent implements OnInit {
   }
 
   shareFile() {
-    let share = new Share({file: this.selectedFile.path})
+    let share = new Share({file: this.selectedFile.path, writeAccess: this.shareWriteAccess, name: this.shareName == '' ? null : this.shareName})
     if (this.shareToDate != null) {
       share.expiration = new Date(this.shareToDate.year + '-' + this.shareToDate.month + '-' + (this.shareToDate.day + 1)).toISOString()
     }
-    // console.log(this.shareToDate)
-    // console.log(new Date())
-    // console.log(new Date(this.shareToDate.year + '-' + this.shareToDate.month + '-' + (this.shareToDate.day + 1)).toISOString())
-    //2021-12-01T03:17:44.033Z
 
     this.sharingFile = true
     this.http.post<Share>(environment.urlPrefix + 'api/shares', share).subscribe(res => {
