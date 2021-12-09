@@ -1,8 +1,8 @@
 import { PlatformLocation } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotifierService } from 'angular-notifier';
 import { environment } from 'src/environments/environment';
 import { Share } from '../model/share';
@@ -17,10 +17,14 @@ import { UtilsService } from '../utils.service';
 export class ShareComponent implements OnInit {
 
   me: User
-  shares = [];
+  selectedShare: Share
+  shares = []
 
   loadingPage = true
   editingShares = false
+
+  modalRef: NgbModalRef;
+  @ViewChild('deleteConfirmModal', { static: true}) deleteConfirmModal: TemplateRef<any>;
 
   constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation,
     private notifierService: NotifierService, private modalService: NgbModal) { }
@@ -64,6 +68,15 @@ export class ShareComponent implements OnInit {
       return parts[parts.length - 1]
     }
     return share.name
+  }
+
+  deleteSharePrompt(share: Share) {
+    this.selectedShare = share
+    this.modalRef = this.modalService.open(this.deleteConfirmModal, {
+      backdrop : 'static',
+      keyboard : false,
+      centered: true,
+    });
   }
 
 }

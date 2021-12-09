@@ -53,7 +53,7 @@
             <td>{{share.writeAccess ? 'Download & Upload' : 'Download Only'}}</td>
             <td>
               <button class="btn btn-outline-secondary"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-              <button class="btn btn-outline-danger ml-2"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+              <button class="btn btn-outline-danger ml-2" (click)="deleteSharePrompt(share)"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
             </td>
           </tr>
         </tbody>
@@ -69,3 +69,20 @@
     </div>
   </div>
 </div>
+
+<ng-template #deleteConfirmModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="moveFileModalLabel">Select a folder to move to</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" ngbAutofocus>
+    <p>123</p>
+  </div>
+  
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success" data-dismiss="modal" (click)="moveSelectedFile()">Move</button>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Cancel</button>
+  </div>
+</ng-template>
