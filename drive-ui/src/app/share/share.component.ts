@@ -24,8 +24,9 @@ export class ShareComponent implements OnInit {
   editingShares = false
   deletingShare = false
 
-  modalRef: NgbModalRef;
-  @ViewChild('deleteConfirmModal', { static: true}) deleteConfirmModal: TemplateRef<any>;
+  modalRef: NgbModalRef
+  @ViewChild('deleteConfirmModal', { static: true}) deleteConfirmModal: TemplateRef<any>
+  @ViewChild('updateShareModal', { static: true}) updateShareModal: TemplateRef<any>
 
   constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation,
     private notifierService: NotifierService, private modalService: NgbModal) { }
@@ -94,6 +95,38 @@ export class ShareComponent implements OnInit {
       this.deletingShare = false;
       this.notifierService.notify('error', error.message);
     });
+  }
+
+  shareIndefinitely = 'true'
+  minDate: any
+  shareToDate: any
+
+  editSharePrompt(share: Share) {
+    this.selectedShare = share
+    const current = new Date()
+    this.minDate= { year: current.getFullYear(), month: current.getMonth() + 1, day: current.getDate()}
+    if (share.expiration == null) {
+      this.shareIndefinitely = 'true'
+      this.shareToDate = null
+    } else {
+      this.shareIndefinitely = 'false'
+      let expiration = new Date(share.expiration)
+      console.log(expiration)
+      this.shareToDate = { year: expiration.getFullYear(), month: expiration.getMonth() + 1, day: expiration.getDate()}
+    }
+    this.modalRef = this.modalService.open(this.updateShareModal, {
+      backdrop : 'static',
+      keyboard : false,
+      centered: true,
+    })
+  }
+
+  getShareLink(id: string) {
+    return (environment.production ? 'https://fmning.com/drive/share/' : 'http://localhost:4200/share/') + id
+  }
+
+  copyToClipboard(id: string) {
+    this.utils.copyToClipboard(document, this.getShareLink(id))
   }
 
 }

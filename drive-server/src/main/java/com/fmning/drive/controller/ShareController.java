@@ -49,6 +49,22 @@ public class ShareController {
         return share;
     }
 
+    @PutMapping()
+    @PreAuthorize("hasRole('DR')")
+    public Share updateShare(@RequestBody Share updatedShare) {
+        Optional<Share> shareOpt = shareRepo.findById(updatedShare.getId());
+        if (!shareOpt.isPresent()) {
+            throw new IllegalArgumentException("Share not found");
+        }
+
+        Share share = shareOpt.get();
+        share.setName(updatedShare.getName());
+        share.setExpiration(updatedShare.getExpiration());
+        share.setWriteAccess(updatedShare.isWriteAccess());
+        shareRepo.save(share);
+        return share;
+    }
+
     @DeleteMapping("/{shareId}")
     @PreAuthorize("hasRole('DR')")
     public ResponseEntity<Void> deleteShare(@PathVariable(value="shareId") String id) {
