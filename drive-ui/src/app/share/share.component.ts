@@ -98,11 +98,16 @@ export class ShareComponent implements OnInit {
   }
 
   shareIndefinitely = 'true'
+  shareName = ''
+  shareWriteAccess = false
   minDate: any
   shareToDate: any
+  updatingShare = false
 
   editSharePrompt(share: Share) {
     this.selectedShare = share
+    this.shareName = share.name
+    this.shareWriteAccess = share.writeAccess
     const current = new Date()
     this.minDate= { year: current.getFullYear(), month: current.getMonth() + 1, day: current.getDate()}
     if (share.expiration == null) {
@@ -127,6 +132,26 @@ export class ShareComponent implements OnInit {
 
   copyToClipboard(id: string) {
     this.utils.copyToClipboard(document, this.getShareLink(id))
+  }
+
+  updateShare() {
+    this.updatingShare = true;
+    let updatedShare = new Share({id: this.selectedShare.id, name: this.shareName, writeAccess: this.shareWriteAccess})
+    if (this.shareIndefinitely == 'false') {
+      updatedShare.expiration = new Date(this.shareToDate.year + '-' + this.shareToDate.month + '-' + (this.shareToDate.day + 1)).toISOString()
+    }
+
+    this.http.put<Share>(environment.urlPrefix + 'api/shares', updatedShare).subscribe(res => {
+      this.updatingShare = false;
+      var index = this.shares.indexOf(this.selectedShare);
+      if (index !== -1) {
+        this.shares[index] = res
+      }
+      this.modalRef.close()
+    }, error => {
+      this.updatingShare = false;
+      this.notifierService.notify('error', error.message);
+    });
   }
 
 }
