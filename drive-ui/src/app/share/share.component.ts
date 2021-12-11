@@ -19,10 +19,16 @@ export class ShareComponent implements OnInit {
   me: User
   selectedShare: Share
   shares = []
+  shareIndefinitely = 'true'
+  shareName = ''
+  minDate: any
+  shareToDate: any
 
   loadingPage = true
   editingShares = false
   deletingShare = false
+  shareWriteAccess = false
+  updatingShare = false
 
   modalRef: NgbModalRef
   @ViewChild('deleteConfirmModal', { static: true}) deleteConfirmModal: TemplateRef<any>
@@ -96,13 +102,6 @@ export class ShareComponent implements OnInit {
       this.notifierService.notify('error', error.message);
     });
   }
-
-  shareIndefinitely = 'true'
-  shareName = ''
-  shareWriteAccess = false
-  minDate: any
-  shareToDate: any
-  updatingShare = false
 
   editSharePrompt(share: Share) {
     this.selectedShare = share
