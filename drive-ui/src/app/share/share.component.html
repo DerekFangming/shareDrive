@@ -1,10 +1,12 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div [ngClass]="editingShares ? '' : 'container'">
   <a class="navbar-brand" href="./">Share drive</a>
+  </div>
 
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+  <div *ngIf="editingShares" class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
         <a class="nav-link pointer" [routerLink]="['/directory']">Directory</a>
@@ -26,12 +28,13 @@
   </div>
 </nav>
 
-<div class="container-fluid">
-  <div *ngIf="loadingPage" class="row mt-5">
-    <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
-    <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
-  </div>
-  <div *ngIf="!loadingPage && editingShares" class="row">
+<div *ngIf="loadingPage" class="row mt-5">
+  <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
+  <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
+</div>
+
+<div *ngIf="editingShares && !loadingPage" class="container-fluid">
+  <div class="row">
     <div class="col-12">
       <table class="table mt-3" [ngClass]="(!loadingDirectory && loadDirectoryError == '') ? 'table-hover' : ''">
         <thead>
@@ -67,6 +70,24 @@
         <p>Files and folders can be shared in the directory tab</p>
       </div>
     </div>
+  </div>
+</div>
+
+<div *ngIf="shareLoadError" class="container mt-4">
+  <div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Something went wrong</h4>
+    <p>{{shareLoadError}}</p>
+    <hr>
+    <p class="mb-0">Please contact the person you got this link from to resolbe this problem.</p>
+  </div>
+</div>
+
+<div *ngIf="!editingShares && !loadingPage" class="container mt-4">
+  <div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Something went wrong123</h4>
+    <p>{{shareLoadError}}</p>
+    <hr>
+    <p class="mb-0">Please contact the person you got this link from to resolbe this problem.</p>
   </div>
 </div>
 

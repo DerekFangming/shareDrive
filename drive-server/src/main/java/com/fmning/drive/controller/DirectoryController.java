@@ -1,21 +1,28 @@
 package com.fmning.drive.controller;
 
+import com.fmning.drive.domain.Share;
 import com.fmning.drive.dto.Capacity;
 import com.fmning.drive.dto.DirectorySize;
 import com.fmning.drive.dto.Shareable;
+import com.fmning.drive.repository.ShareRepo;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.fmning.drive.CORSFilter.SHARE_DETAILS;
 import static com.fmning.drive.FileUtil.*;
 
 @RestController
@@ -24,7 +31,9 @@ import static com.fmning.drive.FileUtil.*;
 public class DirectoryController {
 
     private final File rootDir;
+    private final ShareRepo shareRepo;
     private static final String DIRECTORY = "directory";
+    private static final String SHARED_DIRECTORY = "shared-directory";
     public static final String DIRECTORY_SIZE = "directory-size";
 
     @GetMapping("/" + DIRECTORY + "/**")
@@ -44,6 +53,47 @@ public class DirectoryController {
                 return false;
             }).map(f -> toShareable(rootDir, f)).collect(Collectors.toList());
         }
+    }
+
+    @GetMapping("/" + SHARED_DIRECTORY + "/**")
+    public ResponseEntity<List<Shareable>> getSharedFiles(HttpServletRequest request) {
+        String path = getFilePath(request, SHARED_DIRECTORY).substring(1);
+        if (StringUtils.isBlank(path)) {
+            throw new IllegalArgumentException("No share code is provided");
+        }
+        String[] paths = path.split("/", 2);
+        String shareId = paths[0];
+        String subPath = paths.length == 2 ? paths[1] : "";
+
+        Share share = shareRepo.findById(shareId).orElse(null);
+        if (share == null) {
+            throw new IllegalArgumentException("Share code " + shareId + " does not exist.");
+        } else if (share.getExpiration() != null && share.getExpiration().isBefore(Instant.now())) {
+            throw new IllegalArgumentException("Share code " + shareId + " has expired.");
+        }
+
+        File sharePoint = getInnerFolder(rootDir, share.getFile() + "/" + subPath);
+        if (!sharePoint.exists()) {
+            throw new IllegalArgumentException("Shared file does not exist.");
+        }
+
+        String details = sharePoint.isFile() ? "f:" : "d:";
+        details += share.isWriteAccess() ? "rw" : "r";
+
+        if (sharePoint.isFile()) {
+            return ResponseEntity.ok()
+                    .header(SHARE_DETAILS, details)
+                    .body(Collections.singletonList(toShareable(rootDir, sharePoint)));
+        }
+        if (sharePoint.isDirectory()) {
+            return ResponseEntity.ok()
+                    .header(SHARE_DETAILS, details)
+                    .body(Arrays.stream(Objects.requireNonNull(sharePoint.listFiles()))
+                            .filter(f -> !f.isHidden() && !f.getName().startsWith(".") && !f.getName().startsWith("$"))
+                            .map(f -> toShareable(rootDir, f)).collect(Collectors.toList()));
+        }
+
+        throw new IllegalArgumentException("Internal error: Shared path does not contain file or directory.");
     }
 
     @GetMapping("/" + DIRECTORY_SIZE + "/**")

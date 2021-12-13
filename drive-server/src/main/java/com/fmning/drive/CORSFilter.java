@@ -15,6 +15,7 @@ import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 public class CORSFilter implements Filter {
 
     public static final String TOTAL_COUNT = "X-Total-Count";
+    public static final String SHARE_DETAILS = "X-Share-Details";
     public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
@@ -29,7 +30,7 @@ public class CORSFilter implements Filter {
             response.setHeader("Access-Control-Max-Age", "3600");
             response.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization");
             response.setHeader("Access-Control-Allow-Credentials", "true");
-            response.setHeader("Access-Control-Expose-Headers", "Location, " + TOTAL_COUNT);
+            response.setHeader("Access-Control-Expose-Headers", "Location, " + TOTAL_COUNT + ", " + SHARE_DETAILS);
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             filterChain.doFilter(servletRequest, servletResponse);

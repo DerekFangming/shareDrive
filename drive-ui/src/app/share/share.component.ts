@@ -6,6 +6,7 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotifierService } from 'angular-notifier';
 import { environment } from 'src/environments/environment';
 import { Share } from '../model/share';
+import { Shareable } from '../model/shareable';
 import { User } from '../model/user';
 import { UtilsService } from '../utils.service';
 
@@ -23,6 +24,8 @@ export class ShareComponent implements OnInit {
   shareName = ''
   minDate: any
   shareToDate: any
+  shareLoadError: any
+  shareDetails = ''
 
   loadingPage = true
   editingShares = false
@@ -40,7 +43,6 @@ export class ShareComponent implements OnInit {
   ngOnInit() {
     let path = this.getDirectoryFromUrl()
     this.editingShares = path == ''
-    console.log(path)
 
     this.loadingPage = true
     if (this.editingShares) {
@@ -54,12 +56,22 @@ export class ShareComponent implements OnInit {
           this.shares = shares
         }, error => {
           this.loadingPage = false
-          this.notifierService.notify('error', error.message);
+          this.notifierService.notify('error', error.message)
         })
 
       }, error => {
         this.loadingPage = false
-        this.notifierService.notify('error', error.message);
+        this.notifierService.notify('error', error.message)
+      })
+    } else {
+      this.shareLoadError = null
+      this.http.get<Shareable[]>(environment.urlPrefix + 'api/shared-directory/' + path, {observe: 'response' as 'response'}).subscribe(res => {
+        this.loadingPage = false
+        this.shareDetails = res.headers.get('X-Share-Details')
+        console.log(res.body)
+      }, error => {
+        this.loadingPage = false
+        this.shareLoadError = error.message
       })
     }
   }
