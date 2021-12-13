@@ -26,6 +26,7 @@ export class ShareComponent implements OnInit {
   shareToDate: any
   shareLoadError: any
   shareDetails = ''
+  shareables: Shareable[] = [];
 
   loadingPage = true
   editingShares = false
@@ -68,7 +69,7 @@ export class ShareComponent implements OnInit {
       this.http.get<Shareable[]>(environment.urlPrefix + 'api/shared-directory/' + path, {observe: 'response' as 'response'}).subscribe(res => {
         this.loadingPage = false
         this.shareDetails = res.headers.get('X-Share-Details')
-        console.log(res.body)
+        this.shareables = res.body
       }, error => {
         this.loadingPage = false
         this.shareLoadError = error.message

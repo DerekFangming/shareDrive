@@ -83,11 +83,13 @@
 </div>
 
 <div *ngIf="!editingShares && !loadingPage" class="container mt-4">
-  <div class="alert alert-danger" role="alert">
-    <h4 class="alert-heading">Something went wrong123</h4>
-    <p>{{shareLoadError}}</p>
-    <hr>
-    <p class="mb-0">Please contact the person you got this link from to resolbe this problem.</p>
+  <div *ngIf="shareDetails.startsWith('f')" class="row">
+    <div class="col">
+      <div class="row">
+        <div class="col">{{shareables[0].name}}</div>
+        
+      </div>
+    </div>
   </div>
 </div>
 
