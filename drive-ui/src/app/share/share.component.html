@@ -85,9 +85,17 @@
 <div *ngIf="!editingShares && !loadingPage" class="container mt-4">
   <div *ngIf="shareDetails.startsWith('f')" class="row">
     <div class="col">
-      <div class="row">
-        <div class="col">{{shareables[0].name}}</div>
-        
+      <div class="row mt-2">
+        <div class="col"><p class="lead">A file has been shared with you</p></div>
+      </div>
+      <div class="row mt-5">
+        <div class="col mt-5 text-center"><img src="{{utils.parseFileType(shareables[0]).icon}}"></div>
+      </div>
+      <div class="row mt-2">
+        <div class="col text-center"><p class="lead"><strong>{{shareables[0].name}}</strong></p></div>
+      </div>
+      <div class="row mt-5">
+        <div class="col text-center"><button type="button" class="btn btn-primary">Download</button></div>
       </div>
     </div>
   </div>
