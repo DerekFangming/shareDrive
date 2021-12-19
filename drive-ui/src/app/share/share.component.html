@@ -94,8 +94,11 @@
       <div class="row mt-2">
         <div class="col text-center"><p class="lead"><strong>{{shareables[0].name}}</strong></p></div>
       </div>
+      <div class="row mt-2">
+        <div class="col text-center">{{ utils.getFileSize(shareables[0].size) }}</div>
+      </div>
       <div class="row mt-5">
-        <div class="col text-center"><button type="button" class="btn btn-primary">Download</button></div>
+        <div class="col text-center"><button type="button" class="btn btn-primary" (click)="">Download</button></div>
       </div>
     </div>
   </div>

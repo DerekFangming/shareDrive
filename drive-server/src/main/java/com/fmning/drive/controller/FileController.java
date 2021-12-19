@@ -1,13 +1,16 @@
 package com.fmning.drive.controller;
 
 import com.fmning.drive.FileUtil;
+import com.fmning.drive.domain.Share;
 import com.fmning.drive.dto.MoveFile;
 import com.fmning.drive.dto.Shareable;
 import com.fmning.drive.dto.UploadResult;
+import com.fmning.drive.repository.ShareRepo;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +27,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,17 +40,44 @@ import static com.fmning.drive.FileUtil.*;
 public class FileController {
 
     private final File rootDir;
+    private final ShareRepo shareRepo;
+
     private static final String DOWNLOAD_FILE = "download-file";
+    private static final String DOWNLOAD_SHARED_FILE = "download-shared-file";
     private static final String DELETE_FILE = "delete-file";
     private static final String UPLOAD_FILE = "upload-file";
     private static final String SEARCH_FILE = "search-file";
     private static final int DEFAULT_BUFFER_BYTE_SIZE = 20480;
 
+    @GetMapping("/" + DOWNLOAD_SHARED_FILE + "/**")
+    public void downloadSharedFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String path = getFilePath(request, DOWNLOAD_SHARED_FILE).substring(1);
+        if (StringUtils.isBlank(path)) {
+            throw new IllegalArgumentException("No share code is provided");
+        }
+        String[] paths = path.split("/", 2);
+        String shareId = paths[0];
+        String subPath = paths.length == 2 ? paths[1] : "";
+
+        Share share = shareRepo.findById(shareId).orElse(null);
+        if (share == null) {
+            throw new IllegalArgumentException("Share code " + shareId + " does not exist.");
+        } else if (share.getExpiration() != null && share.getExpiration().isBefore(Instant.now())) {
+            throw new IllegalArgumentException("Share code " + shareId + " has expired.");
+        }
+
+        File file = getInnerFolder(rootDir, share.getFile() + "/" + subPath);
+        downloadFile(request, response, file);
+    }
+
     @GetMapping("/" + DOWNLOAD_FILE + "/**")
     @PreAuthorize("hasRole('DR')")
     public void downloadFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         File file = getInnerFolder(rootDir, getFilePath(request, DOWNLOAD_FILE));
+        downloadFile(request, response, file);
+    }
 
+    private void downloadFile(HttpServletRequest request, HttpServletResponse response, File file) throws IOException {
         if (file.isDirectory()) {
             throw new IllegalArgumentException("Cannot download a directory");
         } else if (!file.isFile()) {

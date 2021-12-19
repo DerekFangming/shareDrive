@@ -202,8 +202,11 @@ export class DirectoryComponent implements OnInit {
 
   downloadSelectedFile() {
     if (this.selectedFile.isFile) {
-      console.log(window.location.href);
-      window.open(environment.urlPrefix + environment.contextPath + "/api/download-file/" + this.selectedFile.path);
+      if (environment.production) {
+        window.open(environment.urlPrefix + environment.contextPath + "/api/download-file/" + this.selectedFile.path);
+      } else {
+        window.open(environment.urlPrefix + "api/download-file/" + this.selectedFile.path);
+      }
     }
   }
 
