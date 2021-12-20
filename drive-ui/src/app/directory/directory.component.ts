@@ -132,20 +132,6 @@ export class DirectoryComponent implements OnInit {
       this.notifierService.notify('error', error.message);
     });
   }
-
-  splitDirectory(directory: string) {
-    let dirs = directory == '' ? [] : directory.split('/');
-    let res: Shareable[] = [];
-    let parentDir = '';
-
-    for (let dir of dirs) {
-      res.push(new Shareable({name: dir, path: parentDir + dir}));
-      parentDir += dir + '/';
-    }
-
-    return res;
-  }
-
   
   sortShareables(sortColumn: string) {
     if (this.sortColumn == sortColumn) {

@@ -35,16 +35,15 @@
 </nav>
 
 <div class="container-fluid">
-  <div class="row mt-2">
-    <div class="col">
-      <nav class="nav nav-pills align-items-center">
-        <button type="button" class="btn btn-link" (click)="loadDirectory('')">Home</button>
-        <ng-container *ngFor="let dir of splitDirectory(directory);">
-          <img src="{{utils.getImage('arrow.png')}}" height="15px" width="15px">
-          <button type="button" class="btn btn-link" (click)="loadDirectory(dir.path)">{{dir.name}}</button>
-        </ng-container>
-        <img *ngIf="showingSearchResult" src="{{utils.getImage('arrow.png')}}" height="15px" width="15px">
-        <button *ngIf="showingSearchResult" type="button" class="btn btn-link">Search Results</button>
+  <div class="row mt-1">
+    <div class="col mb-2">
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory('')">Home</a></li>
+          <li *ngFor="let dir of utils.splitDirectory(directory);"
+            class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(dir.path)">{{dir.name}}</a></li>
+          <li *ngIf="showingSearchResult" class="breadcrumb-item"><a [routerLink]="[]">Search Results</a></li>
+        </ol>
       </nav>
     </div>
   </div>
@@ -189,7 +188,7 @@
               <div class="col-lg-9">
                 <div>
                   <span>Home</span>
-                  <ng-container *ngFor="let dir of splitDirectory(selectedFile.path);">
+                  <ng-container *ngFor="let dir of utils.splitDirectory(selectedFile.path);">
                     <img src="{{utils.getImage('arrow.png')}}" height="15px" width="15px"><span>{{dir.name}}</span>
                   </ng-container>
                 </div>

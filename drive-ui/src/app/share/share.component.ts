@@ -22,6 +22,7 @@ export class ShareComponent implements OnInit {
   shares = []
   shareIndefinitely = 'true'
   shareName = ''
+  directory = ''
   minDate: any
   shareToDate: any
   shareLoadError: any
@@ -79,6 +80,7 @@ export class ShareComponent implements OnInit {
   loadDirectory(directory: string) {
     this.shareLoadError = null
     this.router.navigateByUrl('/share/' + directory);
+    this.directory = directory
     this.http.get<Shareable[]>(environment.urlPrefix + 'api/shared-directory/' + directory, {observe: 'response' as 'response'}).subscribe(res => {
       this.loadingPage = false
       this.shareDetails = res.headers.get('X-Share-Details')

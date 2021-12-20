@@ -137,5 +137,19 @@ export class UtilsService {
     document.execCommand('copy')
     document.body.removeChild(selBox)
   }
+
+  splitDirectory(directory: string) {
+    if (directory.startsWith('/')) directory = directory.substring(1)
+    let dirs = directory == '' ? [] : directory.split('/');
+    let res: Shareable[] = [];
+    let parentDir = '';
+
+    for (let dir of dirs) {
+      res.push(new Shareable({name: dir, path: parentDir + dir}));
+      parentDir += dir + '/';
+    }
+
+    return res;
+  }
   
 }

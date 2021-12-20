@@ -27,3 +27,8 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+.breadcrumb {
+    margin-bottom: 0;
+    background-color: #fafafa;
+}

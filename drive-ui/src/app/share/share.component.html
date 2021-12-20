@@ -82,8 +82,8 @@
   </div>
 </div>
 
-<div *ngIf="!editingShares && !loadingPage" class="container mt-4">
-  <div *ngIf="shareDetails.startsWith('f')" class="row">
+<div *ngIf="!editingShares && !loadingPage && !shareLoadError" class="container">
+  <div *ngIf="shareDetails.startsWith('f')" class="row mt-4">
     <div class="col">
       <div class="row mt-2">
         <div class="col"><p class="lead">A file has been shared with you</p></div>
@@ -102,14 +102,25 @@
       </div>
     </div>
   </div>
-  <div *ngIf="shareDetails.startsWith('d')" class="row">
+  <div *ngIf="shareDetails.startsWith('d')" class="row mt-1">
     <div class="col">
-      <div class="row mt-2">
-        <div class="col"><p class="lead">A folder has been shared with you</p></div>
+      <div class="row">
+        <div class="col">
+          <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(shareCode)">Home</a></li>
+              <li *ngFor="let dir of utils.splitDirectory(directory.replace(shareCode, ''));"
+                class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(shareCode + '/' + dir.path)">{{dir.name}}</a></li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col"><p class="lead ml-2">A folder has been shared with you</p></div>
       </div>
       <div class="row">
         <div class="col">
-          <table class="table mt-3" [ngClass]="shareables.length > 0 ? 'table-hover' : ''">
+          <table class="table mt-2" [ngClass]="shareables.length > 0 ? 'table-hover' : ''">
             <thead>
               <tr>
                 <th style="width:80%">Name</th>
