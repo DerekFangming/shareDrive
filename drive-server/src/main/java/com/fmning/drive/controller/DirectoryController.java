@@ -83,14 +83,15 @@ public class DirectoryController {
         if (sharePoint.isFile()) {
             return ResponseEntity.ok()
                     .header(SHARE_DETAILS, details)
-                    .body(Collections.singletonList(toShareable(rootDir, sharePoint)));
+                    .body(Collections.singletonList(toShareable("", sharePoint)));
         }
         if (sharePoint.isDirectory()) {
+            File shareRoot = getInnerFolder(rootDir, share.getFile());
             return ResponseEntity.ok()
                     .header(SHARE_DETAILS, details)
                     .body(Arrays.stream(Objects.requireNonNull(sharePoint.listFiles()))
                             .filter(f -> !f.isHidden() && !f.getName().startsWith(".") && !f.getName().startsWith("$"))
-                            .map(f -> toShareable(rootDir, f)).collect(Collectors.toList()));
+                            .map(f -> toShareable(shareRoot, f)).collect(Collectors.toList()));
         }
 
         throw new IllegalArgumentException("Internal error: Shared path does not contain file or directory.");

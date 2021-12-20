@@ -56,6 +56,17 @@ public class FileUtil {
         }
     }
 
+    public static Shareable toShareable(String relativePath, File file) {
+        return Shareable.builder()
+                .name(file.getName())
+                .path(relativePath)
+                .isFile(file.isFile())
+                .created(getCreationTime(file))
+                .lastModified(file.lastModified())
+                .size(file.isFile() ? file.length() : 0)
+                .build();
+    }
+
     public static Shareable toShareable(File rootDir, File file) {
         return Shareable.builder()
                 .name(file.getName())

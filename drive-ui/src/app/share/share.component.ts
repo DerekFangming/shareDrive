@@ -26,6 +26,7 @@ export class ShareComponent implements OnInit {
   shareToDate: any
   shareLoadError: any
   shareDetails = ''
+  shareCode = ''
   shareables: Shareable[] = [];
   selectedFile: Shareable;
 
@@ -46,6 +47,7 @@ export class ShareComponent implements OnInit {
     let path = this.getDirectoryFromUrl()
     this.editingShares = path == ''
     console.log(path)
+    this.shareCode = path.split('/')[0]
 
     this.loadingPage = true
     if (this.editingShares) {
@@ -67,19 +69,30 @@ export class ShareComponent implements OnInit {
         this.notifierService.notify('error', error.message)
       })
     } else {
-      this.shareLoadError = null
-      this.http.get<Shareable[]>(environment.urlPrefix + 'api/shared-directory/' + path, {observe: 'response' as 'response'}).subscribe(res => {
-        this.loadingPage = false
-        this.shareDetails = res.headers.get('X-Share-Details')
-        this.shareables = res.body.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1)
+      this.loadDirectory(path)
+    }
+  }
 
-        if (this.shareDetails.startsWith('f')) {
-          this.selectedFile = this.shareables[0]
-        }
-      }, error => {
-        this.loadingPage = false
-        this.shareLoadError = error.message
-      })
+  loadDirectory(directory: string) {
+    this.shareLoadError = null
+    this.router.navigateByUrl('/share/' + directory);
+    this.http.get<Shareable[]>(environment.urlPrefix + 'api/shared-directory/' + directory, {observe: 'response' as 'response'}).subscribe(res => {
+      this.loadingPage = false
+      this.shareDetails = res.headers.get('X-Share-Details')
+      this.shareables = res.body.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1)
+
+      if (this.shareDetails.startsWith('f')) {
+        this.selectedFile = this.shareables[0]
+      }
+    }, error => {
+      this.loadingPage = false
+      this.shareLoadError = error.message
+    })
+  }
+
+  loadFolderContent(shareable: Shareable) {
+    if (!shareable.isFile) {
+      this.loadDirectory(this.shareCode + '/' + shareable.path)
     }
   }
 
@@ -178,13 +191,11 @@ export class ShareComponent implements OnInit {
   }
 
   downloadSelectedFile() {
-    console.log(1)
     if (this.selectedFile.isFile) {
-      console.log(2)
       if (environment.production) {
-        window.open(environment.urlPrefix + environment.contextPath + "/api/download-file/" + this.selectedFile.path);
+        window.open(environment.urlPrefix + environment.contextPath + "/api/download-shared-file/" + this.shareCode + "/" + this.selectedFile.path);
       } else {
-        window.open(environment.urlPrefix + "api/download-file/" + this.selectedFile.path);
+        window.open(environment.urlPrefix + "api/download-shared-file/" + this.shareCode + "/" + this.selectedFile.path);
       }
     }
   }
