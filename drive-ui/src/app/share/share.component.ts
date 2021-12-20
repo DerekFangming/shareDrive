@@ -27,6 +27,7 @@ export class ShareComponent implements OnInit {
   shareLoadError: any
   shareDetails = ''
   shareables: Shareable[] = [];
+  selectedFile: Shareable;
 
   loadingPage = true
   editingShares = false
@@ -44,6 +45,7 @@ export class ShareComponent implements OnInit {
   ngOnInit() {
     let path = this.getDirectoryFromUrl()
     this.editingShares = path == ''
+    console.log(path)
 
     this.loadingPage = true
     if (this.editingShares) {
@@ -69,7 +71,11 @@ export class ShareComponent implements OnInit {
       this.http.get<Shareable[]>(environment.urlPrefix + 'api/shared-directory/' + path, {observe: 'response' as 'response'}).subscribe(res => {
         this.loadingPage = false
         this.shareDetails = res.headers.get('X-Share-Details')
-        this.shareables = res.body
+        this.shareables = res.body.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1)
+
+        if (this.shareDetails.startsWith('f')) {
+          this.selectedFile = this.shareables[0]
+        }
       }, error => {
         this.loadingPage = false
         this.shareLoadError = error.message
@@ -164,6 +170,23 @@ export class ShareComponent implements OnInit {
       this.updatingShare = false;
       this.notifierService.notify('error', error.message);
     });
+  }
+
+  downloadFile(shareable) {
+    this.selectedFile = shareable
+    this.downloadSelectedFile()
+  }
+
+  downloadSelectedFile() {
+    console.log(1)
+    if (this.selectedFile.isFile) {
+      console.log(2)
+      if (environment.production) {
+        window.open(environment.urlPrefix + environment.contextPath + "/api/download-file/" + this.selectedFile.path);
+      } else {
+        window.open(environment.urlPrefix + "api/download-file/" + this.selectedFile.path);
+      }
+    }
   }
 
 }
