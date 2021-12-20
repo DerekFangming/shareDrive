@@ -13,15 +13,20 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
+import static com.fmning.drive.FileUtil.getFilePath;
+import static com.fmning.drive.FileUtil.getInnerFolder;
 
 @RestController
 @RequestMapping("/api/shares")
 @RequiredArgsConstructor(onConstructor_={@Autowired})
 public class ShareController {
 
+    private final File rootDir;
     private final ShareRepo shareRepo;
     private final DriveProperties driveProperties;
 
@@ -34,6 +39,12 @@ public class ShareController {
     @PostMapping()
     @PreAuthorize("hasRole('DR')")
     public Share createShare(@RequestBody Share share) {
+        File file = getInnerFolder(rootDir, share.getFile());
+        if (!file.exists()) {
+            throw new IllegalArgumentException("The file does not exist");
+        } else if (file.isFile() && share.isWriteAccess()) {
+            throw new IllegalArgumentException("Shared file does not allow uploading.");
+        }
         share.setId(RandomStringUtils.randomAlphanumeric(6));
         share.setCreated(Instant.now());
 
@@ -76,8 +87,4 @@ public class ShareController {
         throw new IllegalArgumentException("Share not found");
     }
 
-//    @DeleteMapping("/ping")
-//    public void deleteShare11() {
-//        System.out.println(1);
-//    }
 }

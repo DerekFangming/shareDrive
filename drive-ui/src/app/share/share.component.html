@@ -128,7 +128,7 @@
               </tr>
             </tbody>
             <tbody>
-              <tr class="pointer" *ngFor="let shareable of shareables;">
+              <tr class="pointer" *ngFor="let shareable of shareables;" (dblclick)="loadFolderContent(shareable)">
                 <td class="fix-text"><img src="{{shareable.icon}}" class='mr-2' width='30' height='30'/> <span>{{shareable.name}}</span></td>
                 <td>{{shareable.isFile ? utils.getFileSize(shareable.size) : '-'}}</td>
                 <td *ngIf="shareable.isFile"><button type="button" class="btn btn-outline-primary" (click)="downloadFile(shareable)">

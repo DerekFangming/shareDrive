@@ -46,7 +46,6 @@ export class ShareComponent implements OnInit {
   ngOnInit() {
     let path = this.getDirectoryFromUrl()
     this.editingShares = path == ''
-    console.log(path)
     this.shareCode = path.split('/')[0]
 
     this.loadingPage = true
@@ -71,6 +70,10 @@ export class ShareComponent implements OnInit {
     } else {
       this.loadDirectory(path)
     }
+
+    this.location.onPopState(() => {
+      this.loadDirectory(this.getDirectoryFromUrl());
+    });
   }
 
   loadDirectory(directory: string) {
