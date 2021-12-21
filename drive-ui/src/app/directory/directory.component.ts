@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { HttpClient, HttpEventType } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Shareable } from '../model/shareable';
 import { Share } from '../model/share';
@@ -10,8 +10,8 @@ import { Router } from '@angular/router';
 import { PlatformLocation } from '@angular/common';
 import { NotifierService } from 'angular-notifier';
 import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { UploadResult } from '../model/upload-result';
 import { User } from '../model/user';
+import { UploadModalComponent } from '../components/upload-modal/upload-modal.component';
 
 @Component({
   selector: 'app-directory',
@@ -24,15 +24,11 @@ export class DirectoryComponent implements OnInit {
   shareables: Shareable[] = [];
   moveDirectories: Shareable[] = [];
   capacity: Capacity;
-  uploadFiles: File[] = [];
 
   sortColumn = '';
   sortAsc = true;
   selectedFile: Shareable;
   selectedMoveDirectory: Shareable;
-  uploadFilesSize = 0;
-  uploadRatio = 0;
-  uploadRemaining = '';
   searchKeyword = '';
   me: User;
   
@@ -44,8 +40,6 @@ export class DirectoryComponent implements OnInit {
   deleteFile = false;
   deletingFile = false;
   movingFile = false;
-  uploadingFile = false;
-  dragOver = false;
   loadingDirectory = false;
   loadingCapacity = false;
   loadingDirectorySize = false;
@@ -66,12 +60,10 @@ export class DirectoryComponent implements OnInit {
   minDate: any
   shareToDate: any;
 
-  plusImage = environment.production ? environment.contextPath + '/assets/plus.png' : '/assets/plus.png';
-
   modalRef: NgbModalRef;
   @ViewChild('moveFileModal', { static: true}) moveFileModal: TemplateRef<any>;
-  @ViewChild('uploadFileModal', { static: true}) uploadFileModal: TemplateRef<any>;
   @ViewChild('shareFileModal', { static: true}) shareFileModal: TemplateRef<any>;
+  @ViewChild('uploadFileModal', { static: true}) uploadFileModal: UploadModalComponent;
 
   constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation,
     private notifierService: NotifierService, private modalService: NgbModal, private elementRef: ElementRef) { }
@@ -93,6 +85,12 @@ export class DirectoryComponent implements OnInit {
     this.location.onPopState(() => {
       this.loadDirectory(this.getDirectoryFromUrl());
     });
+  }
+
+  uploadFinished(shareables: Shareable[]){
+    this.shareables = [ ...this.shareables, ...shareables];
+    this.shareables = this.shareables.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
+    this.loadCapacity()
   }
 
   getDirectoryFromUrl() {
@@ -132,7 +130,7 @@ export class DirectoryComponent implements OnInit {
       this.notifierService.notify('error', error.message);
     });
   }
-  
+
   sortShareables(sortColumn: string) {
     if (this.sortColumn == sortColumn) {
       this.sortAsc = !this.sortAsc;
@@ -262,17 +260,6 @@ export class DirectoryComponent implements OnInit {
     });
   }
 
-  openUploadFileModel() {
-    this.uploadFiles = [];
-    this.uploadRatio = 0;
-    this.uploadFilesSize = 0;
-    this.modalRef = this.modalService.open(this.uploadFileModal, {
-      backdrop : 'static',
-      keyboard : false,
-      size: 'lg'
-    });
-  }
-
   getParentDirectory(directory: string) {
     let dirs = directory == '' ? [] : directory.split('/');
     if (dirs.length > 0) dirs.pop();
@@ -289,122 +276,6 @@ export class DirectoryComponent implements OnInit {
       this.moveDirectories = res.sort((a, b) => a.name.localeCompare(b.name));
     }, error => {
       this.loadingMoveDirectory = false;
-      this.notifierService.notify('error', error.message);
-    });
-  }
-
-  onDragOver(event) {
-    event.stopPropagation();
-    event.preventDefault();
-  }
-
-  onDragEnter(event) {
-    this.dragOver = true;
-    event.preventDefault();
-  }
-
-  onDragLeave(event) {
-    this.dragOver = false;
-    event.preventDefault();
-  }
-
-  onFilesDropped(event) {
-    this.dragOver = false;
-    event.preventDefault();
-    this.loadFiles(event.dataTransfer.files);
-  }
-
-  onFilesSelected(event) {
-    event.preventDefault();
-    this.loadFiles(event.target.files);
-  }
-
-  loadFiles(files) {
-    for (let file of files) {
-      // TODO: Check for folders?
-
-      if (file.size == 0) {
-        this.notifierService.notify('error', `Cannot upload empty file: ${file.name}`);
-        continue;
-      }
-      if (this.uploadFiles.some(f => f.name == file.name)) {
-        this.notifierService.notify('error',  `File with the same name has been selected: ${file.name}`);
-        continue;
-      }
-
-      if (this.uploadFilesSize + file.size > 4294967296) {
-        this.notifierService.notify('error',  `Cannot upload more than 4GB of files at a time.`);
-        return
-      }
-
-      this.uploadFilesSize += file.size;
-      this.uploadFiles.push(file);
-    }
-  }
-
-  removeUploadFile(file) {
-    const index = this.uploadFiles.indexOf(file);
-    if (index > -1) {
-      this.uploadFiles.splice(index, 1);
-
-      if (this.uploadFilesSize - file.size <= 0) {
-        this.uploadFilesSize = 0;
-      } else {
-        this.uploadFilesSize -= file.size;
-      }
-    }
-  }
-
-  uploadSelectedFiles() {
-    if (this.uploadFiles.length == 0) {
-      this.notifierService.notify('error', 'Please select at least 1 file to upload.');
-      return;
-    }
-
-    this.uploadingFile = true;
-    let body = new FormData();
-    for (let f of this.uploadFiles) {
-      body.append('files', f);
-    }
-
-    let previousRatio = 0;
-		let progressTimer = setInterval(() => {
-			let newProgress = this.uploadRatio - previousRatio;
-			previousRatio = this.uploadRatio
-			if (newProgress <= 0) {
-				this.uploadRemaining = '-';
-			} else {
-				let remainingSeconds = (100 - this.uploadRatio) / newProgress
-				this.uploadRemaining = this.utils.secondsToStr(remainingSeconds)
-			}
-			
-			if (this.uploadRatio == 100 || !this.uploadingFile) {
-				clearInterval(progressTimer)
-			}
-		}, 1000)
-
-    this.http.post<UploadResult>(environment.urlPrefix + 'api/upload-file/' + this.directory, body, {
-      reportProgress: true,
-      observe: 'events'
-    }).subscribe(res => {
-      if (res.type === HttpEventType.Response) {
-        this.uploadRatio = 100;
-        this.uploadingFile = false;
-        this.modalRef.close();
-
-        this.shareables = [ ...this.shareables, ...res.body.files];
-        this.shareables = this.shareables.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1);
-        if (res.body.error != '') {
-          this.notifierService.notify('warning', res.body.error);
-        }
-
-        this.loadCapacity();
-      }
-      if (res.type === HttpEventType.UploadProgress) {
-          this.uploadRatio = Math.round(100 * res.loaded / res.total);
-      } 
-    }, error => {
-      this.uploadingFile = false;
       this.notifierService.notify('error', error.message);
     });
   }

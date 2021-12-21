@@ -11,13 +11,15 @@ import { NotifierModule } from 'angular-notifier';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthenticationInterceptor } from './authentication-interceptor';
 import { ShareComponent } from './share/share.component';
+import { UploadModalComponent } from './components/upload-modal/upload-modal.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     IndexComponent,
     DirectoryComponent,
-    ShareComponent
+    ShareComponent,
+    UploadModalComponent
   ],
   imports: [
     BrowserModule,
