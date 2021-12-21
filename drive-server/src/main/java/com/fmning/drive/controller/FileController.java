@@ -172,17 +172,18 @@ public class FileController {
         }
 
         File folder = getInnerFolder(rootDir, share.getFile() + "/" + subPath);
-        return uploadFiles(folder, files);
+        File shareRoot = getInnerFolder(rootDir, share.getFile());
+        return uploadFiles(folder, files, shareRoot, share.getId());
     }
 
     @PostMapping("/" + UPLOAD_FILE + "/**")
     @PreAuthorize("hasRole('DR')")
     public UploadResult uploadFiles(@RequestParam(value = "files", required=false) List<MultipartFile> files, HttpServletRequest request) {
         File folder = getInnerFolder(rootDir, getFilePath(request, UPLOAD_FILE));
-        return uploadFiles(folder, files);
+        return uploadFiles(folder, files, null, null);
     }
 
-    public UploadResult uploadFiles(File folder, List<MultipartFile> files) {
+    public UploadResult uploadFiles(File folder, List<MultipartFile> files, File shareRoot, String shareId) {
         if (!folder.exists()) {
             throw new IllegalArgumentException("The folder does not exist");
         } else if (!folder.isDirectory()) {
@@ -203,7 +204,11 @@ public class FileController {
                     targetFile.setReadable(true, false);
                     targetFile.setExecutable(true, false);
                     targetFile.setWritable(true, false);
-                    shareables.add(toShareable(rootDir, targetFile));
+                    if (shareRoot == null) {
+                        shareables.add(toShareable(rootDir, targetFile));
+                    } else {
+                        shareables.add(toShareable(shareId + "/" + getRelativePath(targetFile, shareRoot), targetFile));
+                    }
                 } catch (Exception e) {
                     error += "File named " + file.getOriginalFilename() + " failed to be uploaded, " + e.getMessage() + ";";
                 }

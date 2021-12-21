@@ -108,9 +108,8 @@
         <div class="col">
           <nav>
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(shareCode)">Home</a></li>
-              <li *ngFor="let dir of utils.splitDirectory(directory.replace(shareCode, ''));"
-                class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(shareCode + '/' + dir.path)">{{dir.name}}</a></li>
+              <li *ngFor="let dir of utils.splitDirectory(directory); index as i"
+                class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(dir.path)">{{ i == 0 ? 'Home' : dir.name }}</a></li>
             </ol>
           </nav>
         </div>

@@ -28,7 +28,6 @@ export class ShareComponent implements OnInit {
   shareToDate: any
   shareLoadError: any
   shareDetails = ''
-  shareCode = ''
   shareables: Shareable[] = [];
   selectedFile: Shareable;
 
@@ -49,7 +48,6 @@ export class ShareComponent implements OnInit {
   ngOnInit() {
     let path = this.getDirectoryFromUrl()
     this.editingShares = path == ''
-    this.shareCode = path.split('/')[0]
 
     this.loadingPage = true
     if (this.editingShares) {
@@ -99,7 +97,7 @@ export class ShareComponent implements OnInit {
 
   loadFolderContent(shareable: Shareable) {
     if (!shareable.isFile) {
-      this.loadDirectory(this.shareCode + '/' + shareable.path)
+      this.loadDirectory(shareable.path)
     }
   }
 
@@ -200,9 +198,9 @@ export class ShareComponent implements OnInit {
   downloadSelectedFile() {
     if (this.selectedFile.isFile) {
       if (environment.production) {
-        window.open(environment.urlPrefix + environment.contextPath + "/api/download-shared-file/" + this.shareCode + "/" + this.selectedFile.path);
+        window.open(environment.urlPrefix + environment.contextPath + "/api/download-shared-file/" + this.selectedFile.path);
       } else {
-        window.open(environment.urlPrefix + "api/download-shared-file/" + this.shareCode + "/" + this.selectedFile.path);
+        window.open(environment.urlPrefix + "api/download-shared-file/" + this.selectedFile.path);
       }
     }
   }
