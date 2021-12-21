@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { NotifierService } from 'angular-notifier';
 import { environment } from 'src/environments/environment';
+import { UploadModalComponent } from '../components/upload-modal/upload-modal.component';
 import { Share } from '../model/share';
 import { Shareable } from '../model/shareable';
 import { User } from '../model/user';
@@ -40,6 +41,7 @@ export class ShareComponent implements OnInit {
   modalRef: NgbModalRef
   @ViewChild('deleteConfirmModal', { static: true}) deleteConfirmModal: TemplateRef<any>
   @ViewChild('updateShareModal', { static: true}) updateShareModal: TemplateRef<any>
+  @ViewChild('uploadFileModal', { static: true}) uploadFileModal: UploadModalComponent;
 
   constructor(private http: HttpClient, public utils: UtilsService, private router: Router, private location: PlatformLocation,
     private notifierService: NotifierService, private modalService: NgbModal) { }
@@ -203,6 +205,11 @@ export class ShareComponent implements OnInit {
         window.open(environment.urlPrefix + "api/download-shared-file/" + this.shareCode + "/" + this.selectedFile.path);
       }
     }
+  }
+
+  uploadFinished(shareables: Shareable[]){
+    this.shareables = [ ...this.shareables, ...shareables]
+    this.shareables = this.shareables.map(s => this.utils.parseFileType(s)).sort((a, b) => a.isFile == b.isFile ? a.name.localeCompare(b.name) : a.isFile ? 1 : -1)
   }
 
 }

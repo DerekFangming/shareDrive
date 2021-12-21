@@ -19,6 +19,7 @@ export class UploadModalComponent implements OnInit {
   uploadFiles: File[] = []
 
   directory = ''
+  uploadToSharedFolder = false
   
   dragOver = false
   uploadingFile = false
@@ -31,11 +32,11 @@ export class UploadModalComponent implements OnInit {
 
   constructor(private http: HttpClient, private modalService: NgbModal, private notifierService: NotifierService, public utils: UtilsService) { }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
-  showModal(directory:string) {
+  showModal(directory: string, uploadToSharedFolder = false) {
     this.directory = directory
+    this.uploadToSharedFolder = uploadToSharedFolder
     this.uploadFiles = []
     this.uploadRatio = 0
     this.uploadFilesSize = 0
@@ -110,7 +111,8 @@ export class UploadModalComponent implements OnInit {
 			}
 		}, 1000)
 
-    this.http.post<UploadResult>(environment.urlPrefix + 'api/upload-file/' + this.directory, body, {
+    let uploadUrl = this.uploadToSharedFolder ? 'api/upload-shared-file/' : 'api/upload-file/'
+    this.http.post<UploadResult>(environment.urlPrefix + uploadUrl + this.directory, body, {
       reportProgress: true,
       observe: 'events'
     }).subscribe(res => {

@@ -46,6 +46,7 @@ public class FileController {
     private static final String DOWNLOAD_SHARED_FILE = "download-shared-file";
     private static final String DELETE_FILE = "delete-file";
     private static final String UPLOAD_FILE = "upload-file";
+    private static final String UPLOAD_SHARED_FILE = "upload-shared-file";
     private static final String SEARCH_FILE = "search-file";
     private static final int DEFAULT_BUFFER_BYTE_SIZE = 20480;
 
@@ -151,11 +152,37 @@ public class FileController {
         }
     }
 
+    @PostMapping("/" + UPLOAD_SHARED_FILE + "/**")
+    public UploadResult uploadSharedFile(@RequestParam(value = "files", required=false) List<MultipartFile> files, HttpServletRequest request) throws IOException {
+        String path = getFilePath(request, UPLOAD_SHARED_FILE).substring(1);
+        if (StringUtils.isBlank(path)) {
+            throw new IllegalArgumentException("No share code is provided");
+        }
+        String[] paths = path.split("/", 2);
+        String shareId = paths[0];
+        String subPath = paths.length == 2 ? paths[1] : "";
+
+        Share share = shareRepo.findById(shareId).orElse(null);
+        if (share == null) {
+            throw new IllegalArgumentException("Share code " + shareId + " does not exist.");
+        } else if (share.getExpiration() != null && share.getExpiration().isBefore(Instant.now())) {
+            throw new IllegalArgumentException("Share code " + shareId + " has expired.");
+        } else if (!share.isWriteAccess()) {
+            throw new IllegalArgumentException("This shared directory is read only. Uploading is not allowed.");
+        }
+
+        File folder = getInnerFolder(rootDir, share.getFile() + "/" + subPath);
+        return uploadFiles(folder, files);
+    }
+
     @PostMapping("/" + UPLOAD_FILE + "/**")
     @PreAuthorize("hasRole('DR')")
     public UploadResult uploadFiles(@RequestParam(value = "files", required=false) List<MultipartFile> files, HttpServletRequest request) {
-
         File folder = getInnerFolder(rootDir, getFilePath(request, UPLOAD_FILE));
+        return uploadFiles(folder, files);
+    }
+
+    public UploadResult uploadFiles(File folder, List<MultipartFile> files) {
         if (!folder.exists()) {
             throw new IllegalArgumentException("The folder does not exist");
         } else if (!folder.isDirectory()) {

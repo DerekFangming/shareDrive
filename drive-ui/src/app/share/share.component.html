@@ -116,7 +116,12 @@
         </div>
       </div>
       <div class="row mt-3">
-        <div class="col"><p class="lead ml-2">A folder has been shared with you</p></div>
+        <div class="col-12 col-md-6">
+          <p class="lead ml-2">A folder has been shared with you</p>
+        </div>
+        <div class="col-12 col-md-6">
+          <button class="btn btn-primary float-right" type="button" (click)="uploadFileModal.showModal(directory, true)"><span class="fa fa-plus mr-2"></span>Upload</button>
+        </div>
       </div>
       <div class="row">
         <div class="col">
@@ -247,3 +252,5 @@
     <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Close</button>
   </div>
 </ng-template>
+
+<app-upload-modal #uploadFileModal (onUploadFinished)="uploadFinished($event[0])"></app-upload-modal>
