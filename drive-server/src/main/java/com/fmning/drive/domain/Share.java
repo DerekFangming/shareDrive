@@ -25,8 +25,8 @@ public class Share {
     @Column(name="name", columnDefinition = "TEXT")
     private String name;
 
-    @Column(name="file", columnDefinition = "TEXT")
-    private String file;
+    @Column(name="path", columnDefinition = "TEXT")
+    private String path;
 
     @Column(name="expiration", columnDefinition = "TIMESTAMP")
     private Instant expiration;

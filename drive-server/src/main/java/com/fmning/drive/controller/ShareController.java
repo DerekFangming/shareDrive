@@ -39,7 +39,7 @@ public class ShareController {
     @PostMapping()
     @PreAuthorize("hasRole('DR')")
     public Share createShare(@RequestBody Share share) {
-        File file = getInnerFolder(rootDir, share.getFile());
+        File file = getInnerFolder(rootDir, share.getPath());
         if (!file.exists()) {
             throw new IllegalArgumentException("The file does not exist");
         } else if (file.isFile() && share.isWriteAccess()) {

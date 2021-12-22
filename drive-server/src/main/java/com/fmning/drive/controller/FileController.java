@@ -67,7 +67,7 @@ public class FileController {
             throw new IllegalArgumentException("Share code " + shareId + " has expired.");
         }
 
-        File file = getInnerFolder(rootDir, share.getFile() + "/" + subPath);
+        File file = getInnerFolder(rootDir, share.getPath() + "/" + subPath);
         downloadFile(request, response, file);
     }
 
@@ -171,8 +171,8 @@ public class FileController {
             throw new IllegalArgumentException("This shared directory is read only. Uploading is not allowed.");
         }
 
-        File folder = getInnerFolder(rootDir, share.getFile() + "/" + subPath);
-        File shareRoot = getInnerFolder(rootDir, share.getFile());
+        File folder = getInnerFolder(rootDir, share.getPath() + "/" + subPath);
+        File shareRoot = getInnerFolder(rootDir, share.getPath());
         return uploadFiles(folder, files, shareRoot, share.getId());
     }
 

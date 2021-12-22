@@ -26,7 +26,7 @@ public class TestController {
     public String ping1() {
         shareRepo.save(Share.builder()
                 .id(RandomStringUtils.randomAlphanumeric(6))
-                .file("file directory")
+                .path("file directory")
                 .expiration(Instant.now().plusSeconds(99999))
                 .created(Instant.now())
                 .creatorId("synfm@126.com")

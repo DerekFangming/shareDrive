@@ -51,7 +51,7 @@
           <tr *ngFor="let share of shares;">
             <td>{{share.id}}</td>
             <td>{{getShareName(share)}}</td>
-            <td class="fix-text">{{share.file}}</td>
+            <td class="fix-text">{{share.path}}</td>
             <td>{{share.expiration == null ? 'Never expire' : utils.getCreatedTimeFromSeconds(share.expiration)}}</td>
             <td>{{share.writeAccess ? 'Download & Upload' : 'Download Only'}}</td>
             <td>
@@ -119,7 +119,7 @@
           <p class="lead ml-2">A folder has been shared with you</p>
         </div>
         <div class="col-12 col-md-6">
-          <button class="btn btn-primary float-right" type="button" (click)="uploadFileModal.showModal(directory, true)"><span class="fa fa-plus mr-2"></span>Upload</button>
+          <button *ngIf="shareDetails.endsWith('rw')" class="btn btn-primary float-right" type="button" (click)="uploadFileModal.showModal(directory, true)"><span class="fa fa-plus mr-2"></span>Upload</button>
         </div>
       </div>
       <div class="row">

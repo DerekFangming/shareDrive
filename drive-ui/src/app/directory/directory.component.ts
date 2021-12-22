@@ -314,7 +314,7 @@ export class DirectoryComponent implements OnInit {
   }
 
   shareFile() {
-    let share = new Share({file: this.selectedFile.path, writeAccess: this.shareWriteAccess, name: this.shareName == '' ? null : this.shareName})
+    let share = new Share({path: this.selectedFile.path, writeAccess: this.shareWriteAccess, name: this.shareName == '' ? null : this.shareName})
     if (this.shareToDate != null) {
       share.expiration = new Date(this.shareToDate.year + '-' + this.shareToDate.month + '-' + (this.shareToDate.day + 1)).toISOString()
     }
