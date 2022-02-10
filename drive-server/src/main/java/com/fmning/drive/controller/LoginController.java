@@ -41,8 +41,6 @@ public class LoginController {
             }
         }
         return (SsoUser) principal;
-
-        //return (SsoUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
 }
