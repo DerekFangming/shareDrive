@@ -10,6 +10,7 @@ public class DriveProperties {
     private String rootDir;
     private String dbUsername;
     private String dbPassword;
+    private String ssoBaseUrl;
 
     public boolean isProduction() {
         return Boolean.parseBoolean(production);

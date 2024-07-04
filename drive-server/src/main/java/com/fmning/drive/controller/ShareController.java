@@ -31,13 +31,13 @@ public class ShareController {
     private final DriveProperties driveProperties;
 
     @GetMapping()
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public List<Share> listShares() {
         return shareRepo.findAll();
     }
 
     @PostMapping()
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public Share createShare(@RequestBody Share share) {
         File file = getInnerFolder(rootDir, share.getPath());
         if (!file.exists()) {
@@ -61,7 +61,7 @@ public class ShareController {
     }
 
     @PutMapping()
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public Share updateShare(@RequestBody Share updatedShare) {
         Optional<Share> shareOpt = shareRepo.findById(updatedShare.getId());
         if (!shareOpt.isPresent()) {
@@ -77,7 +77,7 @@ public class ShareController {
     }
 
     @DeleteMapping("/{shareId}")
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public ResponseEntity<Void> deleteShare(@PathVariable(value="shareId") String id) {
         Optional<Share> share = shareRepo.findById(id);
         if (share.isPresent()) {

@@ -20,7 +20,8 @@ public class TestController {
 
     @GetMapping("/ping")
     public String ping() {
-        return DriveConfiguration.driveStatus.name();
+        throw new IllegalStateException("something is wrong");
+//        return DriveConfiguration.driveStatus.name();
     }
     @GetMapping("/ping1")
     public String ping1() {

@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class DriveExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDto> handleException(Exception e) throws Exception {
+    public ResponseEntity<ErrorDto> handleException(Exception e) {
         if (e instanceof AccessDeniedException) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto(e.getMessage()));
         } else if (e instanceof IllegalArgumentException) {

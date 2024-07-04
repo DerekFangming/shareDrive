@@ -19,8 +19,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -72,7 +72,7 @@ public class FileController {
     }
 
     @GetMapping("/" + DOWNLOAD_FILE + "/**")
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public void downloadFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         File file = getInnerFolder(rootDir, getFilePath(request, DOWNLOAD_FILE));
         downloadFile(request, response, file);
@@ -177,7 +177,7 @@ public class FileController {
     }
 
     @PostMapping("/" + UPLOAD_FILE + "/**")
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public UploadResult uploadFiles(@RequestParam(value = "files", required=false) List<MultipartFile> files, HttpServletRequest request) {
         File folder = getInnerFolder(rootDir, getFilePath(request, UPLOAD_FILE));
         return uploadFiles(folder, files, null, null);
@@ -222,7 +222,7 @@ public class FileController {
     }
 
     @PutMapping("/rename-file")
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public Shareable renameFile(@RequestBody Shareable shareable) {
         if (shareable == null || shareable.getPath() == null ) {
             throw new IllegalArgumentException("The request is invalid");
@@ -262,7 +262,7 @@ public class FileController {
     }
 
     @PostMapping("/move-file")
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public ResponseEntity<Void> moveFile(@RequestBody MoveFile moveFile) {
         if (moveFile.getPath() == null) {
             throw new IllegalArgumentException("Please provide the file.");
@@ -294,7 +294,7 @@ public class FileController {
     }
 
     @DeleteMapping("/" + DELETE_FILE + "/**")
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public ResponseEntity<Void> deleteFile(HttpServletRequest request) {
         File file = getInnerFolder(rootDir, getFilePath(request, DELETE_FILE));
 
@@ -307,7 +307,7 @@ public class FileController {
     }
 
     @GetMapping("/" + SEARCH_FILE + "/**")
-    @PreAuthorize("hasRole('DR')")
+    @PreAuthorize("hasAuthority('DR')")
     public List<Shareable> searchFiles(@RequestParam("keyword") String keyword, HttpServletRequest request) {
         File folder = getInnerFolder(rootDir, getFilePath(request, SEARCH_FILE));
         if (!folder.exists()) throw new IllegalArgumentException("Search path does not exist.");

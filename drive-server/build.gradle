@@ -1,36 +1,36 @@
 plugins {
     id 'java'
-    id 'war'
-    id 'org.springframework.boot' version '2.5.6'
+    id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 group 'com.fmning'
-version '0.0.1-SNAPSHOT'
+version = '1.0.0'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.postgresql:postgresql:42.2.5'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.security:spring-security-jwt:1.1.1.RELEASE'
-    implementation 'org.springframework.security.oauth:spring-security-oauth2'
-    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.5.6'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.security:spring-security-oauth2-client'
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+    implementation 'org.springframework.security:spring-security-oauth2-authorization-server:1.2.4'
+
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'commons-io:commons-io:2.8.0'
 
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
     implementation 'com.h2database:h2'
 
-    compileOnly 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
@@ -39,9 +39,6 @@ clean.doFirst {
     delete "${project.staticFolder}"
 }
 
-war {
-    dependsOn(':drive-ui:war')
-    mustRunAfter(':drive-ui:war')
-    enabled=true
+bootJar {
     archiveFileName = 'drive.war'
 }

@@ -7,17 +7,17 @@ import { environment } from 'src/environments/environment';
 @Injectable()
 export class AuthenticationInterceptor implements HttpInterceptor {
   constructor() {}
-    
+
 	intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     request = request.clone({
       withCredentials: true
     });
-		
+
     return next.handle(request).pipe(
       tap(() => {}),
       catchError((response: any) => {
         if(response instanceof HttpErrorResponse) {
-          if (response.url.includes('authentication/login')) {
+          if (response.url.includes('/login')) {
               window.location.href = environment.urlPrefix + 'login-redirect?goto=' + window.location.href;
               return;
           } else if (response.status == 0) {
