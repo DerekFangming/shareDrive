@@ -102,7 +102,7 @@ export class ShareComponent implements OnInit {
   }
 
   getDirectoryFromUrl() {
-    let path = this.location.pathname.replace(environment.contextPath + '/share', '')
+    let path = this.location.pathname.replace('/share', '')
     if (path.startsWith('/')) path = path.substring(1)
     return decodeURI(path)
   }
@@ -163,7 +163,7 @@ export class ShareComponent implements OnInit {
   }
 
   getShareLink(id: string) {
-    return (environment.production ? 'https://fmning.com/drive/share/' : 'http://localhost:4200/share/') + id
+    return (environment.production ? 'https://fmning.com/drive/share/' : 'http://localhost:4200/share/') + id // TODO
   }
 
   copyToClipboard(id: string) {
@@ -197,11 +197,7 @@ export class ShareComponent implements OnInit {
 
   downloadSelectedFile() {
     if (this.selectedFile.isFile) {
-      if (environment.production) {
-        window.open(environment.urlPrefix + environment.contextPath + "/api/download-shared-file/" + this.selectedFile.path);
-      } else {
-        window.open(environment.urlPrefix + "api/download-shared-file/" + this.selectedFile.path);
-      }
+      window.open(environment.urlPrefix + "api/download-shared-file/" + this.selectedFile.path);
     }
   }
 

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,8 +30,8 @@ public class LoginController {
     public SsoUser me() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (!(principal instanceof SsoUser)) {
-            if (driveProperties.isProduction()) {
+        if (!(principal instanceof DefaultOAuth2User)) {
+             if (driveProperties.isProduction()) {
                 throw new AccessDeniedException("Access is denied");
             } else {
                 return SsoUser.builder()
@@ -40,7 +41,12 @@ public class LoginController {
                         .build();
             }
         }
-        return (SsoUser) principal;
+
+        return SsoUser.builder()
+                .name(((DefaultOAuth2User) principal).getAttribute("name"))// TODO
+                .userName(((DefaultOAuth2User) principal).getAttribute("name"))
+                .avatar("https://i.imgur.com/lkAhvIs.png")
+                .build();
     }
 
 }

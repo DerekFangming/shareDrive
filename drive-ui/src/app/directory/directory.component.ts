@@ -94,7 +94,7 @@ export class DirectoryComponent implements OnInit {
   }
 
   getDirectoryFromUrl() {
-    let path = this.location.pathname.replace(environment.contextPath + '/directory', '');
+    let path = this.location.pathname.replace('/directory', '');
     if (path.startsWith('/')) path = path.substring(1);
     return decodeURI(path);
   }
@@ -186,11 +186,7 @@ export class DirectoryComponent implements OnInit {
 
   downloadSelectedFile() {
     if (this.selectedFile.isFile) {
-      if (environment.production) {
-        window.open(environment.urlPrefix + environment.contextPath + "/api/download-file/" + this.selectedFile.path);
-      } else {
-        window.open(environment.urlPrefix + "api/download-file/" + this.selectedFile.path);
-      }
+      window.open(environment.urlPrefix + "api/download-file/" + this.selectedFile.path);
     }
   }
 
@@ -321,7 +317,7 @@ export class DirectoryComponent implements OnInit {
 
     this.sharingFile = true
     this.http.post<Share>(environment.urlPrefix + 'api/shares', share).subscribe(res => {
-      let baseUrl = environment.production ? 'https://fmning.com/drive/share/' : 'http://localhost:4200/share/'
+      let baseUrl = environment.production ? 'https://fmning.com/drive/share/' : 'http://localhost:4200/share/' // TODO
       this.shareLink = baseUrl + res.id
       this.sharingFile = false
     }, error => {

@@ -58,7 +58,7 @@ export class UtilsService {
   }
 
   getImage(name: String) {
-    return environment.contextPath + '/assets/' + name;
+    return '/assets/' + name;
   }
 
   parseFileType(file: Shareable) {

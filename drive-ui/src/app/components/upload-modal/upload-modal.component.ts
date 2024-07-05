@@ -24,7 +24,7 @@ export class UploadModalComponent implements OnInit {
   dragOver = false
   uploadingFile = false
 
-  plusImage = environment.production ? environment.contextPath + '/assets/plus.png' : '/assets/plus.png'
+  plusImage = '/assets/plus.png'
 
   modalRef: NgbModalRef
   @ViewChild('uploadFileModal', { static: true}) uploadFileModal: TemplateRef<any>
