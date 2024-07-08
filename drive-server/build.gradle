@@ -40,5 +40,5 @@ clean.doFirst {
 }
 
 bootJar {
-    archiveFileName = 'drive.war'
+    archiveFileName = 'drive.jar'
 }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -39,7 +40,8 @@ public class SecurityConfig {
                 .oauth2Login((oauth2Login) -> oauth2Login.userInfoEndpoint((userinfo) -> userinfo
                         .userAuthoritiesMapper(this.userAuthoritiesMapper())))
                 .oauth2ResourceServer((resourceServer) -> resourceServer.jwt((jwt) ->
-                        jwt.jwtAuthenticationConverter(jwtConverter())));
+                        jwt.jwtAuthenticationConverter(jwtConverter())))
+                .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
