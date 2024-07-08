@@ -42,10 +42,14 @@ public class LoginController {
             }
         }
 
+        DefaultOAuth2User user = ((DefaultOAuth2User) principal);
+        String avatar = user.getAttribute("avatar") == null ?
+                "https://i.imgur.com/lkAhvIs.png" : user.getAttribute("avatar");
+
         return SsoUser.builder()
-                .name(((DefaultOAuth2User) principal).getAttribute("name"))// TODO
-                .userName(((DefaultOAuth2User) principal).getAttribute("name"))
-                .avatar("https://i.imgur.com/lkAhvIs.png")
+                .name(user.getAttribute("displayName"))
+                .userName(user.getAttribute("username"))
+                .avatar(avatar)
                 .build();
     }
 
