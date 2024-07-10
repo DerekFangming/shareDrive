@@ -16,6 +16,7 @@ WORKDIR /app
 COPY . .
 COPY --from=builder-ui /app/build/ui drive-server/src/main/resources/static/.
 
+RUN chmod +x gradlew
 RUN ./gradlew bootJar
 
 # Stage run
