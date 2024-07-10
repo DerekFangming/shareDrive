@@ -54,7 +54,7 @@ export class ShareComponent implements OnInit {
       this.http.get<User>(environment.urlPrefix + 'me').subscribe(me => {
         this.me = me
         if (this.me.avatar == null) this.me.avatar ='https://i.imgur.com/lkAhvIs.png'
-        
+
         // Loading shares
         this.http.get<Share[]>(environment.urlPrefix + 'api/shares').subscribe(shares => {
           this.loadingPage = false
@@ -163,7 +163,7 @@ export class ShareComponent implements OnInit {
   }
 
   getShareLink(id: string) {
-    return (environment.production ? 'https://fmning.com/drive/share/' : 'http://localhost:4200/share/') + id // TODO
+    return (environment.production ? 'https://share.fmning.com/share/' : 'http://localhost:4200/share/') + id
   }
 
   copyToClipboard(id: string) {

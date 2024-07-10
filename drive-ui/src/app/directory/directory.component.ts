@@ -31,7 +31,7 @@ export class DirectoryComponent implements OnInit {
   selectedMoveDirectory: Shareable;
   searchKeyword = '';
   me: User;
-  
+
   isMobile = false;
   createFolder = false;
   creatingFolder = false;
@@ -317,7 +317,7 @@ export class DirectoryComponent implements OnInit {
 
     this.sharingFile = true
     this.http.post<Share>(environment.urlPrefix + 'api/shares', share).subscribe(res => {
-      let baseUrl = environment.production ? 'https://fmning.com/drive/share/' : 'http://localhost:4200/share/' // TODO
+      let baseUrl = environment.production ? 'https://share.fmning.com/share/' : 'http://localhost:4200/share/'
       this.shareLink = baseUrl + res.id
       this.sharingFile = false
     }, error => {
