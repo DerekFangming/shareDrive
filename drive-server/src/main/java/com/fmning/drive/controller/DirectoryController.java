@@ -57,14 +57,14 @@ public class DirectoryController {
 
     @GetMapping("/" + SHARED_DIRECTORY + "/**")
     public ResponseEntity<List<Shareable>> getSharedFiles(HttpServletRequest request) {
-        String path = getFilePath(request, SHARED_DIRECTORY).substring(1);
+        String path = getFilePath(request, SHARED_DIRECTORY);
         if (StringUtils.isBlank(path)) {
             throw new IllegalArgumentException("No share code is provided");
         }
         String[] paths = path.split("/", 2);
         String shareId = paths[0];
         String subPath = paths.length == 2 ? paths[1] : "";
-
+        
         Share share = shareRepo.findById(shareId).orElse(null);
         if (share == null) {
             throw new IllegalArgumentException("Share code " + shareId + " does not exist.");

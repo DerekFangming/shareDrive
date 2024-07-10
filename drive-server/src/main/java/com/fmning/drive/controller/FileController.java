@@ -52,7 +52,7 @@ public class FileController {
 
     @GetMapping("/" + DOWNLOAD_SHARED_FILE + "/**")
     public void downloadSharedFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String path = getFilePath(request, DOWNLOAD_SHARED_FILE).substring(1);
+        String path = getFilePath(request, DOWNLOAD_SHARED_FILE);
         if (StringUtils.isBlank(path)) {
             throw new IllegalArgumentException("No share code is provided");
         }
@@ -154,7 +154,7 @@ public class FileController {
 
     @PostMapping("/" + UPLOAD_SHARED_FILE + "/**")
     public UploadResult uploadSharedFile(@RequestParam(value = "files", required=false) List<MultipartFile> files, HttpServletRequest request) throws IOException {
-        String path = getFilePath(request, UPLOAD_SHARED_FILE).substring(1);
+        String path = getFilePath(request, UPLOAD_SHARED_FILE);
         if (StringUtils.isBlank(path)) {
             throw new IllegalArgumentException("No share code is provided");
         }
