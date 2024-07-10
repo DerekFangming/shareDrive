@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
@@ -49,9 +50,9 @@ public class ShareController {
         share.setCreated(Instant.now());
 
         if (driveProperties.isProduction()) {
-            SsoUser user = (SsoUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            share.setCreatorName(user.getName());
-            share.setCreatorId(user.getUserName());
+            DefaultOAuth2User user = (DefaultOAuth2User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            share.setCreatorName(user.getAttribute("displayName"));
+            share.setCreatorId(user.getAttribute("username"));
         } else {
             share.setCreatorName("anonymousUser");
             share.setCreatorId("anonymousUserId");
