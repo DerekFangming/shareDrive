@@ -12,13 +12,14 @@ import { UploadModalComponent } from '../components/upload-modal/upload-modal.co
 import { FormsModule } from '@angular/forms'
 import { environment } from '../../environments/environment'
 import { NotificationsService } from 'angular2-notifications'
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap'
 
 declare var $: any
 
 @Component({
   selector: 'app-directory',
   standalone: true,
-  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule, UploadModalComponent],
+  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule, UploadModalComponent, NgbDatepickerModule],
   templateUrl: './directory.component.html',
   styleUrl: './directory.component.css'
 })

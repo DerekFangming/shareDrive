@@ -374,8 +374,7 @@
             </div>
           </div>
           <div *ngIf="shareIndefinitely == 'false'" class="col">
-            <!-- <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" [minDate]="minDate" (click)="df.toggle()" [(ngModel)]="shareToDate"> -->
-            <input type="text" class="form-control" [(ngModel)]="shareToDate">
+            <input class="form-control" placeholder="yyyy-mm-dd" [minDate]="minDate" [(ngModel)]="shareToDate" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()"/>
           </div>
         </div>
       </div>

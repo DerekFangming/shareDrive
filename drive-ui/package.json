@@ -22,6 +22,7 @@
     "@angular/router": "^17.3.0",
     "@angular/ssr": "^17.3.5",
     "angular2-notifications": "^16.0.1",
+    "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "^0.14.3"

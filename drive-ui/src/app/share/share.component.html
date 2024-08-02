@@ -192,16 +192,16 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-12">
-            <div class="form-group">
-              <label>Name</label>
+            <div class="mb-3">
+              <label class="mb-2">Name</label>
               <div class="input-group">
                 <input [(ngModel)]="shareName" type="text" class="form-control" placeholder="Optional name">
               </div>
             </div>
           </div>
           <div class="col-12">
-            <div class="form-group">
-              <label>Share link</label>
+            <div class="mb-3">
+              <label class="mb-2">Share link</label>
               <div class="input-group">
                 <input [value]="getShareLink(selectedShare!.id!)" type="text" class="form-control" disabled>
                 <div class="input-group-append">
@@ -211,8 +211,8 @@
             </div>
           </div>
           <div class="col-12 mt-2">
-            <div class="form-group">
-              <label>Access</label>
+            <div class="mb-3">
+              <label class="mb-2">Access</label>
               <div class="input-group">
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="checkbox" id="downloadCheckbox" checked="checked" onclick="return false;">
@@ -226,8 +226,8 @@
             </div>
           </div>
           <div class="col-12 mt-2">
-            <div class="form-group">
-              <label>Expiration</label>
+            <div class="mb-3">
+              <label class="mb-2">Expiration</label>
               <div class="input-group">
                 <div class="form-check form-check-inline">
                   <input class="form-check-input" type="radio" id="exampleRadios1" [(ngModel)]="shareIndefinitely" value="true">
@@ -245,8 +245,7 @@
             </div>
           </div>
           <div *ngIf="shareIndefinitely == 'false'" class="col">
-            <!-- <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" [minDate]="minDate" (click)="df.toggle()" [(ngModel)]="shareToDate"> -->
-            <input type="text" class="form-control" [(ngModel)]="shareToDate">
+            <input class="form-control" placeholder="yyyy-mm-dd" [minDate]="minDate" [(ngModel)]="shareToDate" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()"/>
           </div>
         </div>
       </div>

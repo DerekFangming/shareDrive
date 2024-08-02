@@ -10,13 +10,14 @@ import { FormsModule } from '@angular/forms'
 import { environment } from '../../environments/environment'
 import { NotificationsService } from 'angular2-notifications'
 import { UploadModalComponent } from '../components/upload-modal/upload-modal.component'
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap'
 
 declare var $: any
 
 @Component({
   selector: 'app-share',
   standalone: true,
-  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule, UploadModalComponent],
+  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule, UploadModalComponent, NgbDatepickerModule],
   templateUrl: './share.component.html',
   styleUrl: './share.component.css'
 })
@@ -77,13 +78,13 @@ export class ShareComponent implements OnInit {
     }
 
     this.location.onPopState(() => {
-      this.loadDirectory(this.getDirectoryFromUrl());
-    });
+      this.loadDirectory(this.getDirectoryFromUrl())
+    })
   }
 
   loadDirectory(directory: string) {
     this.shareLoadError = null
-    this.router.navigateByUrl('/share/' + directory);
+    this.router.navigateByUrl('/share/' + directory)
     this.directory = directory
     this.http.get<Shareable[]>(environment.urlPrefix + 'api/shared-directory/' + directory, {observe: 'response' as 'response'}).subscribe({
       next: (res: any) => {
