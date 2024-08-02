@@ -32,3 +32,4 @@ out/
 .vscode/
 
 drive-server/src/main/resources/static/**
+/drive-ui/.angular/**

@@ -1,15 +1,21 @@
-import { HttpClient, HttpEventType } from '@angular/common/http';
-import { Component, Output, OnInit, TemplateRef, ViewChild, EventEmitter } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { NotifierService } from 'angular-notifier';
-import { UploadResult } from 'src/app/model/upload-result';
-import { UtilsService } from 'src/app/utils.service';
-import { environment } from 'src/environments/environment';
+import { CommonModule } from '@angular/common'
+import { HttpClient, HttpEventType } from '@angular/common/http'
+import { Component, Output, OnInit, EventEmitter } from '@angular/core'
+import { FormsModule } from '@angular/forms'
+import { RouterOutlet, RouterModule } from '@angular/router'
+import { environment } from '../../../environments/environment'
+import { UploadResult } from '../../model/upload-result'
+import { UtilsService } from '../../utils.service'
+import { NotificationsService } from 'angular2-notifications'
+
+declare var $: any
 
 @Component({
   selector: 'app-upload-modal',
+  standalone: true,
+  imports: [RouterOutlet, FormsModule, CommonModule, RouterModule],
   templateUrl: './upload-modal.component.html',
-  styleUrls: ['./upload-modal.component.css']
+  styleUrl: './upload-modal.component.css'
 })
 export class UploadModalComponent implements OnInit {
 
@@ -26,11 +32,9 @@ export class UploadModalComponent implements OnInit {
 
   plusImage = '/assets/plus.png'
 
-  modalRef: NgbModalRef
-  @ViewChild('uploadFileModal', { static: true}) uploadFileModal: TemplateRef<any>
   @Output() onUploadFinished: EventEmitter<any> = new EventEmitter()
 
-  constructor(private http: HttpClient, private modalService: NgbModal, private notifierService: NotifierService, public utils: UtilsService) { }
+  constructor(private http: HttpClient, private notifierService: NotificationsService, public utils: UtilsService) { }
 
   ngOnInit() {}
 
@@ -40,28 +44,24 @@ export class UploadModalComponent implements OnInit {
     this.uploadFiles = []
     this.uploadRatio = 0
     this.uploadFilesSize = 0
-    this.modalRef = this.modalService.open(this.uploadFileModal, {
-      backdrop : 'static',
-      keyboard : false,
-      size: 'lg'
-    })
+    $("#uploadFileModal").modal('show')
   }
 
-  loadFiles(files) {
+  loadFiles(files: any) {
     for (let file of files) {
       // TODO: Check for folders?
 
       if (file.size == 0) {
-        this.notifierService.notify('error', `Cannot upload empty file: ${file.name}`)
+        this.notifierService.error('Error', `Cannot upload empty file: ${file.name}`)
         continue
       }
       if (this.uploadFiles.some(f => f.name == file.name)) {
-        this.notifierService.notify('error',  `File with the same name has been selected: ${file.name}`)
+        this.notifierService.error('Error',  `File with the same name has been selected: ${file.name}`)
         continue
       }
 
       if (this.uploadFilesSize + file.size > 4294967296) {
-        this.notifierService.notify('error',  `Cannot upload more than 4GB of files at a time.`)
+        this.notifierService.error('Error',  `Cannot upload more than 4GB of files at a time.`)
         return
       }
 
@@ -70,7 +70,7 @@ export class UploadModalComponent implements OnInit {
     }
   }
 
-  removeUploadFile(file) {
+  removeUploadFile(file: any) {
     const index = this.uploadFiles.indexOf(file)
     if (index > -1) {
       this.uploadFiles.splice(index, 1)
@@ -85,7 +85,7 @@ export class UploadModalComponent implements OnInit {
 
   uploadSelectedFiles() {
     if (this.uploadFiles.length == 0) {
-      this.notifierService.notify('error', 'Please select at least 1 file to upload.')
+      this.notifierService.error('Error', 'Please select at least 1 file to upload.')
       return
     }
 
@@ -115,48 +115,51 @@ export class UploadModalComponent implements OnInit {
     this.http.post<UploadResult>(environment.urlPrefix + uploadUrl + this.directory, body, {
       reportProgress: true,
       observe: 'events'
-    }).subscribe(res => {
-      if (res.type === HttpEventType.Response) {
-        this.uploadRatio = 100;
-        this.uploadingFile = false;
-        this.modalRef.close();
-
-        this.onUploadFinished.emit([res.body.files]);
-        if (res.body.error != '') {
-          this.notifierService.notify('warning', res.body.error);
+    }).subscribe({
+      next: (res: any) => {
+        if (res.type === HttpEventType.Response) {
+          this.uploadRatio = 100;
+          this.uploadingFile = false;
+          $("#uploadFileModal").modal('hide')
+  
+          this.onUploadFinished.emit([res.body.files]);
+          if (res.body.error != '') {
+            this.notifierService.warn('Warning', res.body.error);
+          }
         }
+        if (res.type === HttpEventType.UploadProgress) {
+            this.uploadRatio = Math.round(100 * res.loaded / res.total);
+        } 
+      },
+      error: (error: any) => {
+        this.uploadingFile = false;
+        this.notifierService.error('Error', error.message);
       }
-      if (res.type === HttpEventType.UploadProgress) {
-          this.uploadRatio = Math.round(100 * res.loaded / res.total);
-      } 
-    }, error => {
-      this.uploadingFile = false;
-      this.notifierService.notify('error', error.message);
     })
   }
 
-  onDragOver(event) {
+  onDragOver(event: any) {
     event.stopPropagation();
     event.preventDefault();
   }
 
-  onDragEnter(event) {
+  onDragEnter(event: any) {
     this.dragOver = true;
     event.preventDefault();
   }
 
-  onDragLeave(event) {
+  onDragLeave(event: any) {
     this.dragOver = false;
     event.preventDefault();
   }
 
-  onFilesDropped(event) {
+  onFilesDropped(event: any) {
     this.dragOver = false;
     event.preventDefault();
     this.loadFiles(event.dataTransfer.files);
   }
 
-  onFilesSelected(event) {
+  onFilesSelected(event: any) {
     event.preventDefault();
     this.loadFiles(event.target.files);
   }

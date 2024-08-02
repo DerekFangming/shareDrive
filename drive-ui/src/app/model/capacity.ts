@@ -1,9 +1,9 @@
 export class Capacity {
-  totalSpace: number;
-  availableSpace: number;
-  ratio: string;
+  totalSpace: number | undefined
+  availableSpace: number | undefined
+  ratio: string | undefined
 
   public constructor(init?:Partial<Capacity>) {
-    Object.assign(this, init);
+    Object.assign(this, init)
   }
 }

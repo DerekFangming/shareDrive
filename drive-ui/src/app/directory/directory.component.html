@@ -1,68 +1,72 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <a class="navbar-brand" href="./">Share drive</a>
+  <div class="container-fluid">
+    <a class="navbar-brand" href="./">Share drive</a>
 
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link pointer">Directory</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link pointer" [routerLink]="['/share']">Share</a>
-      </li>
-      <li *ngIf="me" class="nav-item active dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <img src="{{me.avatar}}" style="border-radius: 50% 50% 50% 50%;" height="20px" width="20px"> {{me.name}}
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item disabled" href="#">{{me.userName}}</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item pointer" (click)="utils.logout()">Log Out</a>
-        </div>
-      </li>
-    </ul>
-  </div>
-
-  <form class="form-inline d-none d-md-block">
-    <input class="form-control mr-2" type="search" placeholder="Enter keyword" [(ngModel)]="searchKeyword" name="searchKeyword">
-    <button *ngIf="!searching" class="btn btn-outline-light" type="submit" (click)="searchFiles()">Search</button>
-    <button *ngIf="searching" class="btn btn-outline-light" type="submit" disabled>
-      <span class="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
     </button>
-  </form>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link pointer active">Directory</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link pointer" [routerLink]="['/share']">Share</a>
+        </li>
+        <li *ngIf="me" class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img src="{{me.avatar}}" style="border-radius: 50% 50% 50% 50%;" height="20px" width="20px"> {{me.name}}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item disabled" href="#">{{me.userName}}</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item pointer" (click)="utils.logout()">Log Out</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="d-none d-md-block">
+      <form class="d-flex">
+        <input class="form-control me-2" type="search" placeholder="Enter keyword" [(ngModel)]="searchKeyword" name="searchKeyword">
+        <button *ngIf="!searching" class="btn btn-outline-light" type="submit" (click)="searchFiles()">Search</button>
+        <button *ngIf="searching" class="btn btn-outline-light" type="submit" disabled>
+          <span class="fa fa-refresh fa-spin fa-1x fa-fw float-end"></span>
+        </button>
+      </form>
+    </div>
+  </div>
 </nav>
 
 <div class="container-fluid">
   <div class="row mt-1">
     <div class="col mb-2">
       <nav>
-        <ol class="breadcrumb">
+        <ol class="breadcrumb py-3 ps-3">
           <li class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory('')">Home</a></li>
           <li *ngFor="let dir of utils.splitDirectory(directory);"
-            class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(dir.path)">{{dir.name}}</a></li>
+            class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(dir!.path!)">{{dir.name}}</a></li>
           <li *ngIf="showingSearchResult" class="breadcrumb-item"><a [routerLink]="[]">Search Results</a></li>
         </ol>
       </nav>
     </div>
   </div>
-  
+
   <div class="row">
     <div class="col-md-9">
       <div class="row">
         <div class="col-12 col-md-3">
-          <h2 class="mb-4 ml-2"><small>Files</small></h2>
+          <h2 class="mb-4 ms-2"><small>Files</small></h2>
         </div>
         <div *ngIf="!createFolder" class="col-12 col-md-9">
-          <button class="btn btn-primary float-right" type="button" (click)="uploadFileModal.showModal(directory)"><span class="fa fa-plus mr-2"></span>Upload</button>
-          <button class="btn btn-primary float-right mr-2" type="button" (click)="createFolder = true"><span class="fa fa-folder-o mr-2"></span>New folder</button>
+          <button class="btn btn-primary float-end" type="button" (click)="uploadFileModal.showModal(directory)"><span class="fa fa-plus me-2"></span>Upload</button>
+          <button class="btn btn-primary float-end me-2" type="button" (click)="createFolder = true"><span class="fa fa-folder-o me-2"></span>New folder</button>
         </div>
         <div *ngIf="createFolder" class="col-12 col-md-9">
           <div class="input-group">
             <input type="text" class="form-control" placeholder="Enter new folder name" [disabled]="creatingFolder" [(ngModel)]="newFolderName" (keyup.enter)="createNewFolder()">
             <div *ngIf="creatingFolder" class="input-group-append">
-              <button class="btn btn-success disabled" type="button"><span class="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span></button>
+              <button class="btn btn-success disabled" type="button"><span class="fa fa-refresh fa-spin fa-1x fa-fw float-end"></span></button>
             </div>
             <div *ngIf="!creatingFolder" class="input-group-append">
               <button class="btn btn-success" type="button" (click)="createNewFolder()">Create</button>
@@ -73,22 +77,22 @@
       </div>
 
       <table class="table mt-3" [ngClass]="(!loadingDirectory && loadDirectoryError == '') ? 'table-hover' : ''">
-        <thead>
+        <thead class="table-light">
           <tr>
             <th class="pointer" style="width:70%" (click)="sortShareables('name')">Name
-              <i *ngIf="sortColumn == 'name'" class="fa float-right pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-              <i *ngIf="sortColumn == ''" class="fa fa-minus float-right pt-1"></i>
+              <i *ngIf="sortColumn == 'name'" class="fa float-end pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+              <i *ngIf="sortColumn == ''" class="fa fa-minus float-end pt-1"></i>
             </th>
-            <th *ngIf="!isMobile" class="pointer" style="width:20%" (click)="sortShareables('mod')">Last Modified <i *ngIf="sortColumn == 'mod'" class="fa float-right pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i></th>
-            <th *ngIf="!isMobile" class="pointer" style="width:10%" (click)="sortShareables('size')">Size <i *ngIf="sortColumn == 'size'" class="fa float-right pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i></th>
+            <th *ngIf="!isMobile" class="pointer" style="width:20%" (click)="sortShareables('mod')">Last Modified <i *ngIf="sortColumn == 'mod'" class="fa float-end pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i></th>
+            <th *ngIf="!isMobile" class="pointer" style="width:10%" (click)="sortShareables('size')">Size <i *ngIf="sortColumn == 'size'" class="fa float-end pt-1" [ngClass]="sortAsc ? 'fa-chevron-up' : 'fa-chevron-down'"></i></th>
           </tr>
         </thead>
         <tbody *ngIf="loadingDirectory">
           <tr>
             <td colSpan="3">
               <div class="row mt-5">
-                <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
-                <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
+                <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-end"></span></div>
+                <div class="col-7"><h4 class="float-start">Loading ...</h4></div>
               </div>
             </td>
           </tr>
@@ -99,7 +103,7 @@
               <div class="alert alert-warning cursor-pointer" role="alert">
                 <h4 class="alert-heading">Error</h4>
                 <p>Something went wrong while loading the directory. {{loadDirectoryError}}</p><hr/>
-                <p><span class="fa fa-refresh fa-1x fa-fw pr-4"></span> Click here to refresh</p>
+                <p><span class="fa fa-refresh fa-1x fa-fw pe-4"></span> Click here to refresh</p>
               </div>
             </td>
           </tr>
@@ -107,32 +111,34 @@
         <tbody *ngIf="!loadingDirectory && loadDirectoryError == ''">
           <tr class="pointer" *ngFor="let shareable of shareables;" (click)="selectFile(shareable)" (dblclick)="loadFolderContent(shareable)"
           [ngClass]="shareable == selectedFile ? 'table-primary' : ''">
-            <td class="fix-text"><img src="{{shareable.icon}}" class='mr-2' width='30' height='30'/> <span>{{shareable.name}}</span>
-              <div *ngIf="isMobile && selectedFile == shareable">					
+            <td class="fix-text"><img src="{{shareable.icon}}" class='me-2' width='30' height='30'/> <span>{{shareable.name}}</span>
+              <div *ngIf="isMobile && selectedFile == shareable">
                 <div class="row mt-3">
                   <div class="col">
                     <p class="font-weight-bold mobile-text">Type:</p>
-                    <p class="font-italic mobile-text ml-4 pl-2">{{ shareable.type }}</p>
+                    <p class="font-italic mobile-text ms-4 ps-2">{{ shareable.type }}</p>
                   </div>
                   <div class="col">
                     <p class="font-weight-bold mobile-text">Size:</p>
-                    <p class="font-italic mobile-text ml-4 pl-2">{{ utils.getFileSize(shareable.size) }}</p>
+                    <p class="font-italic mobile-text ms-4 ps-2">{{ utils.getFileSize(shareable.size) }}</p>
                   </div>
                 </div>
                 <div class="row">
                   <div class="col">
                     <p class="font-weight-bold mobile-text">Created:</p>
-                    <p class="font-italic mobile-text">{{utils.getMobileCreatedTimeFromSeconds(selectedFile.created)}}</p>
+                    <p class="font-italic mobile-text">{{utils.getMobileCreatedTimeFromSeconds(selectedFile!.created!)}}</p>
                   </div>
                   <div class="col">
                     <p class="font-weight-bold mobile-text">Modified:</p>
-                    <p class="font-italic mobile-text">{{utils.getMobileCreatedTimeFromSeconds(selectedFile.lastModified)}}</p>
+                    <p class="font-italic mobile-text">{{utils.getMobileCreatedTimeFromSeconds(selectedFile!.lastModified!)}}</p>
                   </div>
                 </div>
                 <div class="row my-1">
                   <div class="col">
-                    <button *ngIf="selectedFile.isFile" type="button" class="btn btn-outline-primary btn-block" (click)="downloadSelectedFile()">Download</button>
-                    <button *ngIf="!selectedFile.isFile" type="button" class="btn btn-outline-primary btn-block" (click)="loadFolderContent(selectedFile)">View content</button>
+                    <div class="d-grid">
+                      <button *ngIf="selectedFile.isFile" type="button" class="btn btn-outline-primary" (click)="downloadSelectedFile()">Download</button>
+                      <button *ngIf="!selectedFile.isFile" type="button" class="btn btn-outline-primary" (click)="loadFolderContent(selectedFile)">View content</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -141,7 +147,7 @@
             <td *ngIf="!isMobile">{{shareable.isFile ? utils.getFileSize(shareable.size) : '-'}}</td>
           </tr>
         </tbody>
-      </table> 
+      </table>
     </div>
 
     <div class="col-md-3">
@@ -150,18 +156,18 @@
           <h5 class="card-header">Storage Capacity</h5>
           <div *ngIf="loadingCapacity" class="card-body">
             <div class="row">
-              <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
-              <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
+              <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-end"></span></div>
+              <div class="col-7"><h4 class="float-start">Loading ...</h4></div>
             </div>
           </div>
           <div *ngIf="!loadingCapacity" class="card-body">
-            <p class="card-text">{{utils.getFileSize(capacity.availableSpace)}} free of {{utils.getFileSize(capacity.totalSpace)}}</p>
+            <p class="card-text">{{utils.getFileSize(capacity!.availableSpace)}} free of {{utils.getFileSize(capacity!.totalSpace)}}</p>
             <div class="progress">
-              <div class="progress-bar" role="progressbar" [ngStyle]="{'width': capacity.ratio + '%'}" [attr.aria-valuenow]="capacity.ratio" aria-valuemin="0" aria-valuemax="100">{{capacity.ratio}} %</div>
+              <div class="progress-bar" role="progressbar" [ngStyle]="{'width': capacity!.ratio + '%'}" [attr.aria-valuenow]="capacity!.ratio" aria-valuemin="0" aria-valuemax="100">{{capacity!.ratio}} %</div>
             </div>
           </div>
         </div>
-  
+
         <div class="card my-4 d-none d-md-block">
           <h5 class="card-header">File Details</h5>
           <div *ngIf="selectedFile == null" class="card-body">
@@ -169,61 +175,71 @@
           </div>
           <div *ngIf="selectedFile != null" class="card-body">
             <div class="row mb-1">
-              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Name</p></div>
+              <div class="col-lg-3 pe-0"><p class="card-text font-weight-bold">Name</p></div>
               <div class="col-lg-9"><p class="card-text">{{selectedFile.name}}</p></div>
             </div>
             <div class="row my-1">
-              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Type</p></div>
+              <div class="col-lg-3 pe-0"><p class="card-text font-weight-bold">Type</p></div>
               <div class="col-lg-9"><p class="card-text">{{selectedFile.type}}</p></div>
             </div>
             <div class="row my-1">
-              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Size</p></div>
+              <div class="col-lg-3 pe-0"><p class="card-text font-weight-bold">Size</p></div>
               <div class="col-lg-9">
                 <p *ngIf="!selectedFile.isFile && loadingDirectorySize" class="card-text"> <span class="fa fa-refresh fa-spin fa-1x fa-fw"></span> Loading ...</p>
                 <p *ngIf="selectedFile.isFile || !loadingDirectorySize" class="card-text">{{ utils.getFileSize(selectedFile.size) + '  (' + utils.getReadableNumber(selectedFile.size) + ' Bytes)'}}</p>
               </div>
             </div>
             <div class="row my-1">
-              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Location</p></div>
+              <div class="col-lg-3 pe-0"><p class="card-text font-weight-bold">Location</p></div>
               <div class="col-lg-9">
                 <div>
                   <span>Home</span>
-                  <ng-container *ngFor="let dir of utils.splitDirectory(selectedFile.path);">
+                  <ng-container *ngFor="let dir of utils.splitDirectory(selectedFile!.path!);">
                     <img src="{{utils.getImage('arrow.png')}}" height="15px" width="15px"><span>{{dir.name}}</span>
                   </ng-container>
                 </div>
               </div>
             </div>
             <div class="row my-1">
-              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Created</p></div>
+              <div class="col-lg-3 pe-0"><p class="card-text font-weight-bold">Created</p></div>
               <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.created)}}</p></div>
             </div>
             <div class="row my-1">
-              <div class="col-lg-3 pr-0"><p class="card-text font-weight-bold">Modified</p></div>
+              <div class="col-lg-3 pe-0"><p class="card-text font-weight-bold">Modified</p></div>
               <div class="col-lg-9"><p class="card-text">{{utils.getCreatedTimeFromSeconds(selectedFile.lastModified)}}</p></div>
             </div>
             <hr>
             <div *ngIf="!renameFile && !deleteFile" class="row my-1 text-center">
               <div class="col-md-2 col-md-offset-1 px-1 py-1">
-                <button type="button" class="btn btn-outline-primary btn-block px-0" [disabled]="!selectedFile.isFile" (click)="downloadSelectedFile()"
-                  data-toggle="tooltip" data-placement="bottom" title="Download" onmouseenter="$(this).tooltip('show')">
-                  <i class="fa fa-lg fa-cloud-download" aria-hidden="true"></i></button>
+                <div class="d-grid">
+                  <button type="button" class="btn btn-outline-primary px-0" [disabled]="!selectedFile.isFile" (click)="downloadSelectedFile()"
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Download" onmouseenter="$(this).tooltip('show')">
+                    <i class="fa fa-lg fa-cloud-download" aria-hidden="true"></i></button>
+                  </div>
               </div>
               <div class="col-md-2 px-1 py-1">
-                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="renameFile = true"
-                  data-toggle="tooltip" data-placement="bottom" title="Rename" onmouseenter="$(this).tooltip('show')"><i class="fa fa-lg fa-pencil-square-o" aria-hidden="true"></i></button>
+                <div class="d-grid">
+                  <button type="button" class="btn btn-outline-primary px-0" (click)="renameFile = true"
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Rename" onmouseenter="$(this).tooltip('show')"><i class="fa fa-lg fa-pencil-square-o" aria-hidden="true"></i></button>
+                  </div>
               </div>
               <div class="col-md-2 px-1 py-1">
-                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="openMoveFileModel()"
-                  data-toggle="tooltip" data-placement="bottom" title="Move" onmouseenter="$(this).tooltip('show')"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                <div class="d-grid">
+                  <button type="button" class="btn btn-outline-primary px-0" (click)="openMoveFileModel()"
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Move" onmouseenter="$(this).tooltip('show')"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                  </div>
               </div>
               <div class="col-md-2 px-1 py-1">
-                <button type="button" class="btn btn-outline-primary btn-block px-0" (click)="openShareFileModel()"
-                data-toggle="tooltip" data-placement="bottom" title="Share" onmouseenter="$(this).tooltip('show')"><i class="fa fa-lg fa-share-square-o" aria-hidden="true"></i></button>
+                <div class="d-grid">
+                  <button type="button" class="btn btn-outline-primary px-0" (click)="openShareFileModel()"
+                  data-bs-toggle="tooltip" data-bs-placement="bottom" title="Share" onmouseenter="$(this).tooltip('show')"><i class="fa fa-lg fa-share-square-o" aria-hidden="true"></i></button>
+                </div>
               </div>
               <div class="col-md-2 px-1 py-1">
-                <button type="button" class="btn btn-outline-danger btn-block px-0" (click)="deleteFile = true"
-                  data-toggle="tooltip" data-placement="bottom" title="Delete" onmouseenter="$(this).tooltip('show')"><i class="fa fa-lg fa-trash-o" aria-hidden="true"></i></button>
+                <div class="d-grid">
+                  <button type="button" class="btn btn-outline-danger px-0" (click)="deleteFile = true"
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete" onmouseenter="$(this).tooltip('show')"><i class="fa fa-lg fa-trash-o" aria-hidden="true"></i></button>
+                  </div>
               </div>
             </div>
             <div *ngIf="renameFile" class="row my-1 text-center">
@@ -231,7 +247,7 @@
                 <div class="input-group">
                   <input type="text" class="form-control" placeholder="Enter new file name"  [disabled]="renamingFile" [(ngModel)]="renameFileName" (keyup.enter)="renameSelectedFile()">
                   <div *ngIf="renamingFile" class="input-group-append">
-                    <button class="btn btn-success disabled" type="button"><span class="fa fa-refresh fa-spin fa-1x fa-fw float-right"></span></button>
+                    <button class="btn btn-success disabled" type="button"><span class="fa fa-refresh fa-spin fa-1x fa-fw float-end"></span></button>
                   </div>
                   <div *ngIf="!renamingFile" class="input-group-append">
                     <button class="btn btn-success" type="button" (click)="renameSelectedFile()">Save</button>
@@ -242,135 +258,146 @@
             </div>
             <div *ngIf="deleteFile" class="row my-1 text-center">
               <div class="col-md-12 mb-4"><p class="card-text font-weight-bold">Are you sure about deleting this {{selectedFile.isFile ? "file" : "folder"}}?</p></div>
-              <div *ngIf="!deletingFile" class="col-md-6"><button type="button" class="btn btn-danger btn-block px-0" (click)="deleteSelectedFile()">Delete</button></div>
-              <div *ngIf="deletingFile" class="col-md-6"><button class="btn btn-danger btn-block disabled" type="button"><span class="fa fa-refresh fa-spin fa-1x fa-fw"></span></button></div>
-              <div class="col-md-6"><button type="button" class="btn btn-secondary btn-block px-0" [disabled]="deletingFile" (click)="deleteFile = false">Cancel</button></div>
+              <div *ngIf="!deletingFile" class="col-md-6">
+                <div class="d-grid"><button type="button" class="btn btn-danger px-0" (click)="deleteSelectedFile()">Delete</button></div>
+              </div>
+              <div *ngIf="deletingFile" class="col-md-6">
+                <div class="d-grid"><button class="btn btn-danger disabled" type="button"><span class="fa fa-refresh fa-spin fa-1x fa-fw"></span></button></div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-grid"><button type="button" class="btn btn-secondary px-0" [disabled]="deletingFile" (click)="deleteFile = false">Cancel</button></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      
+
     </div>
 
   </div>
 </div>
 
-<ng-template #moveFileModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title" id="moveFileModalLabel">Select a folder to move to</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body" ngbAutofocus>
-    <table class="table" [ngClass]="(!loadingMoveDirectory) ? 'table-hover' : ''">
-      <thead>
-        <tr>
-          <th>Folder name</th>
-        </tr>
-      </thead>
-      <tbody *ngIf="loadingMoveDirectory">
-        <tr>
-          <td colSpan="3">
-            <div class="row">
-              <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
-              <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-      <tbody *ngIf="!loadingMoveDirectory">
-        <tr class="pointer" *ngIf="moveFileDirectory != ''" (dblclick)="loadMoveDirectory(getParentDirectory(moveFileDirectory))">
-          <td><img src="{{utils.getImage('return.png')}}" class='mr-2' width='30' height='30'>Return to parent directory</td>
-        </tr>
-        <tr class="pointer" *ngFor="let shareable of moveDirectories;" (click)="selectedMoveDirectory = shareable"
-          (dblclick)="loadMoveDirectory(shareable.path)" [ngClass]="shareable == selectedMoveDirectory ? 'table-primary' : ''">
-          <td><img src="{{utils.getImage('folder.png')}}" class='mr-2' width='30' height='30'>{{shareable.name}}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-  <div class="modal-footer">
-    <button type="button" class="btn btn-success" data-dismiss="modal" (click)="moveSelectedFile()">Move</button>
-    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Cancel</button>
-  </div>
-</ng-template>
+<div class="modal fade" id="moveFileModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="moveFileModalLabel">Select a folder to move to</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table" [ngClass]="(!loadingMoveDirectory) ? 'table-hover' : ''">
+          <thead class="table-light">
+            <tr>
+              <th>Folder name</th>
+            </tr>
+          </thead>
+          <tbody *ngIf="loadingMoveDirectory">
+            <tr>
+              <td colSpan="3">
+                <div class="row">
+                  <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-end"></span></div>
+                  <div class="col-7"><h4 class="float-start">Loading ...</h4></div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="!loadingMoveDirectory">
+            <tr class="pointer" *ngIf="moveFileDirectory != ''" (dblclick)="loadMoveDirectory(getParentDirectory(moveFileDirectory))">
+              <td><img src="{{utils.getImage('return.png')}}" class='me-2' width='30' height='30'>Return to parent directory</td>
+            </tr>
+            <tr class="pointer" *ngFor="let shareable of moveDirectories;" (click)="selectedMoveDirectory = shareable"
+              (dblclick)="loadMoveDirectory(shareable!.path!)" [ngClass]="shareable == selectedMoveDirectory ? 'table-primary' : ''">
+              <td><img src="{{utils.getImage('folder.png')}}" class='me-2' width='30' height='30'>{{shareable.name}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-<ng-template #shareFileModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title" id="shareFileModalLabel">Sharing {{selectedFile.isFile ? 'file: ' : 'folder: '}}
-      <span class="lead">{{selectedFile.name}}</span></h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div *ngIf="shareLink==''" class="modal-body">
-    <div class="row">
-      <div class="col-12">
-        <div class="form-group">
-          <label>Name</label>
-          <div class="input-group">
-            <input [(ngModel)]="shareName" type="text" class="form-control" placeholder="Optional name">
-          </div>
-        </div>
-      </div>
-      <div class="col-12 mt-2">
-        <div class="form-group">
-          <label>Access</label>
-          <div class="input-group">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="downloadCheckbox" checked="checked" onclick="return false;">
-              <label class="form-check-label" for="downloadCheckbox">Download files</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="uploadCheckbox" [(ngModel)]="shareWriteAccess" value="false" [disabled]="selectedFile.isFile">
-              <label class="form-check-label" for="uploadCheckbox">Upload files</label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 mt-2">
-        <div class="form-group">
-          <label>Expiration</label>
-          <div class="input-group">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" id="exampleRadios1" [(ngModel)]="shareIndefinitely" value="true">
-              <label class="form-check-label" for="exampleRadios1">
-                Share indefinitely
-              </label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" id="exampleRadios2" [(ngModel)]="shareIndefinitely" value="false">
-              <label class="form-check-label" for="exampleRadios2">
-                Share until a date
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div *ngIf="shareIndefinitely == 'false'" class="col">
-        <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" [minDate]="minDate" (click)="df.toggle()" [(ngModel)]="shareToDate">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-dismiss="modal" (click)="moveSelectedFile()">Move</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
+</div>
 
-  <div *ngIf="shareLink!=''" class="modal-body">
-    <div class="form-group">
-      <label>Here's the link for the selected {{selectedFile.isFile ? 'file.' : 'folder.'}} Anyone with the link will be able to download {{selectedFile.isFile ? 'this file.' : 'anything within the folder.'}}</label>
-      <div class="input-group">
-        <input [(ngModel)]="shareLink" type="text" class="form-control" disabled>
-        <div class="input-group-append">
-          <button class="btn btn-outline-secondary" (click)="copyToClipboard()"><i class="fa fa-clone" aria-hidden="true"></i></button>
+<div class="modal fade" id="shareFileModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shareFileModalLabel">Sharing {{selectedFile?.isFile ? 'file: ' : 'folder: '}}
+          <span class="lead">{{selectedFile?.name}}</span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div *ngIf="shareLink==''" class="modal-body">
+        <div class="row">
+          <div class="col-12">
+            <div class="mb-3">
+              <label class="mb-2">Name</label>
+              <div class="input-group">
+                <input [(ngModel)]="shareName" type="text" class="form-control" placeholder="Optional name">
+              </div>
+            </div>
+          </div>
+          <div class="col-12 mt-2">
+            <div class="mb-3">
+              <label class="mb-2">Access</label>
+              <div class="input-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="downloadCheckbox" checked="checked" onclick="return false;">
+                  <label class="form-check-label" for="downloadCheckbox">Download files</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="uploadCheckbox" [(ngModel)]="shareWriteAccess" value="false" [disabled]="selectedFile?.isFile!">
+                  <label class="form-check-label" for="uploadCheckbox">Upload files</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 mt-2">
+            <div class="mb-3">
+              <label class="mb-2">Expiration</label>
+              <div class="input-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" id="exampleRadios1" [(ngModel)]="shareIndefinitely" value="true">
+                  <label class="form-check-label" for="exampleRadios1">
+                    Share indefinitely
+                  </label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" id="exampleRadios2" [(ngModel)]="shareIndefinitely" value="false">
+                  <label class="form-check-label" for="exampleRadios2">
+                    Share until a date
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="shareIndefinitely == 'false'" class="col">
+            <!-- <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" [minDate]="minDate" (click)="df.toggle()" [(ngModel)]="shareToDate"> -->
+            <input type="text" class="form-control" [(ngModel)]="shareToDate">
+          </div>
         </div>
+      </div>
+
+      <div *ngIf="shareLink!=''" class="modal-body">
+        <div class="mb-3">
+          <label class="mb-2">Here's the link for the selected {{selectedFile!.isFile ? 'file.' : 'folder.'}} Anyone with the link will be able to download {{selectedFile!.isFile ? 'this file.' : 'anything within the folder.'}}</label>
+          <div class="input-group">
+            <input [(ngModel)]="shareLink" type="text" class="form-control" disabled>
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" (click)="copyToClipboard()"><i class="fa fa-clone" aria-hidden="true"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button *ngIf="shareLink==''" type="button" class="btn btn-success" data-dismiss="modal" (click)="shareFile()" [disabled]="sharingFile">Share</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{shareLink == '' ? 'Cancel' : 'Close'}}</button>
       </div>
     </div>
   </div>
-  
-  <div class="modal-footer" ngbAutofocus>
-    <button *ngIf="shareLink==''" type="button" class="btn btn-success" data-dismiss="modal" (click)="shareFile()" [disabled]="sharingFile">Share</button>
-    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">{{shareLink == '' ? 'Cancel' : 'Close'}}</button>
-  </div>
-</ng-template>
+</div>
 
-<app-upload-modal #uploadFileModal (onUploadFinished)="uploadFinished($event[0])"></app-upload-modal>
+<app-upload-modal #uploadFileModal (onUploadFinished)="uploadFinished($event)"></app-upload-modal>

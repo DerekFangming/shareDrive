@@ -1,36 +1,38 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div [ngClass]="editingShares ? '' : 'container'">
-  <a class="navbar-brand" href="./">Share drive</a>
-  </div>
-
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div *ngIf="editingShares" class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link pointer" [routerLink]="['/directory']">Directory</a>
-      </li>
-      <li class="nav-item active">
-      <a class="nav-link pointer">Share</a>
-      </li>
-      <li *ngIf="me" class="nav-item active dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <img src="{{me.avatar}}" style="border-radius: 50% 50% 50% 50%;" height="20px" width="20px"> {{me.name}}
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item disabled" href="#">{{me.userName}}</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item pointer" (click)="utils.logout()">Log Out</a>
-        </div>
-      </li>
-    </ul>
+  <div class="container-fluid">
+    <div [ngClass]="editingShares ? '' : 'container'">
+    <a class="navbar-brand" href="./">Share drive</a>
+    </div>
+  
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div *ngIf="editingShares" class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link pointer" [routerLink]="['/directory']">Directory</a>
+        </li>
+        <li class="nav-item">
+        <a class="nav-link pointer active">Share</a>
+        </li>
+        <li *ngIf="me" class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img src="{{me.avatar}}" style="border-radius: 50% 50% 50% 50%;" height="20px" width="20px"> {{me.name}}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item disabled" href="#">{{me.userName}}</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item pointer" (click)="utils.logout()">Log Out</a>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
 </nav>
 
 <div *ngIf="loadingPage" class="row mt-5">
-  <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-right"></span></div>
-  <div class="col-7"><h4 class="float-left">Loading ...</h4></div>
+  <div class="col-5"><span class="fa fa-refresh fa-spin fa-2x fa-fw float-end"></span></div>
+  <div class="col-7"><h4 class="float-start">Loading ...</h4></div>
 </div>
 
 <div *ngIf="editingShares && !loadingPage" class="container-fluid">
@@ -56,13 +58,13 @@
             <td>{{share.writeAccess ? 'Download & Upload' : 'Download Only'}}</td>
             <td>
               <button class="btn btn-outline-secondary" (click)="editSharePrompt(share)"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></button>
-              <button class="btn btn-outline-danger ml-2" (click)="deleteSharePrompt(share)"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+              <button class="btn btn-outline-danger ms-2" (click)="deleteSharePrompt(share)"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    
+
     <div *ngIf="shares.length == 0" class="col-12 text-center">
       <div class="alert alert-success" role="alert">
         <h5 class="alert-heading">No files or folders are being shared now</h5>
@@ -89,13 +91,13 @@
         <div class="col"><p class="lead">A file has been shared with you</p></div>
       </div>
       <div class="row mt-5">
-        <div class="col mt-5 text-center"><img src="{{selectedFile.icon}}"></div>
+        <div class="col mt-5 text-center"><img src="{{selectedFile!.icon!}}"></div>
       </div>
       <div class="row mt-2">
-        <div class="col text-center"><p class="lead"><strong>{{selectedFile.name}}</strong></p></div>
+        <div class="col text-center"><p class="lead"><strong>{{selectedFile!.name!}}</strong></p></div>
       </div>
       <div class="row mt-2">
-        <div class="col text-center">{{ utils.getFileSize(selectedFile.size) }}</div>
+        <div class="col text-center">{{ utils.getFileSize(selectedFile!.size!) }}</div>
       </div>
       <div class="row mt-5">
         <div class="col text-center"><button type="button" class="btn btn-primary" (click)="downloadSelectedFile()">Download</button></div>
@@ -107,19 +109,19 @@
       <div class="row">
         <div class="col">
           <nav>
-            <ol class="breadcrumb">
+            <ol class="breadcrumb py-3 ps-3">
               <li *ngFor="let dir of utils.splitDirectory(directory); index as i"
-                class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(dir.path)">{{ i == 0 ? 'Home' : dir.name }}</a></li>
+                class="breadcrumb-item"><a [routerLink]="[]" (click)="loadDirectory(dir.path!)">{{ i == 0 ? 'Home' : dir.name }}</a></li>
             </ol>
           </nav>
         </div>
       </div>
       <div class="row mt-3">
         <div class="col-12 col-md-6">
-          <p class="lead ml-2">A folder has been shared with you</p>
+          <p class="lead ms-2">A folder has been shared with you</p>
         </div>
         <div class="col-12 col-md-6">
-          <button *ngIf="shareDetails.endsWith('rw')" class="btn btn-primary float-right" type="button" (click)="uploadFileModal.showModal(directory, true)"><span class="fa fa-plus mr-2"></span>Upload</button>
+          <button *ngIf="shareDetails.endsWith('rw')" class="btn btn-primary float-end" type="button" (click)="uploadFileModal.showModal(directory, true)"><span class="fa fa-plus me-2"></span>Upload</button>
         </div>
       </div>
       <div class="row">
@@ -144,7 +146,7 @@
             </tbody>
             <tbody>
               <tr class="pointer" *ngFor="let shareable of shareables;" (dblclick)="loadFolderContent(shareable)">
-                <td class="fix-text"><img src="{{shareable.icon}}" class='mr-2' width='30' height='30'/> <span>{{shareable.name}}</span></td>
+                <td class="fix-text"><img src="{{shareable.icon}}" class='me-2' width='30' height='30'/> <span>{{shareable.name}}</span></td>
                 <td>{{shareable.isFile ? utils.getFileSize(shareable.size) : '-'}}</td>
                 <td *ngIf="shareable.isFile"><button type="button" class="btn btn-outline-primary" (click)="downloadFile(shareable)">
                   <i class="fa fa-cloud-download" aria-hidden="true"></i></button>
@@ -161,95 +163,100 @@
   </div>
 </div>
 
-<ng-template #deleteConfirmModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">Deleting share: <span class="lead">{{getShareName(selectedShare)}}</span></h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body" ngbAutofocus>
-    <p>Once deleted, anyone with the share link will immediately lose all access to files and folders shared through the link.</p>
-  </div>
-  
-  <div class="modal-footer">
-    <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="deleteSelectedShare()" [disabled]="deletingShare">Delete</button>
-    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Cancel</button>
-  </div>
-</ng-template>
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Deleting share: <span class="lead">{{getShareName(selectedShare!)}}</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Once deleted, anyone with the share link will immediately lose all access to files and folders shared through the link.</p>
+      </div>
 
-<ng-template #updateShareModal let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title" id="shareFileModalLabel">Editing share: <span class="lead">{{getShareName(selectedShare)}}</span></h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <div class="row">
-      <div class="col-12">
-        <div class="form-group">
-          <label>Name</label>
-          <div class="input-group">
-            <input [(ngModel)]="shareName" type="text" class="form-control" placeholder="Optional name">
-          </div>
-        </div>
-      </div>
-      <div class="col-12">
-        <div class="form-group">
-          <label>Share link</label>
-          <div class="input-group">
-            <input [value]="getShareLink(selectedShare.id)" type="text" class="form-control" disabled>
-            <div class="input-group-append">
-              <button class="btn btn-outline-secondary" (click)="copyToClipboard(selectedShare.id)"><i class="fa fa-clone" aria-hidden="true"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 mt-2">
-        <div class="form-group">
-          <label>Access</label>
-          <div class="input-group">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="downloadCheckbox" checked="checked" onclick="return false;">
-              <label class="form-check-label" for="downloadCheckbox">Download files</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="uploadCheckbox" [(ngModel)]="shareWriteAccess" value="false">
-              <label class="form-check-label" for="uploadCheckbox">Upload files</label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 mt-2">
-        <div class="form-group">
-          <label>Expiration</label>
-          <div class="input-group">
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" id="exampleRadios1" [(ngModel)]="shareIndefinitely" value="true">
-              <label class="form-check-label" for="exampleRadios1">
-                Share indefinitely
-              </label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="radio" id="exampleRadios2" [(ngModel)]="shareIndefinitely" value="false">
-              <label class="form-check-label" for="exampleRadios2">
-                Share until a date
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div *ngIf="shareIndefinitely == 'false'" class="col">
-        <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" [minDate]="minDate" (click)="df.toggle()" [(ngModel)]="shareToDate">
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="deleteSelectedShare()" [disabled]="deletingShare">Delete</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
       </div>
     </div>
   </div>
-  
-  <div class="modal-footer" ngbAutofocus>
-    <button type="button" class="btn btn-success" data-dismiss="modal" (click)="updateShare()" [disabled]="updatingShare">Update</button>
-    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cross click')">Close</button>
-  </div>
-</ng-template>
+</div>
 
-<app-upload-modal #uploadFileModal (onUploadFinished)="uploadFinished($event[0])"></app-upload-modal>
+<div class="modal fade" id="updateShareModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shareFileModalLabel">Editing share: <span class="lead">{{getShareName(selectedShare!)}}</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12">
+            <div class="form-group">
+              <label>Name</label>
+              <div class="input-group">
+                <input [(ngModel)]="shareName" type="text" class="form-control" placeholder="Optional name">
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+              <label>Share link</label>
+              <div class="input-group">
+                <input [value]="getShareLink(selectedShare!.id!)" type="text" class="form-control" disabled>
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" (click)="copyToClipboard(selectedShare!.id!)"><i class="fa fa-clone" aria-hidden="true"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 mt-2">
+            <div class="form-group">
+              <label>Access</label>
+              <div class="input-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="downloadCheckbox" checked="checked" onclick="return false;">
+                  <label class="form-check-label" for="downloadCheckbox">Download files</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="checkbox" id="uploadCheckbox" [(ngModel)]="shareWriteAccess" value="false">
+                  <label class="form-check-label" for="uploadCheckbox">Upload files</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 mt-2">
+            <div class="form-group">
+              <label>Expiration</label>
+              <div class="input-group">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" id="exampleRadios1" [(ngModel)]="shareIndefinitely" value="true">
+                  <label class="form-check-label" for="exampleRadios1">
+                    Share indefinitely
+                  </label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" id="exampleRadios2" [(ngModel)]="shareIndefinitely" value="false">
+                  <label class="form-check-label" for="exampleRadios2">
+                    Share until a date
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="shareIndefinitely == 'false'" class="col">
+            <!-- <input type="text" class="form-control" ngbDatepicker #df="ngbDatepicker" [minDate]="minDate" (click)="df.toggle()" [(ngModel)]="shareToDate"> -->
+            <input type="text" class="form-control" [(ngModel)]="shareToDate">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" data-dismiss="modal" (click)="updateShare()" [disabled]="updatingShare">Update</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-upload-modal #uploadFileModal (onUploadFinished)="uploadFinished($event)"></app-upload-modal>

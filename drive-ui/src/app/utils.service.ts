@@ -9,7 +9,7 @@ export class UtilsService {
 
   units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
-  getFileSize = (bytes) => {
+  getFileSize = (bytes: any) => {
     let l = 0, n = parseInt(bytes, 10) || 0;
     while(n >= 1024 && ++l)
       n = n/1024;
@@ -20,7 +20,7 @@ export class UtilsService {
     return new Date(time).toLocaleString();
   }
 
-  getCreatedTimeFromSeconds(secs: number) {
+  getCreatedTimeFromSeconds(secs: any) {
     return secs == 0 ? ' - ' : (new Date(secs)).toLocaleString();
   }
 
@@ -32,11 +32,11 @@ export class UtilsService {
     });
   }
 
-  getReadableNumber = (num) => {
+  getReadableNumber = (num: any) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
-  keepTwoDigits = (num) => {
+  keepTwoDigits = (num: any) => {
     return Number(num).toFixed(2)
   }
 
@@ -67,7 +67,7 @@ export class UtilsService {
       file.icon = this.getImage('folder.png');
       return file;
     }
-    let names = file.name.split('.');
+    let names = file.name!.split('.');
     
     if (names.length == 0) {
       file.type = 'Unknown';
@@ -122,20 +122,6 @@ export class UtilsService {
 
   numberEnding (num: number) {
     return (num > 1) ? 's' : '';
-  }
-
-  copyToClipboard(document, text) {
-    const selBox = document.createElement('textarea')
-    selBox.style.position = 'fixed'
-    selBox.style.left = '0'
-    selBox.style.top = '0'
-    selBox.style.opacity = '0'
-    selBox.value = text
-    document.body.appendChild(selBox)
-    selBox.focus()
-    selBox.select()
-    document.execCommand('copy')
-    document.body.removeChild(selBox)
   }
 
   splitDirectory(directory: string) {

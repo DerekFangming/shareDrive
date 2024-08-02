@@ -7,7 +7,7 @@ COPY ./drive-ui/. .
 ENV NODE_OPTIONS=--openssl-legacy-provider
 
 RUN npm install
-RUN npm run buildProd
+RUN npm run build
 
 # Stage build service
 FROM openjdk:17-alpine AS builder-service

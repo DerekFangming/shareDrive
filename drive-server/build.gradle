@@ -4,12 +4,10 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
-group 'com.fmning'
+group 'com.fmning.share'
 version = '1.0.0'
 sourceCompatibility = '17'
 targetCompatibility = '17'
-
-sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()

@@ -1,15 +1,15 @@
 export class Shareable {
-  name: string;
-  path: string;
-  isFile: boolean;
-  created: number;
-  lastModified: number;
-  size: number;
+  name: string | undefined
+  path: string | undefined
+  isFile: boolean | undefined
+  created: number | undefined
+  lastModified: number | undefined
+  size: number | undefined
 
-  type: string;
-  icon: string;
+  type: string | undefined
+  icon: string | undefined
 
   public constructor(init?:Partial<Shareable>) {
-    Object.assign(this, init);
+    Object.assign(this, init)
   }
 }
