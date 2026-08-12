@@ -24,34 +24,40 @@ public class DriveConfiguration {
         if (StringUtils.isBlank(driveProperties.getRootDir())) {
             driveStatus = DriveStatus.NO_ROOT_DIR;
             return new File("");
-        } else {
-            File rootDir = new File(driveProperties.getRootDir());
-            if (rootDir.isFile()) {
-                driveStatus = DriveStatus.INVALID_ROOT_DIR;
-            } else if (rootDir.isDirectory()) {
-                File internalFolder = getInnerFolder(rootDir, INTERNAL_FOLDER_NAME);
-                if (internalFolder.exists()) {
-                    File testFolder = getInnerFolder(internalFolder, UUID.randomUUID().toString());
-                    if (testFolder.mkdir()) {
-                        if (testFolder.delete()) {
-                            driveStatus = DriveStatus.OK;
-                        } else {
-                            driveStatus = DriveStatus.INVALID_PERMISSION;
-                        }
-                    } else {
-                        driveStatus = DriveStatus.INVALID_PERMISSION;
-                    }
-                } else {
-                    if (internalFolder.mkdir()) {
-                        driveStatus = DriveStatus.OK;
-                    } else {
-                        driveStatus = DriveStatus.INVALID_PERMISSION;
-                    }
-                }
+        }
+
+        File rootDir = new File(driveProperties.getRootDir());
+        if (rootDir.isFile()) {
+            driveStatus = DriveStatus.INVALID_ROOT_DIR;
+        } else if (rootDir.isDirectory()) {
+            if (driveProperties.isPostgres()) {
+                validateWritePermission(rootDir);
             } else {
-                driveStatus = DriveStatus.INVALID_ROOT_DIR;
+                ensureInternalFolder(rootDir);
             }
-            return rootDir;
+        } else {
+            driveStatus = DriveStatus.INVALID_ROOT_DIR;
+        }
+        return rootDir;
+    }
+
+    private void validateWritePermission(File directory) {
+        File testFolder = getInnerFolder(directory, "." + UUID.randomUUID());
+        if (testFolder.mkdir() && testFolder.delete()) {
+            driveStatus = DriveStatus.OK;
+        } else {
+            driveStatus = DriveStatus.INVALID_PERMISSION;
+        }
+    }
+
+    private void ensureInternalFolder(File rootDir) {
+        File internalFolder = getInnerFolder(rootDir, INTERNAL_FOLDER_NAME);
+        if (internalFolder.exists()) {
+            validateWritePermission(internalFolder);
+        } else if (internalFolder.mkdir()) {
+            driveStatus = DriveStatus.OK;
+        } else {
+            driveStatus = DriveStatus.INVALID_PERMISSION;
         }
     }
 
