@@ -15,6 +15,21 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 public class FileUtil {
 
+    private static final String RECYCLE_FOLDER = "#recycle";
+
+    public static boolean isListable(File file) {
+        String name = file.getName();
+        return !file.isHidden()
+                && !name.startsWith(".")
+                && !name.startsWith("$")
+                && !RECYCLE_FOLDER.equals(name);
+    }
+
+    public static boolean isUnderRecycleFolder(File file, File rootDir) {
+        String relative = getRelativePath(file, rootDir).replace("\\", "/");
+        return relative.equals(RECYCLE_FOLDER) || relative.startsWith(RECYCLE_FOLDER + "/");
+    }
+
     public static File getInnerFolder(File baseFolder, String path) {
         if (!path.startsWith("/") && !path.startsWith("\\")) path = File.separator + path;
         return new File(baseFolder.getAbsolutePath() + path);

@@ -325,6 +325,7 @@ public class FileController {
             List<Shareable> resultList = Files.walk(folder.toPath())
                     .map(Path::toFile)
                     .parallel()
+                    .filter(f -> !isUnderRecycleFolder(f, rootDir))
                     .filter(p -> p.getName().toLowerCase().matches(regex))
                     .map(f -> toShareable(rootDir, f))
                     .collect(Collectors.toList());

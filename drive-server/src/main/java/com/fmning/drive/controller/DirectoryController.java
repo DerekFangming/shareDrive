@@ -47,7 +47,7 @@ public class DirectoryController {
             throw new IllegalArgumentException("Requested path does not exist.");
         } else {
             return Arrays.stream(Objects.requireNonNull(directory.listFiles())).filter(f -> {
-                if (!f.isHidden() && !f.getName().startsWith(".") && !f.getName().startsWith("$")) {
+                if (isListable(f)) {
                     return !dirOnly || f.isDirectory();
                 }
                 return false;
@@ -90,7 +90,7 @@ public class DirectoryController {
             return ResponseEntity.ok()
                     .header(SHARE_DETAILS, details)
                     .body(Arrays.stream(Objects.requireNonNull(sharePoint.listFiles()))
-                            .filter(f -> !f.isHidden() && !f.getName().startsWith(".") && !f.getName().startsWith("$"))
+                            .filter(f -> isListable(f))
                             .map(f -> toShareable(share.getId() + "/" + getRelativePath(f, shareRoot), f)).collect(Collectors.toList()));
         }
 
