@@ -57,28 +57,70 @@ public class DriveConfiguration {
 
     @Bean
     public DataSource getDataSource(File file, DriveProperties driveProperties) {
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
-        dataSourceBuilder.driverClassName("org.h2.Driver");
-        dataSourceBuilder.username(driveProperties.getDbUsername());
-        dataSourceBuilder.password(driveProperties.getDbPassword());
-
-        if (driveStatus != DriveStatus.OK) {
-            dataSourceBuilder.url("jdbc:h2:mem:drive");
-            return dataSourceBuilder.build();
-        } else {
-            dataSourceBuilder.url("jdbc:h2:file:" + file.getAbsolutePath() + File.separator + INTERNAL_FOLDER_NAME + File.separator + "drive");
-            DataSource dataSource = dataSourceBuilder.build();
-
-            try {
-                Connection connection = dataSource.getConnection();
-                connection.close();
-                return dataSource;
-            } catch (Exception e) {
-                dataSourceBuilder.url("jdbc:h2:mem:drive");
-                driveStatus = DriveStatus.INVALID_DATABASE;
-                return dataSourceBuilder.build();
-            }
+        if (driveProperties.isPostgres()) {
+            return buildPostgresDataSource(driveProperties);
         }
+        return buildH2DataSource(file, driveProperties);
+    }
+
+    private DataSource buildPostgresDataSource(DriveProperties driveProperties) {
+        if (StringUtils.isBlank(driveProperties.getDbUrl())) {
+            markDatabaseInvalid();
+            return buildInMemoryH2DataSource(driveProperties);
+        }
+
+        DataSource dataSource = DataSourceBuilder.create()
+                .driverClassName("org.postgresql.Driver")
+                .url(driveProperties.getDbUrl())
+                .username(driveProperties.getDbUsername())
+                .password(driveProperties.getDbPassword())
+                .build();
+
+        try {
+            Connection connection = dataSource.getConnection();
+            connection.close();
+            return dataSource;
+        } catch (Exception e) {
+            markDatabaseInvalid();
+            return buildInMemoryH2DataSource(driveProperties);
+        }
+    }
+
+    private void markDatabaseInvalid() {
+        if (driveStatus == DriveStatus.OK) {
+            driveStatus = DriveStatus.INVALID_DATABASE;
+        }
+    }
+
+    private DataSource buildH2DataSource(File file, DriveProperties driveProperties) {
+        if (driveStatus != DriveStatus.OK) {
+            return buildInMemoryH2DataSource(driveProperties);
+        }
+
+        DataSource dataSource = DataSourceBuilder.create()
+                .driverClassName("org.h2.Driver")
+                .url("jdbc:h2:file:" + file.getAbsolutePath() + File.separator + INTERNAL_FOLDER_NAME + File.separator + "drive")
+                .username(driveProperties.getDbUsername())
+                .password(driveProperties.getDbPassword())
+                .build();
+
+        try {
+            Connection connection = dataSource.getConnection();
+            connection.close();
+            return dataSource;
+        } catch (Exception e) {
+            markDatabaseInvalid();
+            return buildInMemoryH2DataSource(driveProperties);
+        }
+    }
+
+    private DataSource buildInMemoryH2DataSource(DriveProperties driveProperties) {
+        return DataSourceBuilder.create()
+                .driverClassName("org.h2.Driver")
+                .url("jdbc:h2:mem:drive")
+                .username(driveProperties.getDbUsername())
+                .password(driveProperties.getDbPassword())
+                .build();
     }
 
 }

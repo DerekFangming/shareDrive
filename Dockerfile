@@ -10,7 +10,7 @@ RUN npm install
 RUN npm run build
 
 # Stage build service
-FROM openjdk:17-alpine AS builder-service
+FROM eclipse-temurin:17-jdk-alpine AS builder-service
 
 WORKDIR /app
 COPY . .
@@ -20,7 +20,7 @@ RUN chmod +x gradlew
 RUN ./gradlew bootJar
 
 # Stage run
-FROM openjdk:17-alpine
+FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 COPY --from=builder-service /app/drive-server/build/libs .
