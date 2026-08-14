@@ -55,7 +55,6 @@ public class FileController {
     private static final String UPLOAD_FILE = "upload-file";
     private static final String UPLOAD_SHARED_FILE = "upload-shared-file";
     private static final String SEARCH_FILE = "search-file";
-    private static final int DEFAULT_BUFFER_BYTE_SIZE = 20480;
     private static final long MIN_STORAGE_WRITE_TIMEOUT_MS = 60_000L;
     private static final long MAX_STORAGE_WRITE_TIMEOUT_MS = 600_000L;
     private static final ExecutorService STORAGE_EXECUTOR = Executors.newCachedThreadPool(r -> {
@@ -99,71 +98,135 @@ public class FileController {
             throw new IllegalArgumentException("The file does not exist");
         }
 
-        String contentType= URLConnection.guessContentTypeFromName(file.getName());
-        if (contentType == null) contentType = "application/octet-stream";
-        String encodedFileName = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8.name()).replace("+", "%20").replace("%28", "(").replace("%29", ")")
-                .replace("%5B", "[").replace("%5D", "]");
-
         long length = file.length();
-        Range full = Range.builder().start(0).end(length - 1).length(length).total(length).build();
-        List<Range> ranges = new ArrayList<>();
-
-        String range = request.getHeader(HttpHeaders.RANGE);
-        if (range != null) {
-            if (!range.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*$")) {
-                response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + length);
-                response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-                return;
-            }
-
-            for (String part : range.substring(6).split(",")) {
-                long start = FileUtil.sublong(part, 0, part.indexOf("-"));
-                long end = FileUtil.sublong(part, part.indexOf("-") + 1, part.length());
-
-                if (start == -1) {
-                    start = length - end;
-                    end = length - 1;
-                } else if (end == -1 || end > length - 1) {
-                    end = length - 1;
-                }
-
-                if (start > end) {
-                    response.setHeader("Content-Range", "bytes */" + length);
-                    response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
-                    return;
-                }
-
-                ranges.add(Range.builder().start(start).end(end).length(end - start + 1).total(length).build());
-            }
+        String contentType = URLConnection.guessContentTypeFromName(file.getName());
+        if (contentType == null) {
+            contentType = "application/octet-stream";
         }
 
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.setBufferSize(DEFAULT_BUFFER_BYTE_SIZE);
-        response.setContentType(contentType);
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedFileName + "\"");
-        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
-        response.setHeader(HttpHeaders.ETAG, "\"" + file.getName() + "\"");
+        String fileName = file.getName();
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replace("+", "%20");
+        List<Range> ranges = parseRanges(request.getHeader(HttpHeaders.RANGE), length);
+        if (ranges == null) {
+            response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + length);
+            response.sendError(HttpServletResponse.SC_REQUESTED_RANGE_NOT_SATISFIABLE);
+            return;
+        }
 
-        try (InputStream input = new BufferedInputStream(new FileInputStream(file));
-             OutputStream output = response.getOutputStream()) {
-            if (ranges.isEmpty() || ranges.get(0) == full) {
-                response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes " + full.start + "-" + full.end + "/" + full.total);
-                response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(full.length));
-                copyFileStream(input, output, length, full.start, full.length);
+        response.setBufferSize(256 * 1024);
+        response.setContentType(contentType);
+        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+        response.setHeader(HttpHeaders.CACHE_CONTROL, "private, no-transform");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + fileName.replace("\"", "") + "\"; filename*=UTF-8''" + encodedFileName);
+        response.setHeader(HttpHeaders.ETAG, "\"" + length + "-" + file.lastModified() + "\"");
+
+        try (RandomAccessFile raf = new RandomAccessFile(file, "r");
+             OutputStream output = new BufferedOutputStream(response.getOutputStream(), 256 * 1024)) {
+            if (ranges.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(length));
+                if (length > 0) {
+                    copyFileRange(raf, output, 0, length);
+                }
             } else if (ranges.size() == 1) {
                 Range r = ranges.get(0);
+                response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
                 response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes " + r.start + "-" + r.end + "/" + r.total);
                 response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(r.length));
-                response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-                copyFileStream(input, output, length, r.start, r.length);
+                copyFileRange(raf, output, r.start, r.length);
             } else {
                 response.setContentType("multipart/byteranges; boundary=MULTIPART_BYTERANGES");
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
                 for (Range r : ranges) {
-                    copyFileStream(input, output, length, r.start, r.length);
+                    output.write(("--MULTIPART_BYTERANGES\r\n").getBytes(StandardCharsets.UTF_8));
+                    output.write(("Content-Type: " + contentType + "\r\n").getBytes(StandardCharsets.UTF_8));
+                    output.write(("Content-Range: bytes " + r.start + "-" + r.end + "/" + r.total + "\r\n\r\n")
+                            .getBytes(StandardCharsets.UTF_8));
+                    copyFileRange(raf, output, r.start, r.length);
+                    output.write("\r\n".getBytes(StandardCharsets.UTF_8));
                 }
+                output.write("--MULTIPART_BYTERANGES--\r\n".getBytes(StandardCharsets.UTF_8));
+            }
+            output.flush();
+        } catch (IOException e) {
+            // Browser navigated away / cancelled download — not a server failure.
+            if (!isClientAbort(e)) {
+                throw e;
             }
         }
+    }
+
+    /**
+     * @return empty list for full file, parsed ranges for partial content, or null if the Range header is invalid
+     */
+    private List<Range> parseRanges(String rangeHeader, long length) {
+        List<Range> ranges = new ArrayList<>();
+        if (rangeHeader == null) {
+            return ranges;
+        }
+        if (!rangeHeader.matches("^bytes=\\d*-\\d*(,\\d*-\\d*)*$")) {
+            return null;
+        }
+
+        for (String part : rangeHeader.substring(6).split(",")) {
+            long start = FileUtil.sublong(part, 0, part.indexOf("-"));
+            long end = FileUtil.sublong(part, part.indexOf("-") + 1, part.length());
+
+            if (start == -1) {
+                start = Math.max(0, length - end);
+                end = length - 1;
+            } else if (end == -1 || end > length - 1) {
+                end = length - 1;
+            }
+
+            if (length == 0) {
+                continue;
+            }
+            if (start > end || start >= length) {
+                return null;
+            }
+
+            ranges.add(Range.builder().start(start).end(end).length(end - start + 1).total(length).build());
+        }
+        return ranges;
+    }
+
+    private void copyFileRange(RandomAccessFile raf, OutputStream output, long start, long length) throws IOException {
+        byte[] buffer = new byte[256 * 1024];
+        raf.seek(start);
+        long remaining = length;
+        while (remaining > 0) {
+            int toRead = (int) Math.min(buffer.length, remaining);
+            int read = raf.read(buffer, 0, toRead);
+            if (read < 0) {
+                throw new IOException("Unexpected end of file while reading download content");
+            }
+            output.write(buffer, 0, read);
+            remaining -= read;
+        }
+    }
+
+    private boolean isClientAbort(IOException e) {
+        Throwable cause = e;
+        while (cause != null) {
+            String name = cause.getClass().getSimpleName();
+            if ("ClientAbortException".equals(name) || "EofException".equals(name)) {
+                return true;
+            }
+            String message = cause.getMessage();
+            if (message != null) {
+                String lower = message.toLowerCase();
+                if (lower.contains("broken pipe")
+                        || lower.contains("connection reset")
+                        || lower.contains("connection abort")
+                        || lower.contains("clientabort")) {
+                    return true;
+                }
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     @PostMapping("/" + UPLOAD_SHARED_FILE + "/**")
@@ -462,32 +525,6 @@ public class FileController {
         public long end;
         public long length;
         public long total;
-    }
-
-    private void copyFileStream(InputStream input, OutputStream output, long inputSize, long start, long length) throws IOException {
-        byte[] buffer = new byte[DEFAULT_BUFFER_BYTE_SIZE];
-        int read;
-
-        if (inputSize == length) {
-            while ((read = input.read(buffer)) > 0) {
-                output.write(buffer, 0, read);
-                output.flush();
-            }
-        } else {
-            input.skip(start);
-            long toRead = length;
-
-            while ((read = input.read(buffer)) > 0) {
-                if ((toRead -= read) > 0) {
-                    output.write(buffer, 0, read);
-                    output.flush();
-                } else {
-                    output.write(buffer, 0, (int) toRead + read);
-                    output.flush();
-                    break;
-                }
-            }
-        }
     }
 
 }

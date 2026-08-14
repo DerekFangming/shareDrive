@@ -206,7 +206,11 @@ export class ShareComponent implements OnInit {
 
   downloadSelectedFile() {
     if (this.selectedFile!.isFile) {
-      window.open(environment.urlPrefix + "api/download-shared-file/" + this.selectedFile!.path);
+      const path = this.utils.encodeFilePath(this.selectedFile!.path || '')
+      this.utils.triggerBrowserDownload(
+        environment.urlPrefix + 'api/download-shared-file/' + path,
+        this.selectedFile!.name
+      )
     }
   }
 

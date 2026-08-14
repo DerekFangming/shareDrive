@@ -199,7 +199,11 @@ export class DirectoryComponent implements OnInit {
 
   downloadSelectedFile() {
     if (this.selectedFile!.isFile) {
-      window.open(environment.urlPrefix + "api/download-file/" + this.selectedFile!.path)
+      const path = this.utils.encodeFilePath(this.selectedFile!.path || '')
+      this.utils.triggerBrowserDownload(
+        environment.urlPrefix + 'api/download-file/' + path,
+        this.selectedFile!.name
+      )
     }
   }
 

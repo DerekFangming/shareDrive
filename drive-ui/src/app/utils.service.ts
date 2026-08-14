@@ -124,6 +124,26 @@ export class UtilsService {
     return (num > 1) ? 's' : '';
   }
 
+  encodeFilePath(path: string) {
+    return path
+      .split('/')
+      .map(segment => encodeURIComponent(segment))
+      .join('/')
+  }
+
+  triggerBrowserDownload(url: string, fileName?: string) {
+    const anchor = document.createElement('a')
+    anchor.href = url
+    if (fileName) {
+      anchor.download = fileName
+    }
+    anchor.rel = 'noopener'
+    anchor.style.display = 'none'
+    document.body.appendChild(anchor)
+    anchor.click()
+    document.body.removeChild(anchor)
+  }
+
   splitDirectory(directory: string) {
     if (directory.startsWith('/')) directory = directory.substring(1)
     let dirs = directory == '' ? [] : directory.split('/');
