@@ -80,7 +80,7 @@ public class FileController {
             throw new IllegalArgumentException("Share code " + shareId + " has expired.");
         }
 
-        File file = getInnerFolder(rootDir, share.getPath() + "/" + subPath);
+        File file = resolveSharedPath(rootDir, share.getPath(), subPath);
         downloadFile(request, response, file);
     }
 
@@ -248,8 +248,8 @@ public class FileController {
             throw new IllegalArgumentException("This shared directory is read only. Uploading is not allowed.");
         }
 
-        File folder = getInnerFolder(rootDir, share.getPath() + "/" + subPath);
         File shareRoot = getInnerFolder(rootDir, share.getPath());
+        File folder = resolveSharedPath(rootDir, share.getPath(), subPath);
         return uploadFiles(folder, files, shareRoot, share.getId());
     }
 
@@ -434,6 +434,7 @@ public class FileController {
         if (newPath.equals(previousFile.getPath())) throw new IllegalArgumentException("File name is the same as before");
 
         File newFile = new File(newPath);
+        assertContained(rootDir, newFile);
         if (newFile.exists()) throw new IllegalArgumentException("There is already a file in the directory called " + newName);
 
         if (previousFile.renameTo(newFile)) {

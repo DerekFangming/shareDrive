@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public class FileUtil {
@@ -30,9 +31,67 @@ public class FileUtil {
         return relative.equals(RECYCLE_FOLDER) || relative.startsWith(RECYCLE_FOLDER + "/");
     }
 
+    /**
+     * Resolves {@code path} under {@code baseFolder} and rejects anything that escapes it
+     * (e.g. {@code ..} segments, absolute paths, symlink escapes).
+     */
     public static File getInnerFolder(File baseFolder, String path) {
-        if (!path.startsWith("/") && !path.startsWith("\\")) path = File.separator + path;
-        return new File(baseFolder.getAbsolutePath() + path);
+        return resolveWithin(baseFolder, path);
+    }
+
+    /**
+     * Resolves a shared item path: must stay under the drive root and under the share root.
+     */
+    public static File resolveSharedPath(File driveRoot, String sharePath, String subPath) {
+        File shareRoot = resolveWithin(driveRoot, sharePath);
+        if (StringUtils.isBlank(subPath)) {
+            return shareRoot;
+        }
+        return resolveWithin(shareRoot, subPath);
+    }
+
+    public static File resolveWithin(File baseFolder, String path) {
+        if (baseFolder == null) {
+            throw new IllegalArgumentException("Access denied: path is outside the allowed directory");
+        }
+        if (path == null) {
+            path = "";
+        }
+        if (path.indexOf('\0') >= 0) {
+            throw new IllegalArgumentException("Invalid path");
+        }
+
+        // Keep the path relative to the base. Absolute segments would ignore the base on Unix.
+        while (path.startsWith("/") || path.startsWith("\\")) {
+            path = path.substring(1);
+        }
+
+        try {
+            File base = baseFolder.getCanonicalFile();
+            File target = new File(base, path).getCanonicalFile();
+            if (!isContained(base, target)) {
+                throw new IllegalArgumentException("Access denied: path is outside the allowed directory");
+            }
+            return target;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid path");
+        }
+    }
+
+    public static void assertContained(File baseFolder, File target) {
+        try {
+            if (baseFolder == null || target == null || !isContained(baseFolder.getCanonicalFile(), target.getCanonicalFile())) {
+                throw new IllegalArgumentException("Access denied: path is outside the allowed directory");
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid path");
+        }
+    }
+
+    public static boolean isContained(File base, File target) throws IOException {
+        Path basePath = base.getCanonicalFile().toPath();
+        Path targetPath = target.getCanonicalFile().toPath();
+        return targetPath.startsWith(basePath);
     }
 
     public static String getRelativePath(File file, File rootDir) {

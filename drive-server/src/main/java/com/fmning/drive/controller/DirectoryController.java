@@ -72,7 +72,8 @@ public class DirectoryController {
             throw new IllegalArgumentException("Share code " + shareId + " has expired.");
         }
 
-        File sharePoint = getInnerFolder(rootDir, share.getPath() + "/" + subPath);
+        File shareRoot = getInnerFolder(rootDir, share.getPath());
+        File sharePoint = resolveSharedPath(rootDir, share.getPath(), subPath);
         if (!sharePoint.exists()) {
             throw new IllegalArgumentException("Shared file does not exist.");
         }
@@ -86,7 +87,6 @@ public class DirectoryController {
                     .body(Collections.singletonList(toShareable(share.getId(), sharePoint)));
         }
         if (sharePoint.isDirectory()) {
-            File shareRoot = getInnerFolder(rootDir, share.getPath());
             return ResponseEntity.ok()
                     .header(SHARE_DETAILS, details)
                     .body(Arrays.stream(Objects.requireNonNull(sharePoint.listFiles()))

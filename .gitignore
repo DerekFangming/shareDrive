@@ -33,3 +33,4 @@ out/
 
 drive-server/src/main/resources/static/**
 /drive-ui/.angular/**
+.DS_Store
