@@ -38,11 +38,19 @@
       <div class="modal-body" *ngIf="uploadingFile">
         <div class="row">
           <div class="col">
-            <p><span class="fa fa-refresh fa-spin fa-fw"></span> {{ 'Uploading ... Remaining time: ' + uploadRemaining }}</p>
+            <p>
+              <span class="fa fa-refresh fa-spin fa-fw"></span>
+              <ng-container *ngIf="!savingToStorage; else savingTpl">
+                Uploading {{ currentUploadName }}... Remaining time: {{ uploadRemaining }}
+              </ng-container>
+              <ng-template #savingTpl>
+                Saving {{ currentUploadName }} to storage...
+              </ng-template>
+            </p>
           </div>
         </div>
         <div class="progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" [ngStyle]="{'width': uploadRatio + '%'}"
+          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" [ngStyle]="{'width': (uploadRatio || 1) + '%'}"
           [attr.aria-valuenow]="uploadRatio" aria-valuemin="0" aria-valuemax="100">{{ uploadRatio + ' %'}}</div>
         </div>
       </div>

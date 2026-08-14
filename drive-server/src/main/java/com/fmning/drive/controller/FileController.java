@@ -27,9 +27,16 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static com.fmning.drive.FileUtil.*;
@@ -49,6 +56,13 @@ public class FileController {
     private static final String UPLOAD_SHARED_FILE = "upload-shared-file";
     private static final String SEARCH_FILE = "search-file";
     private static final int DEFAULT_BUFFER_BYTE_SIZE = 20480;
+    private static final long MIN_STORAGE_WRITE_TIMEOUT_MS = 60_000L;
+    private static final long MAX_STORAGE_WRITE_TIMEOUT_MS = 600_000L;
+    private static final ExecutorService STORAGE_EXECUTOR = Executors.newCachedThreadPool(r -> {
+        Thread thread = new Thread(r, "drive-storage-io");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     @GetMapping("/" + DOWNLOAD_SHARED_FILE + "/**")
     public void downloadSharedFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -188,29 +202,63 @@ public class FileController {
             throw new IllegalArgumentException("The folder does not exist");
         } else if (!folder.isDirectory()) {
             throw new IllegalArgumentException("Invalid upload path.");
+        } else if (files == null || files.isEmpty()) {
+            throw new IllegalArgumentException("No files are provided.");
         }
 
         String error = "";
         List<Shareable> shareables = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            if (file.getOriginalFilename() == null) continue;
-            File targetFile = getInnerFolder(folder, file.getOriginalFilename());
+            String fileName = FilenameUtils.getName(file.getOriginalFilename());
+            if (StringUtils.isBlank(fileName) || isNameInvalid(fileName)) {
+                error += "File named " + file.getOriginalFilename() + " failed to upload because the file name is invalid;";
+                continue;
+            }
+            if (file.isEmpty()) {
+                error += "File named " + fileName + " failed to upload because it is empty;";
+                continue;
+            }
+
+            File targetFile = getInnerFolder(folder, fileName);
             if (targetFile.exists()) {
-                error += "File named " + file.getOriginalFilename() + " failed to upload because it already exists in the directory;";
-            } else {
-                try {
-                    file.transferTo(targetFile);
-                    targetFile.setReadable(true, false);
-                    targetFile.setExecutable(true, false);
-                    targetFile.setWritable(true, false);
-                    if (shareRoot == null) {
-                        shareables.add(toShareable(rootDir, targetFile));
-                    } else {
-                        shareables.add(toShareable(shareId + "/" + getRelativePath(targetFile, shareRoot), targetFile));
-                    }
-                } catch (Exception e) {
-                    error += "File named " + file.getOriginalFilename() + " failed to be uploaded, " + e.getMessage() + ";";
+                error += "File named " + fileName + " failed to upload because it already exists in the directory;";
+                continue;
+            }
+
+            File tempFile = null;
+            boolean committed = false;
+            try {
+                // Stage on local disk first. Writing temp files directly into a mounted
+                // share often stalls uploads and freezes client progress.
+                tempFile = Files.createTempFile("drive-upload-", ".tmp").toFile();
+                file.transferTo(tempFile);
+
+                if (file.getSize() > 0 && tempFile.length() != file.getSize()) {
+                    throw new IOException("Incomplete upload: expected " + file.getSize() + " bytes but received " + tempFile.length());
+                }
+
+                // Copy onto the share with a timeout. A stuck mount previously left
+                // clients hanging at 99% waiting for the HTTP response.
+                commitUploadedFile(tempFile.toPath(), targetFile.toPath(), file.getSize());
+                tempFile = null;
+                committed = true;
+
+                targetFile.setReadable(true, false);
+                targetFile.setExecutable(true, false);
+                targetFile.setWritable(true, false);
+                if (shareRoot == null) {
+                    shareables.add(toShareable(rootDir, targetFile));
+                } else {
+                    shareables.add(toShareable(shareId + "/" + getRelativePath(targetFile, shareRoot), targetFile));
+                }
+            } catch (Exception e) {
+                error += "File named " + fileName + " failed to be uploaded, " + e.getMessage() + ";";
+                if (tempFile != null && tempFile.exists() && !tempFile.delete()) {
+                    tempFile.deleteOnExit();
+                }
+                if (!committed && targetFile.exists() && !targetFile.delete()) {
+                    targetFile.deleteOnExit();
                 }
             }
         }
@@ -219,6 +267,77 @@ public class FileController {
                 .error(error)
                 .files(shareables)
                 .build();
+    }
+
+    private void commitUploadedFile(Path source, Path target, long fileSize) throws IOException {
+        long timeoutMs = Math.min(
+                Math.max(MIN_STORAGE_WRITE_TIMEOUT_MS, fileSize / 50_000L),
+                MAX_STORAGE_WRITE_TIMEOUT_MS
+        );
+
+        Future<Void> future = STORAGE_EXECUTOR.submit(() -> {
+            writeToStorage(source, target);
+            return null;
+        });
+
+        try {
+            future.get(timeoutMs, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            deleteQuietly(target);
+            throw new IOException("Timed out while saving file to storage. The storage may be slow or unavailable.");
+        } catch (ExecutionException e) {
+            deleteQuietly(target);
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            if (cause instanceof IOException) {
+                throw (IOException) cause;
+            }
+            throw new IOException("Failed to save file to storage: " + cause.getMessage(), cause);
+        } catch (InterruptedException e) {
+            future.cancel(true);
+            Thread.currentThread().interrupt();
+            deleteQuietly(target);
+            throw new IOException("Interrupted while saving file to storage");
+        }
+    }
+
+    private void writeToStorage(Path source, Path target) throws IOException {
+        try {
+            Files.move(source, target,
+                    java.nio.file.StandardCopyOption.ATOMIC_MOVE,
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return;
+        } catch (IOException ignored) {
+            // Fall through to stream copy for cross-filesystem / mounted shares.
+        }
+
+        try (InputStream in = Files.newInputStream(source);
+             OutputStream out = Files.newOutputStream(target,
+                     StandardOpenOption.CREATE,
+                     StandardOpenOption.TRUNCATE_EXISTING,
+                     StandardOpenOption.WRITE)) {
+            byte[] buffer = new byte[256 * 1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                if (Thread.currentThread().isInterrupted()) {
+                    throw new IOException("Storage write interrupted");
+                }
+                out.write(buffer, 0, read);
+            }
+            out.flush();
+        } catch (IOException e) {
+            deleteQuietly(target);
+            throw e;
+        }
+        Files.deleteIfExists(source);
+    }
+
+    private void deleteQuietly(Path path) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (Exception ignored) {
+            // best effort cleanup
+        }
     }
 
     @PutMapping("/rename-file")
