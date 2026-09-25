@@ -13,9 +13,11 @@ const (
 	OAuthClientID     = "drive"
 	AuthorityDR       = "DR"
 	InternalFolder    = ".dr_internal"
+	StaticDir         = "static"
 )
 
 type Config struct {
+	Host          string
 	Port          int
 	Production    bool
 	RootDir       string
@@ -26,11 +28,11 @@ type Config struct {
 	SSOBaseURL    string
 	ClientSecret  string
 	SessionSecret string
-	StaticDir     string
 }
 
 func Load() Config {
 	cfg := Config{
+		Host:          env("HOST", "localhost"),
 		Port:          envInt("PORT", DefaultPort),
 		Production:    envBool("PRODUCTION"),
 		RootDir:       env("DR_ROOT_DIRECTORY", ""),
@@ -40,14 +42,13 @@ func Load() Config {
 		DBPassword:    env("DR_DB_PASSWORD", "password"),
 		SSOBaseURL:    strings.TrimRight(env("SSO_BASE_URL", ""), "/"),
 		ClientSecret:  env("DR_CLIENT_SECRET", ""),
-		SessionSecret: env("SESSION_SECRET", ""),
-		StaticDir:     env("DRIVE_STATIC_DIR", "static"),
+		SessionSecret: env("DR_SESSION_SECRET", ""),
 	}
 	if cfg.SessionSecret == "" {
 		cfg.SessionSecret = cfg.ClientSecret
 	}
 	if cfg.SessionSecret == "" {
-		cfg.SessionSecret = "dev-insecure-session-secret"
+		cfg.SessionSecret = "drive-session-secret"
 	}
 
 	return cfg

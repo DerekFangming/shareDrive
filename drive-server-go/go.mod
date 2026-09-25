@@ -1,6 +1,6 @@
 module github.com/fmning/drive
 
-go 1.23
+go 1.27
 
 require (
 	github.com/MicahParks/keyfunc/v3 v3.3.5

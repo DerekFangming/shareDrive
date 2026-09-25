@@ -22,7 +22,7 @@ Access control:
 | Layer | Behavior |
 | --- | --- |
 | Authenticated (any logged-in user) | `/login-redirect`, `/me`, `/api/directory/**`, `/api/shares` |
-| `hasAuthority('DR')` | download/upload/rename/move/delete/search, capacity, directory size, create directory, share mutations |
+| `hasAnyAuthority('DR')` | download/upload/rename/move/delete/search, capacity, directory size, create directory, share mutations |
 | Public | shared-directory / download-shared-file / upload-shared-file (valid, unexpired share code; write shares only for upload) |
 
 When `PRODUCTION` is not true, auth checks are skipped and `/me` returns the same dummy user as the Java server.
@@ -39,11 +39,11 @@ export PRODUCTION=true
 go run ./cmd/drive
 ```
 
-Listens on port **9102** (override with `PORT`).
+Listens on **localhost:9102** by default (no Windows firewall prompt). Override with `HOST` and `PORT`. Docker images set `HOST=0.0.0.0` so published ports work.
 
 ### Datastore
 
 - Default (Java H2 file): SQLite at `{root}/.dr_internal/drive.sqlite`
 - Postgres: `DR_DB_TYPE=postgres` and `DR_DB_URL` (`jdbc:postgresql://host:5432/drive` or `postgres://...`)
 
-Put the Angular build in `static/` (or `DRIVE_STATIC_DIR`) so the server can serve the SPA, including fallback to `index.html`.
+Put the Angular build in `static/` so the server can serve the SPA, including fallback to `index.html`.

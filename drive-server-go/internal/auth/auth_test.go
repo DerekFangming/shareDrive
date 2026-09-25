@@ -26,9 +26,9 @@ func TestAuthoritiesFromScopeClaim(t *testing.T) {
 	}
 }
 
-func TestRequireDRForbiddenWithoutAuthority(t *testing.T) {
+func TestRequireAnyAuthorityForbiddenWithoutAuthority(t *testing.T) {
 	svc := NewService(config.Config{Production: true, SessionSecret: "01234567890123456789012345678901"})
-	h := svc.Parse(svc.RequireDR(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := svc.Parse(svc.RequireAnyAuthority([]string{"DR"})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	})))
 	req := httptest.NewRequest(http.MethodGet, "/api/capacity", nil)
@@ -39,9 +39,9 @@ func TestRequireDRForbiddenWithoutAuthority(t *testing.T) {
 	}
 }
 
-func TestRequireDRSkippedWhenNotProduction(t *testing.T) {
+func TestRequireAnyAuthoritySkippedWhenNotProduction(t *testing.T) {
 	svc := NewService(config.Config{Production: false, SessionSecret: "01234567890123456789012345678901"})
-	h := svc.Parse(svc.RequireDR(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	h := svc.Parse(svc.RequireAnyAuthority([]string{"DR"})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	})))
 	req := httptest.NewRequest(http.MethodGet, "/api/capacity", nil)
@@ -49,6 +49,16 @@ func TestRequireDRSkippedWhenNotProduction(t *testing.T) {
 	h.ServeHTTP(rec, req)
 	if rec.Code != http.StatusNoContent {
 		t.Fatalf("status %d", rec.Code)
+	}
+}
+
+func TestHasAnyAuthorityOr(t *testing.T) {
+	u := &User{Authorities: []string{"OTHER"}}
+	if !u.HasAnyAuthority([]string{"DR", "OTHER"}) {
+		t.Fatal("expected OR match")
+	}
+	if u.HasAnyAuthority([]string{"DR"}) {
+		t.Fatal("expected no match")
 	}
 }
 

@@ -10,7 +10,7 @@ RUN npm install
 RUN npm run build
 
 # Stage build service
-FROM golang:1.23-alpine AS builder-service
+FROM golang:1.27-alpine AS builder-service
 
 WORKDIR /app
 COPY ./drive-server-go/. .
@@ -26,7 +26,7 @@ COPY --from=builder-service /drive /usr/local/bin/drive
 COPY --from=builder-service /app/static ./static
 
 ENV PRODUCTION=true
-ENV DRIVE_STATIC_DIR=/app/static
+ENV HOST=0.0.0.0
 
 EXPOSE 9102
 CMD ["drive"]

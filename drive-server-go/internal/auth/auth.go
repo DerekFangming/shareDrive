@@ -27,7 +27,6 @@ const (
 	sessionUserKey  = "user"
 	sessionStateKey = "oauth_state"
 	sessionSavedKey = "saved_request"
-	authorityDR     = "DR"
 )
 
 type User struct {
@@ -116,6 +115,15 @@ func (u *User) HasAuthority(authority string) bool {
 	return false
 }
 
+func (u *User) HasAnyAuthority(authorities []string) bool {
+	for _, authority := range authorities {
+		if u.HasAuthority(authority) {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Service) Parse(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if authz := r.Header.Get("Authorization"); strings.HasPrefix(strings.ToLower(authz), "bearer ") {
@@ -138,9 +146,10 @@ func (s *Service) Parse(next http.Handler) http.Handler {
 	})
 }
 
-// RequireLogin matches Spring's authenticated() matcher: unauthenticated browser
-// requests are redirected into the OAuth2 authorization-code flow.
-func (s *Service) RequireLogin(next http.Handler) http.Handler {
+// RedirectToLogin matches Spring's authenticated() matcher: unauthenticated
+// browser requests are redirected into the OAuth2 authorization-code flow.
+// Handlers without this middleware return 403 instead of starting login.
+func (s *Service) RedirectToLogin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !s.cfg.Production {
 			next.ServeHTTP(w, r)
@@ -154,19 +163,22 @@ func (s *Service) RequireLogin(next http.Handler) http.Handler {
 	})
 }
 
-// RequireDR matches @PreAuthorize("hasAuthority('DR')") when drive.production is true.
-func (s *Service) RequireDR(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !s.cfg.Production {
-			next.ServeHTTP(w, r)
-			return
-		}
-		if UserFrom(r.Context()).HasAuthority(authorityDR) {
-			next.ServeHTTP(w, r)
-			return
-		}
-		writeJSON(w, http.StatusForbidden, "Access is denied")
-	})
+// RequireAnyAuthority matches @PreAuthorize("hasAnyAuthority(...)") when
+// drive.production is true. The given authorities are evaluated as OR.
+func (s *Service) RequireAnyAuthority(authorities []string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if !s.cfg.Production {
+				next.ServeHTTP(w, r)
+				return
+			}
+			if UserFrom(r.Context()).HasAnyAuthority(authorities) {
+				next.ServeHTTP(w, r)
+				return
+			}
+			writeJSON(w, http.StatusForbidden, "Access is denied")
+		})
+	}
 }
 
 func (s *Service) StartLogin(w http.ResponseWriter, r *http.Request) {
