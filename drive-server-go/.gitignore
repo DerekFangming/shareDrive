@@ -1,4 +1,6 @@
 bin/
-drive
+# Built binary at the module root, not the cmd/drive source package
+/drive
+/drive.exe
 *.exe
 /static/*
