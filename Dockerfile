@@ -10,21 +10,23 @@ RUN npm install
 RUN npm run build
 
 # Stage build service
-FROM eclipse-temurin:17-jdk-alpine AS builder-service
+FROM golang:1.23-alpine AS builder-service
 
 WORKDIR /app
-COPY . .
-COPY --from=builder-ui /app/build/ui drive-server/src/main/resources/static/.
+COPY ./drive-server-go/. .
+COPY --from=builder-ui /app/build/ui ./static
 
-RUN chmod +x gradlew
-RUN ./gradlew bootJar
+RUN go build -o /drive ./cmd/drive
 
 # Stage run
-FROM eclipse-temurin:17-jdk-alpine
+FROM alpine:3.20
 
 WORKDIR /app
-COPY --from=builder-service /app/drive-server/build/libs .
+COPY --from=builder-service /drive /usr/local/bin/drive
+COPY --from=builder-service /app/static ./static
 
 ENV PRODUCTION=true
+ENV DRIVE_STATIC_DIR=/app/static
 
-CMD ["java", "-jar", "drive.jar"]
+EXPOSE 9102
+CMD ["drive"]
