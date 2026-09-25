@@ -1,6 +1,6 @@
-# drive-server-go
+# drive-server
 
-Go rewrite of `drive-server`. HTTP routes, file behavior, and JSON shapes match the Spring app so the existing Angular UI can keep using the same endpoints.
+Go backend for Drive. HTTP routes, file behavior, and JSON shapes match the Angular UI.
 
 ## Security (Spring Security equivalent)
 

@@ -13,7 +13,7 @@ RUN npm run build
 FROM golang:1.27-alpine AS builder-service
 
 WORKDIR /app
-COPY ./drive-server-go/. .
+COPY ./drive-server/. .
 COPY --from=builder-ui /app/build/ui ./static
 
 RUN go build -o /drive ./cmd/drive
